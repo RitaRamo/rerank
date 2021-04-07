@@ -470,6 +470,11 @@ if __name__ == "__main__":
     print("hello")
     args = check_args(sys.argv[1:])
     print("args", args)
-    logging.basicConfig(filename=get_log_file_path(args.logging_dir, "train"), level=logging.INFO)
+    #logging.basicConfig(filename=get_log_file_path(args.logging_dir, "train"), level=logging.INFO)
+    #logging.basicConfig(filename=get_log_file_path(args.logging_dir, "train"), level=logging.INFO)
+    logging.basicConfig(
+            format='%(levelname)s: %(message)s', level=logging.INFO)
+
+    #'%(levelname)s: %(message)s'
     logging.info(args)
     main(args)
