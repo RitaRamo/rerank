@@ -19,7 +19,7 @@ train_args="""
 	--logging-dir $LOG_DIR \
 	--objective GENERATION \
   --batch-size 2 \
-	--max-epochs 120 \
+	--max-epochs 2 \
 	--epochs-early-stopping 5 \
 	--max-caption-len 20 \
 	--print-freq 10 \
