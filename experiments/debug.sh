@@ -22,6 +22,7 @@ train_args="""
 	--max-epochs 120 \
 	--epochs-early-stopping 5 \
 	--max-caption-len 20 \
+	--print-freq 10 \
 """
 
 model_args="""
