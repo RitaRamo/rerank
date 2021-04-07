@@ -139,8 +139,8 @@ def train(model, data_loader,
 
         # Remove timesteps that we didn't decode at, or are pads
         decode_lengths, sort_ind = decode_lengths.sort(dim=0, descending=True)
-        scores = pack_padded_sequence(scores[sort_ind], decode_lengths, batch_first=True)[0]
-        targets = pack_padded_sequence(target_captions[sort_ind], decode_lengths, batch_first=True)[0]
+        scores = pack_padded_sequence(scores[sort_ind], decode_lengths.to("cpu"), batch_first=True)[0]
+        targets = pack_padded_sequence(target_captions[sort_ind], decode_lengths.to("cpu"), batch_first=True)[0]
         
         # Calculate loss
         loss = criterion(scores, targets)
