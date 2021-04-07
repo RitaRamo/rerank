@@ -113,7 +113,7 @@ def train(model, data_loader,
           encoder_optimizer, decoder_optimizer,
           criterion, reg_param, reg_func, grad_clip,
           epoch, teacher_forcing, print_freq,
-          mask_prob, mask_type):
+          mask_prob, mask_type, debug=False):
     """
     Perform one training epoch.
 
@@ -171,6 +171,9 @@ def train(model, data_loader,
             logging.info("Epoch: {0}[Batch {1}/{2}]\t"
                          "Loss: {loss.val:.4f} (Average: {loss.avg:.4f})\t".format(
                             epoch, i, len(data_loader), loss=losses))
+
+        if debug:
+            break
 
     logging.info("\n * LOSS - {loss.avg:.3f}\n".format(loss=losses))
 
@@ -328,6 +331,9 @@ def validate(model, data_loader, max_caption_len, print_freq):
 
         assert len(target_captions) == len(generated_captions)
 
+        if debug:
+            break
+
     id2targets = {coco_ids[ix]: target_captions[ix] for ix in range(len(coco_ids))}
     id2caption = {coco_ids[ix]: [generated_captions[ix]] for ix in range(len(coco_ids))}
     bleus, _ = bleu4.compute_score(id2targets, id2caption)
@@ -431,7 +437,7 @@ def main(args):
             train(model, train_data_loader, encoder_optimizer, decoder_optimizer,
                   criterion, reg_param, reg_func, args.grad_clip,
                   epoch, args.teacher_forcing, args.print_freq,
-                  args.mask_prob, args.mask_type)
+                  args.mask_prob, args.mask_type, args.debug)
             extras = dict()
         elif args.objective == OBJECTIVE_JOINT:
             train_joint(model, train_data_loader, encoder_optimizer, decoder_optimizer,
@@ -446,7 +452,7 @@ def main(args):
                       'gradnorm_optimizer': gradnorm_optimizer}
 
         # Validate
-        gen_metric_score = validate(model, val_data_loader, args.max_caption_len, args.print_freq)
+        gen_metric_score = validate(model, val_data_loader, args.max_caption_len, args.print_freq, args.debug)
 
         # Update stats
         ckpt_is_best = gen_metric_score > best_gen_metric_score

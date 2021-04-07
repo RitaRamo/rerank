@@ -50,6 +50,8 @@ def add_training_args(parser):
     group.add_argument("--mask-prob", type=float, default=0.0)
     group.add_argument("--mask-type", type=str, default=None, choices=["tags", "words", "both"])
 
+    group.add_argument("--debug", action="store_true")
+
     return group
 
 
