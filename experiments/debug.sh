@@ -7,7 +7,7 @@ MODEL_SUFF=""
 DATA_DIR="data/coco2014"
 IMGS_DIR="$DATA_DIR/coco2014/images"
 CAPS_DIR="$DATA_DIR/datasets"
-CKPT_DIR="/checkpoints/${MODEL_NAME}${MODEL_SUFF}"
+CKPT_DIR="experiments/checkpoints/"
 LOG_DIR="myfirstlog"
 
 mkdir -p $CKPT_DIR $LOG_DIR
