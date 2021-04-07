@@ -420,7 +420,6 @@ def main(args):
         reg_param, reg_func = create_regularizer(args)
 
     # Start Training
-    print("will start training")
     logging.info("Starting training on device: %s", device)
     for epoch in range(start_epoch, args.max_epochs):
         if epochs_since_last_improvement >= args.epochs_early_stopping:
@@ -467,7 +466,6 @@ def main(args):
 
 
 if __name__ == "__main__":
-    print("hello")
     args = check_args(sys.argv[1:])
     print("args", args)
     #logging.basicConfig(filename=get_log_file_path(args.logging_dir, "train"), level=logging.INFO)
