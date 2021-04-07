@@ -291,7 +291,7 @@ def train_joint(model, data_loader,
     logging.info("\n * LOSS - {loss.avg:.3f}\n".format(loss=losses))
 
 
-def validate(model, data_loader, max_caption_len, print_freq):
+def validate(model, data_loader, max_caption_len, print_freq, debug=False):
     """
     Perform validation of one training epoch.
 
