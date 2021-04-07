@@ -4,7 +4,7 @@ MODEL_NAME="BOTTOM_UP_TOP_DOWN"
 MODEL_ABBR="butd"
 MODEL_SUFF=""
 
-DATA_DIR="/data/coco2014"
+DATA_DIR="data/coco2014"
 IMGS_DIR="$DATA_DIR/coco2014/images"
 CAPS_DIR="$DATA_DIR/datasets"
 CKPT_DIR="/checkpoints/${MODEL_NAME}${MODEL_SUFF}"
