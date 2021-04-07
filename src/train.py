@@ -420,6 +420,7 @@ def main(args):
         reg_param, reg_func = create_regularizer(args)
 
     # Start Training
+    print("will start training")
     logging.info("Starting training on device: %s", device)
     for epoch in range(start_epoch, args.max_epochs):
         if epochs_since_last_improvement >= args.epochs_early_stopping:
