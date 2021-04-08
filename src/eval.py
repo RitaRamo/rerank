@@ -113,9 +113,11 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     if keep_special_tokens:
         name += ".tagged"
     outputs_dir = os.path.join(output_path, "outputs")
-    if not os.path.exists(outputs_dir):
-        os.makedirs(outputs_dir)
+    # if not os.path.exists(outputs_dir):
+    #     os.makedirs(outputs_dir)
 
+    # Save results file with top caption for each image :
+    # (JSON file of image -> caption output by the model)
     results = []
     for coco_id, top_k_captions in generated_captions.items():
         caption = decode_caption(rm_special_tokens(top_k_captions[0], word_map), word_map)
@@ -123,6 +125,8 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     results_output_file_name = os.path.join(outputs_dir, name + ".json")
     json.dump(results, open(results_output_file_name, "w"))
 
+    # Save results file with all generated captions for each image:
+    # JSON file of image -> top-k captions output by the model. Used for recall.
     results = []
     for coco_id, top_k_captions in generated_captions.items():
         captions = [decode_caption(rm_special_tokens(capt, word_map), word_map) for capt in top_k_captions]
@@ -130,6 +134,8 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     results_output_file_name = os.path.join(outputs_dir, name + ".top_%d" % eval_beam_size + ".json")
     json.dump(results, open(results_output_file_name, "w"))
 
+    # Save target captions:
+    # JSON file of image -> ground-truth captions.
     results = []
     for coco_id, all_captions_for_image in target_captions.items():
         captions = [decode_caption(caption, word_map) for caption in all_captions_for_image]
@@ -174,7 +180,10 @@ def check_args(args):
 
 if __name__ == "__main__":
     args = check_args(sys.argv[1:])
-    logging.basicConfig(filename=get_log_file_path(args.logging_dir, args.split), level=logging.INFO)
+    #logging.basicConfig(filename=get_log_file_path(args.logging_dir, args.split), level=logging.INFO)
+    logging.basicConfig(
+            format='%(levelname)s: %(message)s', level=logging.INFO)
+
     logging.info(args)
     evaluate(
         image_features_fn=args.image_features_filename,
