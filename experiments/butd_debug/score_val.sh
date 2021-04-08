@@ -13,7 +13,7 @@ TOP_FN="$EXP_DIR/_outputs/${SPLIT}.beam_100.top_5.json"
 TGT_FN="$EXP_DIR/_outputs/${SPLIT}.targets.json"
 OUT_DIR="$EXP_DIR/results"
 
-ANNS_DIR="$DATA_DIR/annotations"
+#ANNS_DIR="$DATA_DIR"
 
 args="""
   --results-fn $RES_FN \
@@ -21,7 +21,7 @@ args="""
 	--targets-fn $TGT_FN \
 	--output-dir $OUT_DIR \
 	--metrics coco \
-	--annotations-dir $ANNS_DIR \
+	--annotations-dir $DATA_DIR \
 	--annotations-split train2014 \
 """
 
