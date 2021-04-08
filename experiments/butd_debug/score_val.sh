@@ -6,11 +6,11 @@ MODEL_SUFF="_debug"
 SPLIT="val"
 
 DATA_DIR="data/coco2014"
-EXP_DIR="$experiments"
+EXP_DIR="experiments/${MODEL_ABBR}${MODEL_SUFF}"
 
-RES_FN="$EXP_DIR/_outputs/${MODEL_ABBR}${MODEL_SUFF}${SPLIT}.beam_100.json"
-TOP_FN="$EXP_DIR/_outputs/${MODEL_ABBR}${MODEL_SUFF}${SPLIT}.beam_100.top_5.json"
-TGT_FN="$EXP_DIR/_outputs/${MODEL_ABBR}${MODEL_SUFF}${SPLIT}.targets.json"
+RES_FN="$EXP_DIR/_outputs/${SPLIT}.beam_100.json"
+TOP_FN="$EXP_DIR/_outputs/${SPLIT}.beam_100.top_5.json"
+TGT_FN="$EXP_DIR/_outputs/${SPLIT}.targets.json"
 OUT_DIR="$EXP_DIR/results"
 
 ANNS_DIR="$DATA_DIR/annotations"
@@ -21,7 +21,7 @@ args="""
 	--targets-fn $TGT_FN \
 	--output-dir $OUT_DIR \
 	--metrics coco \
-	--annotations-dir $ANN_DIR \
+	--annotations-dir $ANNS_DIR \
 	--annotations-split train2014 \
 """
 
