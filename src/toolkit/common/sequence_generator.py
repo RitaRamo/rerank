@@ -111,8 +111,8 @@ def beam_search(model, images, beam_size, max_caption_len=20,
         # Proceed with incomplete sequences
         top_k_sequences = top_k_sequences[incomplete_inds]
         for i in range(len(states)):
-            states[i] = states[i][prev_seq_inds[incomplete_inds]]
-        encoder_output = encoder_output[prev_seq_inds[incomplete_inds]]
+            states[i] = states[i][prev_seq_inds[incomplete_inds].long()]
+        encoder_output = encoder_output[prev_seq_inds[incomplete_inds].long()]
         top_k_scores = top_k_scores[incomplete_inds]
         if store_alphas:
             seqs_alpha = seqs_alpha[incomplete_inds]
