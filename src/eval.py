@@ -112,9 +112,9 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         name += ".beam_" + str(beam_size)
     if keep_special_tokens:
         name += ".tagged"
-    outputs_dir = os.path.join(output_path, "_outputs")
-    if not os.path.exists(os.path.join(output_path, "HIoutputs")):
-        os.makedirs(os.path.join(output_path, "HIoutputs"))
+    outputs_dir = os.path.join(output_path, "outputs")
+    if not os.path.exists(outputs_dir):
+        os.makedirs(outputs_dir)
 
     # Save results file with top caption for each image :
     # (JSON file of image -> caption output by the model)
