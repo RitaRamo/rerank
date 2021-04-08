@@ -5,7 +5,7 @@ MODEL_SUFF="_debug"
 
 DATA_DIR="data/coco2014"
 IMGS_DIR="$DATA_DIR/images"
-EXP_DIR="$experiments/${MODEL_ABBR}${MODEL_SUFF}" #VER ESTE!!!
+EXP_DIR="experiments" #VER ESTE!!!
 CAPS_DIR="$DATA_DIR/datasets"
 LOG_DIR="myfirstlog"
 CKPT="experiments/${MODEL_ABBR}${MODEL_SUFF}/checkpoints/checkpoint.best.pth.tar"

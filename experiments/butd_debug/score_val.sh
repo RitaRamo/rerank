@@ -1,16 +1,16 @@
 #!/bin/bash
 
 MODEL_NAME="BOTTOM_UP_TOP_DOWN"
-MODEL_SUFF=""
 MODEL_ABBR="butd"
+MODEL_SUFF="_debug"
 SPLIT="val"
 
 DATA_DIR="data/coco2014"
-EXP_DIR="$experiments/${MODEL_ABBR}${MODEL_SUFF}"
+EXP_DIR="$experiments"
 
-RES_FN="$EXP_DIR/outputs/${SPLIT}.beam_100.json"
-TOP_FN="$EXP_DIR/outputs/${SPLIT}.beam_100.top_5.json"
-TGT_FN="$EXP_DIR/outputs/${SPLIT}.targets.json"
+RES_FN="$EXP_DIR/_outputs/${MODEL_ABBR}${MODEL_SUFF}${SPLIT}.beam_100.json"
+TOP_FN="$EXP_DIR/_outputs/${MODEL_ABBR}${MODEL_SUFF}${SPLIT}.beam_100.top_5.json"
+TGT_FN="$EXP_DIR/_outputs/${MODEL_ABBR}${MODEL_SUFF}${SPLIT}.targets.json"
 OUT_DIR="$EXP_DIR/results"
 
 ANNS_DIR="$DATA_DIR/annotations"
