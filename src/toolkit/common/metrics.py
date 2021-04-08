@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import stanfordnlp
 import numpy as np
 
-from coco_caption.pycocotools.coco import COCO
+from pycocotools.coco import COCO
 from coco_caption.pycocoevalcap.bleu.bleu import Bleu
 from coco_caption.pycocoevalcap.eval import COCOEvalCap
 
