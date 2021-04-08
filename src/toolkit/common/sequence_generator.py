@@ -78,7 +78,7 @@ def beam_search(model, images, beam_size, max_caption_len=20,
 #        print('next_words', next_words) 
 
         # Add new words to sequences
-        top_k_sequences = torch.cat((top_k_sequences[prev_seq_inds], next_words.unsqueeze(1)), dim=1)
+        top_k_sequences = torch.cat((top_k_sequences[prev_seq_inds.long()], next_words.unsqueeze(1)), dim=1)
 #        print('top_k_sequences', top_k_sequences.size(), top_k_sequences)
 
         if print_beam:
@@ -89,7 +89,7 @@ def beam_search(model, images, beam_size, max_caption_len=20,
         # Store the new alphas
         if store_alphas:
             alpha = alpha.view(-1, enc_image_size, enc_image_size)
-            seqs_alpha = torch.cat((seqs_alpha[prev_seq_inds], alpha[prev_seq_inds].unsqueeze(1)), dim=1)
+            seqs_alpha = torch.cat((seqs_alpha[prev_seq_inds.long()], alpha[prev_seq_inds.long()].unsqueeze(1)), dim=1)
 
         # Check for complete and incomplete sequences (based on the <end> token)
         incomplete_inds = torch.nonzero(next_words != model.decoder.word_map[TOKEN_END]).view(-1).tolist()
@@ -98,10 +98,10 @@ def beam_search(model, images, beam_size, max_caption_len=20,
 
         # Set aside complete sequences and reduce beam size accordingly
         if len(complete_inds) > 0:
-            complete_seqs.extend(top_k_sequences[complete_inds].tolist())
-            complete_seqs_scores.extend(top_k_scores[complete_inds])
+            complete_seqs.extend(top_k_sequences[complete_inds.long()].tolist())
+            complete_seqs_scores.extend(top_k_scores[complete_inds.long()])
             if store_alphas:
-                complete_seqs_alpha.extend(seqs_alpha[complete_inds].tolist())
+                complete_seqs_alpha.extend(seqs_alpha[complete_inds.long()].tolist())
 
         # Stop if k captions have been completely generated
         current_beam_width = len(incomplete_inds)
@@ -109,13 +109,13 @@ def beam_search(model, images, beam_size, max_caption_len=20,
             break
 
         # Proceed with incomplete sequences
-        top_k_sequences = top_k_sequences[incomplete_inds]
+        top_k_sequences = top_k_sequences[incomplete_inds.long()]
         for i in range(len(states)):
-            states[i] = states[i][prev_seq_inds[incomplete_inds]]
-        encoder_output = encoder_output[prev_seq_inds[incomplete_inds]]
-        top_k_scores = top_k_scores[incomplete_inds]
+            states[i] = states[i][prev_seq_inds[incomplete_inds.long()]]
+        encoder_output = encoder_output[prev_seq_inds[incomplete_inds.long()]]
+        top_k_scores = top_k_scores[incomplete_inds.long()]
         if store_alphas:
-            seqs_alpha = seqs_alpha[incomplete_inds]
+            seqs_alpha = seqs_alpha[incomplete_inds.long()]
 
     if len(complete_seqs) < beam_size:
         complete_seqs.extend(top_k_sequences.tolist())
