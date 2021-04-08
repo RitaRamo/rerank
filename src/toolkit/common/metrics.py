@@ -35,14 +35,17 @@ def coco_metrics(generated_captions_fn, annotations_dir, split):
     # resFile = '/home/plz563/projects/syncap/experiments/coco_karpathy/butd/results_best_beam_5_test.json'
     # annotations_dir = '/home/plz563/data/coco2014/captions/annotations_trainval2014'
     ann_fn = "{}/annotations/captions_{}.json".format(annotations_dir, split)
-    coco = COCO(ann_fn)
-    cocoRes = coco.loadRes(generated_captions_fn)
 
     print("ann_fn", ann_fn)
     print("generated_captions_fn", generated_captions_fn)
 
     ann_fn = "{}/annotations/captions_{}.json".format(annotations_dir, "captions_val2014.json")
     print("new ann_fn")
+
+    coco = COCO(ann_fn)
+    cocoRes = coco.loadRes(generated_captions_fn)
+
+
 
     # create cocoEval object by taking coco and cocoRes
     cocoEval = COCOEvalCap(coco, cocoRes)
