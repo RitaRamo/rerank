@@ -1,11 +1,10 @@
-DATA_SPLIT="coco_heldout_1"
 IMAGE_NAME="image_features.hdf5"
 MODEL_NAME="BOTTOM_UP_TOP_DOWN"
 MODEL_ABBR="butd"
 MODEL_SUFF=""
 
 DATA_DIR="data/coco2014"
-IMGS_DIR="$DATA_DIR/coco2014/images"
+IMGS_DIR="$DATA_DIR/images"
 CAPS_DIR="$DATA_DIR/datasets"
 CKPT_DIR="experiments/checkpoints/"
 LOG_DIR="myfirstlog"
