@@ -38,6 +38,12 @@ def coco_metrics(generated_captions_fn, annotations_dir, split):
     coco = COCO(ann_fn)
     cocoRes = coco.loadRes(generated_captions_fn)
 
+    print("ann_fn", ann_fn)
+    print("generated_captions_fn", generated_captions_fn)
+
+    ann_fn = "{}/annotations/captions_{}.json".format(annotations_dir, "captions_val2014.json")
+    print("new ann_fn")
+
     # create cocoEval object by taking coco and cocoRes
     cocoEval = COCOEvalCap(coco, cocoRes)
 
