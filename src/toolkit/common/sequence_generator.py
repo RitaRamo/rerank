@@ -98,10 +98,10 @@ def beam_search(model, images, beam_size, max_caption_len=20,
 
         # Set aside complete sequences and reduce beam size accordingly
         if len(complete_inds) > 0:
-            complete_seqs.extend(top_k_sequences[complete_inds.long()].tolist())
-            complete_seqs_scores.extend(top_k_scores[complete_inds.long()])
+            complete_seqs.extend(top_k_sequences[complete_inds].tolist())
+            complete_seqs_scores.extend(top_k_scores[complete_inds])
             if store_alphas:
-                complete_seqs_alpha.extend(seqs_alpha[complete_inds.long()].tolist())
+                complete_seqs_alpha.extend(seqs_alpha[complete_inds].tolist())
 
         # Stop if k captions have been completely generated
         current_beam_width = len(incomplete_inds)
