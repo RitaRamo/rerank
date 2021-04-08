@@ -1,12 +1,12 @@
 IMAGE_NAME="image_features.hdf5"
 MODEL_NAME="BOTTOM_UP_TOP_DOWN"
 MODEL_ABBR="butd"
-MODEL_SUFF=""
+MODEL_SUFF="_debug"
 
 DATA_DIR="data/coco2014"
 IMGS_DIR="$DATA_DIR/images"
 CAPS_DIR="$DATA_DIR/datasets"
-CKPT_DIR="experiments/checkpoints/"
+CKPT_DIR="experiments/${MODEL_ABBR}${MODEL_SUFF}/checkpoints/"
 LOG_DIR="myfirstlog"
 
 mkdir -p $CKPT_DIR $LOG_DIR
