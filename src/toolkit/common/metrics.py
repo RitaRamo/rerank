@@ -37,6 +37,8 @@ def coco_metrics(generated_captions_fn, annotations_dir, split):
     
     ann_fn = "{}/annotations/captions_{}.json".format(annotations_dir, split)
 
+    print("ann_fn", ann_fn)
+
     coco = COCO(ann_fn)
     cocoRes = coco.loadRes(generated_captions_fn)
 
