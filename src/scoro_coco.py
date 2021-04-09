@@ -9,7 +9,7 @@ import argparse
 from coco_caption.pycocotools.coco import COCO
 from coco_caption.pycocoevalcap.eval import COCOEvalCap
 
-ANNOTATION_FILE_PATH = "coco_caption/annotations/captions_val2014.json"
+ANNOTATION_FILE_PATH = "src/coco_caption/annotations/captions_val2014.json"
 
 
 def eval_coco_metrics(results_file):
