@@ -29,6 +29,6 @@ args="""
 
 export PYTHONWARNINGS="ignore"
 
-python3 src/score.py $args
+python src/score.py $args
 
 #conda deactivate
