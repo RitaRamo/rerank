@@ -7,7 +7,7 @@ from collections import Counter
 
 import matplotlib.pyplot as plt
 
-import stanfordnlp
+#import stanfordnlp
 import numpy as np
 
 from pycocotools.coco import COCO
