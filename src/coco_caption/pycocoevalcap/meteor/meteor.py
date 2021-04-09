@@ -19,7 +19,7 @@ class Meteor:
                 stdout=subprocess.PIPE, \
                 stderr=subprocess.PIPE)
         # Used to guarantee thread safety
-        self.lock = threading.Lock()
+        self.lock = threading.Lock(shell=True)
 
     def compute_score(self, gts, res):
         assert(gts.keys() == res.keys())
