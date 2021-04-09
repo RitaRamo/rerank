@@ -17,9 +17,10 @@ class Meteor:
                 cwd=os.path.dirname(os.path.abspath(__file__)), \
                 stdin=subprocess.PIPE, \
                 stdout=subprocess.PIPE, \
-                stderr=subprocess.PIPE)
+                stderr=subprocess.PIPE,
+                shell=True)
         # Used to guarantee thread safety
-        self.lock = threading.Lock(shell=True)
+        self.lock = threading.Lock()
 
     def compute_score(self, gts, res):
         assert(gts.keys() == res.keys())
