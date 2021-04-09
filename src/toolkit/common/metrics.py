@@ -38,7 +38,7 @@ def coco_metrics(generated_captions_fn, annotations_dir, split):
     ann_fn = "{}/annotations/captions_{}.json".format(annotations_dir, split)
 
     print("ann_fn", ann_fn)
-    ann_fn['type'] = 'captions'
+    # ann_fn['type'] = 'captions'
 
     with open(ann_fn, 'r') as f:
         data = json.load(f)
@@ -48,6 +48,7 @@ def coco_metrics(generated_captions_fn, annotations_dir, split):
 
     ann_fn = annotations_dir+'/annotations/captions_val2014_new.json'
     print("new ann_fn", ann_fn)
+
     coco = COCO(ann_fn)
     cocoRes = coco.loadRes(generated_captions_fn)
 
