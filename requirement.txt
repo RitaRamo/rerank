@@ -15,7 +15,6 @@ cymem==2.0.2
 depccg==1.0.8
 docutils==0.15.2
 editdistance==0.5.3
-en-core-web-sm==2.1.0
 filelock==3.0.12
 flaky==3.6.1
 flask==1.1.1
