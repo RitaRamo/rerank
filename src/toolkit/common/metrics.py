@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 #import stanfordnlp
 import numpy as np
 
-from coco_caption.pycocotools.coco import COCO
-from coco_caption.pycocoevalcap.bleu.bleu import Bleu
-from coco_caption.pycocoevalcap.eval import COCOEvalCap
+from pycocotools.coco import COCO
+from pycocoevalcap.bleu.bleu import Bleu
+from pycocoevalcap.eval import COCOEvalCap
 
 from toolkit.util.data.composition import has_concept_pair, get_adjectives_for_noun, get_verbs_for_noun
 from toolkit.util.data.split import get_occurrences_splits
