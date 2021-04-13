@@ -462,7 +462,7 @@ def main(args):
         else:
             epochs_since_last_improvement += 1
             logging.info("Epochs since last improvement: {}".format(epochs_since_last_improvement))
-            logging.info("Best generation score: {}".format(best_gen_metric_score))
+            logging.info("Best generation score: {}\n".format(best_gen_metric_score))
 
         # Save checkpoint
         save_checkpoint(args.checkpoints_dir, model_name, model, epoch, epochs_since_last_improvement,
