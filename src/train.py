@@ -278,7 +278,7 @@ def train_joint(model, data_loader,
         # Log status
         if i % print_freq == 0:
             logging.info(
-                "Epoch: {0}[Batch {1}/{2}]\t"
+                "\nEpoch: {0}[Batch {1}/{2}]\t"
                 "Loss: {loss.val:.4f} (Average: {loss.avg:.4f})\t" 
                 "Loss weights: Generation: {3:.4f} Ranking: {4:.4f}".format(
                     epoch, i, len(data_loader), loss_weights[0].item(), loss_weights[1].item(), loss=losses))
@@ -339,7 +339,7 @@ def validate(model, data_loader, max_caption_len, print_freq, debug=False):
     bleus, _ = bleu4.compute_score(id2targets, id2caption)
     bleu = bleus[-1]
 
-    logging.info("\n * BLEU-4 - {bleu}\n".format(bleu=bleu))
+    logging.info("\n * BLEU-4 - {bleu}".format(bleu=bleu))
     return bleu
 
 
