@@ -22,7 +22,7 @@ args="""
 	--output-dir $OUT_DIR \
 	--metrics coco \
 	--annotations-dir $DATA_DIR \
-	--annotations-split train2014 \
+	--annotations-split val2014 \
 """
 
 #source activate /envs/syncap
