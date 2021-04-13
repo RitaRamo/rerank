@@ -175,7 +175,7 @@ def train(model, data_loader,
         if debug:
             break
 
-    logging.info("\n * LOSS - {loss.avg:.3f}\n".format(loss=losses))
+    logging.info("\n * LOSS - {loss.avg:.3f}".format(loss=losses))
 
 
 def train_joint(model, data_loader,
