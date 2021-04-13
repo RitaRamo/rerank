@@ -270,9 +270,10 @@ def save_checkpoint(checkpoints_dir, model_name, model,
     }
     for k, v in kwargs.items():
         state[k] = v
-    filename = os.path.join(checkpoints_dir, "checkpoint.{}.pth.tar".format(epoch))
+    #filename = os.path.join(checkpoints_dir, "checkpoint.{}.pth.tar".format(epoch))
+    filename = os.path.join(checkpoints_dir, "checkpoint.last.pth.tar")
     torch.save(state, filename)
-    shutil.copyfile(filename, os.path.join(checkpoints_dir, "checkpoint.last.pth.tar"))
+    #shutil.copyfile(filename, os.path.join(checkpoints_dir, "checkpoint.last.pth.tar"))
     if is_best:
         shutil.copyfile(filename, os.path.join(checkpoints_dir, "checkpoint.best.pth.tar"))
 
