@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 import numpy as np
-from coco_caption.pycocoevalcap.bleu.bleu import Bleu
+from pycocoevalcap.bleu.bleu import Bleu
 
 import torch
 import torch.nn as nn
