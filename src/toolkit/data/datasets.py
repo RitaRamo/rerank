@@ -35,7 +35,7 @@ class CaptionDataset(Dataset):
         :param normalize: PyTorch normalization transformation
         :param features_scale_factor: Additional scale factor, applied before normalization
         """
-        #self.image_features = h5py.File(features_fn, "r")
+        self.image_features = h5py.File(features_fn, "r")
         self.features_scale_factor = features_scale_factor
 
         # Set PyTorch transformation pipeline
@@ -50,18 +50,18 @@ class CaptionDataset(Dataset):
         with open(os.path.join(dataset_splits_dir, DATASET_SPLITS_FILENAME)) as f:
             self.split = json.load(f)
 
-    # def get_image_features(self, coco_id):
-    #     image_data = self.image_features[coco_id][()]
-    #     # scale the features with given factor
-    #     image_data = image_data * self.features_scale_factor
-    #     image = torch.FloatTensor(image_data)
-    #     if self.transform:
-    #         image = self.transform(image)
-    #     return image
-
-
     def get_image_features(self, coco_id):
-        return torch.zeros((2, 7,7,2048))
+        image_data = self.image_features[coco_id][()]
+        # scale the features with given factor
+        image_data = image_data * self.features_scale_factor
+        image = torch.FloatTensor(image_data)
+        if self.transform:
+            image = self.transform(image)
+        return image
+
+
+    # def get_image_features(self, coco_id):
+    #     return torch.zeros((2, 7,7,2048))
 
     def __getitem__(self, i):
         raise NotImplementedError
