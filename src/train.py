@@ -459,6 +459,7 @@ def main(args):
         if ckpt_is_best:
             best_gen_metric_score = gen_metric_score
             epochs_since_last_improvement = 0
+            logging.info("Improving\n")
         else:
             epochs_since_last_improvement += 1
             logging.info("Epochs since last improvement: {}".format(epochs_since_last_improvement))
