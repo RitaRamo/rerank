@@ -18,7 +18,7 @@ train_args="""
 	--logging-dir $LOG_DIR \
 	--objective GENERATION \
   --batch-size 2 \
-	--max-epochs 2 \
+	--max-epochs 6 \
 	--epochs-early-stopping 5 \
 	--max-caption-len 20 \
 	--print-freq 10 \
@@ -27,6 +27,11 @@ train_args="""
 
 model_args="""
 butd
+--embeddings-dim 300 \
+--attention-dim 1024 \
+--attention-lstm-dim 1024 \
+--language-lstm-dim 1024 \
+--dropout 0.5
 """
 
 #source activate /envs/syncap
