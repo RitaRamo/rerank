@@ -288,7 +288,7 @@ def train_joint(model, data_loader,
         coef = 2 / torch.add(torch.abs(loss_weight_generation), torch.abs(loss_weight_ranking))
         loss_weights = [coef * torch.abs(loss_weight_generation), coef * torch.abs(loss_weight_ranking)]
 
-    logging.info("\n * LOSS - {loss.avg:.3f}\n".format(loss=losses))
+    logging.info("\n * LOSS - {loss.avg:.3f}".format(loss=losses))
 
 
 def validate(model, data_loader, max_caption_len, print_freq, debug=False):
@@ -339,7 +339,7 @@ def validate(model, data_loader, max_caption_len, print_freq, debug=False):
     bleus, _ = bleu4.compute_score(id2targets, id2caption)
     bleu = bleus[-1]
 
-    logging.info("\n * BLEU-4 - {bleu}\n".format(bleu=bleu))
+    logging.info("\n * BLEU-4 - {bleu}".format(bleu=bleu))
     return bleu
 
 
@@ -461,7 +461,7 @@ def main(args):
             epochs_since_last_improvement = 0
         else:
             epochs_since_last_improvement += 1
-            logging.info("\nEpochs since last improvement: {}".format(epochs_since_last_improvement))
+            logging.info("Epochs since last improvement: {}".format(epochs_since_last_improvement))
             logging.info("Best generation score: {}".format(best_gen_metric_score))
 
         # Save checkpoint
