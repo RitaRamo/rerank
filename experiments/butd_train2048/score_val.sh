@@ -8,8 +8,8 @@ SPLIT="val"
 DATA_DIR="data/coco2014"
 EXP_DIR="experiments/${MODEL_ABBR}${MODEL_SUFF}"
 
-RES_FN="$EXP_DIR/outputs/${SPLIT}.beam_100.json"
-TOP_FN="$EXP_DIR/outputs/${SPLIT}.beam_100.top_5.json"
+RES_FN="$EXP_DIR/outputs/${SPLIT}.beam_5.json"
+TOP_FN="$EXP_DIR/outputs/${SPLIT}.beam_5.top_5.json"
 TGT_FN="$EXP_DIR/outputs/${SPLIT}.targets.json"
 OUT_DIR="$EXP_DIR/results"
 
