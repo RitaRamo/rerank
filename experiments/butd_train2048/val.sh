@@ -18,7 +18,7 @@ args="""
 	--output-path $EXP_DIR \
 	--split val \
 	--max-caption-len 20 \
-	--beam-size 100 \
+	--beam-size 5 \
 	--eval-beam-size 5 \
 """
 
