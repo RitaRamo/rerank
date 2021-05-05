@@ -133,6 +133,7 @@ def beam_search(model, images, beam_size, max_caption_len=20,
 
     sorted_sequences = [sequence for _, sequence in sorted(zip(complete_seqs_scores, complete_seqs), reverse=True)]
     print("sorted sequences", sorted_sequences)
+    print(stop)
     
     sorted_alphas = None
     if store_alphas:
