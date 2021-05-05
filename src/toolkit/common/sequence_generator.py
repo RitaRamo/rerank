@@ -48,8 +48,8 @@ def beam_search(model, images, beam_size, max_caption_len=20,
 
     # Start decoding
     for step in range(0, max_caption_len - 1):
-        print("\n prev words", prev_words)
         prev_words = top_k_sequences[:, step]
+        print("\n prev words", prev_words)
 
         prev_word_embeddings = model.decoder.embeddings(prev_words)
         predictions, states, alpha = model.decoder.forward_step(encoder_output, prev_word_embeddings, states)
