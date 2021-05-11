@@ -327,17 +327,31 @@ def validate(model, data_loader, max_caption_len, print_freq, debug=False):
                     for caption in captions.tolist()]
         generated_captions.extend(captions)
 
+        print("batch i", i)
+
+        print("generated_captions", generated_captions)
+        print("target_captions", target_captions)
+
+
         coco_ids.append(coco_id[0])
 
         assert len(target_captions) == len(generated_captions)
 
-        if debug:
+        # if debug:
+        #     break
+
+        if i >4:
             break
 
     id2targets = {coco_ids[ix]: target_captions[ix] for ix in range(len(coco_ids))}
     id2caption = {coco_ids[ix]: [generated_captions[ix]] for ix in range(len(coco_ids))}
     bleus, _ = bleu4.compute_score(id2targets, id2caption)
     bleu = bleus[-1]
+
+    print("id2targets",id2targets)
+    print("id2caption",id2caption)
+
+    print(stop)
 
     logging.info("\n * BLEU-4 - {bleu}".format(bleu=bleu))
     return bleu
@@ -363,6 +377,11 @@ def main(args):
                                         args.workers, args.image_normalize)
     val_data_loader = get_data_loader("val", 5, args.dataset_splits_dir, args.image_features_filename,
                                       args.workers, args.image_normalize)
+
+    train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        args.workers, args.image_normalize)
+
+    image_retrieval = get_retrieval(train_retrieval_loader, device)
 
     # Build model
     ckpt_filename = os.path.join(args.checkpoints_dir, "checkpoint.last.pth.tar")
