@@ -18,7 +18,7 @@ from toolkit.models.bottom_up_top_down_ranking import BUTRModel
 from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
 from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
 from toolkit.models.show_attend_tell import SATModel
-from toolkit.data.datasets import get_data_loader
+from toolkit.data.datasets import get_data_loader, get_retrieval
 from toolkit.optim import create_optimizer
 from toolkit.criterions import create_criterion, create_regularizer
 from toolkit.utils import (
