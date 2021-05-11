@@ -12,7 +12,7 @@ from toolkit.data.datasets import get_data_loader, get_retrieval
 
 
 class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
-    def __init__(self, args):
+    def __init__(self, args, device):
         super(BUTDRetrievalModel, self).__init__()
 
         # Read word map
@@ -105,6 +105,13 @@ class TopDownDecoder(CaptioningDecoder):
         v_mean = encoder_out.mean(dim=1)
         h1 = self.init_h1(v_mean)
         c1 = self.init_c1(v_mean)
+
+        if model.is_training():
+            nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.numpy())
+            print("nearest images", nearest_images)
+            captions_text[nearest[0]]
+        else:
+            nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.numpy())
         h2 = self.init_h2(v_mean)
         c2 = self.init_c2(v_mean)
         states = [h1, c1, h2, c2]
