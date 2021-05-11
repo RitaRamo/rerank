@@ -13,7 +13,7 @@ from toolkit.data.datasets import get_data_loader, get_retrieval
 
 class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
     def __init__(self, args):
-        super(BUTDModel, self).__init__()
+        super(BUTDRetrievalModel, self).__init__()
 
         # Read word map
         word_map_filename = os.path.join(args.dataset_splits_dir, WORD_MAP_FILENAME)
