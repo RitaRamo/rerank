@@ -302,6 +302,8 @@ class ImageRetrieval():
             if i%5==0:
                 print("i and img index of ImageRetrival",i, imgs_indexes)
                 print("n of examples", self.datastore.ntotal)
+            if i>5:    
+                break
             self.imgs_indexes_of_dataloader= torch.cat((self.imgs_indexes_of_dataloader,imgs_indexes))
 
     def retrieve_nearest_for_train_query(self, query_img, k=2):
@@ -392,15 +394,14 @@ def get_retrieval(retrieval_data_loader, device):
         print("retireval data", retrieval_data_loader.captions_text[nearest[0]])
 
 
-        print(stop)
+        #print(stop)
     #     encoder_output= encoder_output.view(encoder_output.size()[0], -1, encoder_output.size()[-1])
     #     input_imgs = encoder_output.mean(dim=1)
     #     nearest=retrieval.retrieve_nearest_for_train_query(input_imgs.numpy())
     #     print("this is nearest images", nearest)
     #     #falta imprimir o coco id dos nearest 
 
-    print("stop remove from dataloader o VAL e coloca TRAIN", stop)
+    #print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
-    target_lookup = retrieval_data_loader.captions_text
 
-    return image_retrieval, target_lookup
+    return image_retrieval

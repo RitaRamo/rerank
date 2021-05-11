@@ -17,6 +17,7 @@ from toolkit.models.bottom_up_top_down import BUTDModel
 from toolkit.models.bottom_up_top_down_ranking import BUTRModel
 from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
 from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
+from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
 from toolkit.models.show_attend_tell import SATModel
 from toolkit.data.datasets import get_data_loader, get_retrieval
 from toolkit.optim import create_optimizer
@@ -33,14 +34,22 @@ from toolkit.utils import (
     MODEL_BOTTOM_UP_TOP_DOWN_RANKING,
     MODEL_BOTTOM_UP_TOP_DOWN_RANKING_MEAN,
     MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT,
+    MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL,
     OBJECTIVE_GENERATION,
     OBJECTIVE_JOINT,
     # OBJECTIVE_MULTI,
     TOKEN_PAD
 )
 
-abbr2name = {"sat": MODEL_SHOW_ATTEND_TELL, "butd": MODEL_BOTTOM_UP_TOP_DOWN, "butr": MODEL_BOTTOM_UP_TOP_DOWN_RANKING,
-             "butr_mean": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_MEAN, "butr_weight": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT}
+abbr2name = {
+    "sat": MODEL_SHOW_ATTEND_TELL, 
+    "butd": MODEL_BOTTOM_UP_TOP_DOWN, 
+    "butr": MODEL_BOTTOM_UP_TOP_DOWN_RANKING,
+    "butr_mean": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_MEAN,
+    "butr_weight": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT,
+    "butd_retrieval": MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, 
+
+}
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 cudnn.benchmark = True  # improve performance if inputs to model are fixed size
@@ -60,6 +69,8 @@ def build_model(args, model_name):
         model = BUTRMeanModel(args)
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT:
         model = BUTRWeightModel(args)
+    elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL:
+        model = BUTDRetrievalModel(args)
     return model
 
 
@@ -378,10 +389,10 @@ def main(args):
     val_data_loader = get_data_loader("val", 5, args.dataset_splits_dir, args.image_features_filename,
                                       args.workers, args.image_normalize)
 
-    train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        args.workers, args.image_normalize)
+    # train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+    #                                     args.workers, args.image_normalize)
 
-    image_retrieval = get_retrieval(train_retrieval_loader, device)
+    # image_retrieval = get_retrieval(train_retrieval_loader, device)
 
     # Build model
     ckpt_filename = os.path.join(args.checkpoints_dir, "checkpoint.last.pth.tar")
