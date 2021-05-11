@@ -391,9 +391,6 @@ def get_retrieval(retrieval_data_loader, device):
         
         print("retrieve for test query", nearest)
 
-        print("retireval data", retrieval_data_loader.captions_text[nearest[0]])
-
-
         #print(stop)
     #     encoder_output= encoder_output.view(encoder_output.size()[0], -1, encoder_output.size()[-1])
     #     input_imgs = encoder_output.mean(dim=1)
