@@ -298,18 +298,18 @@ class ImageRetrieval():
             #print("input image size", input_img.size())
             
             self.datastore.add(input_img.cpu().numpy())
+            self.imgs_indexes_of_dataloader= torch.cat((self.imgs_indexes_of_dataloader,imgs_indexes))
 
-            if len(imgs_indexes) != len(input_img):
-                print("imgs_indexes size", imgs_indexes.size())
-                print("input_img size", input_img.size())
-                print("stop não tem a mesma len", stop)
             if i%5==0:
                 print("i and img index of ImageRetrival",i, imgs_indexes)
                 print("n of examples", self.datastore.ntotal)
             if i>5:    
                 break
-            self.imgs_indexes_of_dataloader= torch.cat((self.imgs_indexes_of_dataloader,imgs_indexes))
-
+            if len(imgs_indexes) != self.datastore.ntotal:
+                print("imgs_indexes size", imgs_indexes.size())
+                print("input_img size", input_img.size())
+                print("stop não tem a mesma len", stop)
+    
     def retrieve_nearest_for_train_query(self, query_img, k=2):
         print("self query img", query_img)
         D, I = self.datastore.search(query_img, k)     # actual search
