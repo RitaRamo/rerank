@@ -70,7 +70,7 @@ def build_model(args, model_name):
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT:
         model = BUTRWeightModel(args)
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL:
-        model = BUTDRetrievalModel(args)
+        model = BUTDRetrievalModel(args, device)
     return model
 
 
