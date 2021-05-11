@@ -311,11 +311,11 @@ class ImageRetrieval():
         D, I = self.datastore.search(query_img, k)     # actual search
         print("all nearest", I)
         print("I firt", I[:,0])
+        print("I second", I[:,1])
+
         print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
         nearest_input = self.imgs_indexes_of_dataloader[I[:,1]]
         print("the nearest input is actual the second for training", nearest_input)
-        nearest_input = I[0,1]
-        print("actual nearest_input", nearest_input)
         return nearest_input
 
     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
