@@ -307,7 +307,7 @@ class ImageRetrieval():
                 break
             if len(imgs_indexes) != self.datastore.ntotal:
                 print("imgs_indexes size", imgs_indexes.size())
-                print("input_img size", input_img.size())
+                print("self.datastore.ntotal size", self.datastore.ntotal.size())
                 print("stop não tem a mesma len", stop)
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
