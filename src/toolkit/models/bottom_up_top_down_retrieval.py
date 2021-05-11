@@ -42,7 +42,7 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
         train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
                                         args.workers, args.image_normalize)
 
-        target_lookup= train_retrieval_loader.captions_text
+        target_lookup= train_retrieval_loader.dataset.captions_text
 
         self.image_retrieval = get_retrieval(train_retrieval_loader, device)
         print("retrieval", stop)
