@@ -315,6 +315,9 @@ class ImageRetrieval():
 
         print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
         print("this is the img indexes", self.imgs_indexes_of_dataloader)
+        print("n of img index", len(self.imgs_indexes_of_dataloader))
+        print("n of examples", self.datastore.ntotal)
+
         nearest_input = self.imgs_indexes_of_dataloader[I[:,1]]
         print("the nearest input is actual the second for training", nearest_input)
         return nearest_input
