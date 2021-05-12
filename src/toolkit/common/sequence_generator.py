@@ -49,7 +49,6 @@ def beam_search(model, images, beam_size, max_caption_len=20,
     # Start decoding
     for step in range(0, max_caption_len - 1):
         prev_words = top_k_sequences[:, step]
-        print("\n prev words", prev_words)
 
         prev_word_embeddings = model.decoder.embeddings(prev_words)
         predictions, states, alpha = model.decoder.forward_step(encoder_output, prev_word_embeddings, states)
@@ -69,19 +68,13 @@ def beam_search(model, images, beam_size, max_caption_len=20,
 
         # Find the top k of the flattened scores
         top_k_scores, top_k_words = scores.view(-1).topk(current_beam_width, 0, largest=True, sorted=True)
-        print('top_k_scores', top_k_scores.size(), 'top_k_words', top_k_words.size())
-        print('top_k_words', top_k_words)
-
+   
         # Convert flattened indices to actual indices of scores
         prev_seq_inds = top_k_words / model.decoder.vocab_size  # (k)
         next_words = top_k_words % model.decoder.vocab_size  # (k)
-        print('top_k_words', top_k_words)
-        print('prev_seq_inds', prev_seq_inds)
-        print('next_words', next_words) 
 
         # Add new words to sequences
         top_k_sequences = torch.cat((top_k_sequences[prev_seq_inds.long()], next_words.unsqueeze(1)), dim=1)
-        print('top_k_sequences', top_k_sequences.size(), top_k_sequences)
 
         if print_beam:
             print_current_beam(top_k_sequences, top_k_scores, model.decoder.word_map)
@@ -96,7 +89,6 @@ def beam_search(model, images, beam_size, max_caption_len=20,
         # Check for complete and incomplete sequences (based on the <end> token)
         incomplete_inds = torch.nonzero(next_words != model.decoder.word_map[TOKEN_END]).view(-1).tolist()
         complete_inds = torch.nonzero(next_words == model.decoder.word_map[TOKEN_END]).view(-1).tolist()
-        print('incomplete_inds', incomplete_inds, 'complete_inds', complete_inds)
 
         # Set aside complete sequences and reduce beam size accordingly
         if len(complete_inds) > 0:
@@ -104,8 +96,6 @@ def beam_search(model, images, beam_size, max_caption_len=20,
             complete_seqs_scores.extend(top_k_scores[complete_inds])
             if store_alphas:
                 complete_seqs_alpha.extend(seqs_alpha[complete_inds].tolist())
-
-        print("complete seq", complete_seqs)
 
         # Stop if k captions have been completely generated
         current_beam_width = len(incomplete_inds)
@@ -121,7 +111,6 @@ def beam_search(model, images, beam_size, max_caption_len=20,
         if store_alphas:
             seqs_alpha = seqs_alpha[incomplete_inds]
 
-        print("top k sentences", top_k_sequences)
 
     if len(complete_seqs) < beam_size:
         complete_seqs.extend(top_k_sequences.tolist())
@@ -132,8 +121,6 @@ def beam_search(model, images, beam_size, max_caption_len=20,
 #    print(complete_seqs_scores, complete_seqs)
 
     sorted_sequences = [sequence for _, sequence in sorted(zip(complete_seqs_scores, complete_seqs), reverse=True)]
-    print("sorted sequences", sorted_sequences)
-    print(stop)
     
     sorted_alphas = None
     if store_alphas:
