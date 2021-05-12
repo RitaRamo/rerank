@@ -305,7 +305,7 @@ class ImageRetrieval():
                 print("n of examples", self.datastore.ntotal)
             if i>5:    
                 break
-            if len(imgs_indexes) != self.datastore.ntotal:
+            if len(imgs_indexes_of_dataloader) != self.datastore.ntotal:
                 print("imgs_indexes size", imgs_indexes.size())
                 print("self.datastore.ntotal size", self.datastore.ntotal)
                 print("stop não tem a mesma len", stop)
