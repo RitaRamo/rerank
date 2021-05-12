@@ -109,13 +109,13 @@ class TopDownDecoder(CaptioningDecoder):
 
         if self.training:
             print("model is training")
-            nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.to("cpu").numpy())
+            nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
             print("nearest images", nearest_images)
 
             #for each image get the nearest cap
             imgs_nearest_caption = torch.tensor([])
             for nearest_cocoid in nearest_images:
-                captions_of_nearest_image = self.target_lookup(nearest_cocoid)
+                captions_of_nearest_image = self.target_lookup[str(nearest_cocoid)]
                 print("lookup caps", captions_of_nearest_image)
                 caption_of_nearest_image = captions_of_nearest_image[0]
                 print("just the first caps", caption_of_nearest_image)
