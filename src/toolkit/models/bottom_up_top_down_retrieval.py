@@ -40,7 +40,8 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
             attention_lstm_dim=args.attention_lstm_dim,
             attention_dim=args.attention_dim,
             dropout=args.dropout,
-            train_retrieval_loader = retrieval_loader
+            train_retrieval_loader = retrieval_loader,
+            device = device
         )
 
     @staticmethod
@@ -66,7 +67,7 @@ class TopDownDecoder(CaptioningDecoder):
     def __init__(self, word_map, embed_dim=1000, encoder_output_dim=2048,
                  pretrained_embeddings=None, embeddings_freeze=False,
                  language_lstm_dim=1000, attention_lstm_dim=1000, 
-                 attention_dim=512, dropout=0.0, train_retrieval_loader = None):
+                 attention_dim=512, dropout=0.0, train_retrieval_loader = None, device = None):
         super(TopDownDecoder, self).__init__(word_map, embed_dim, encoder_output_dim,
                                              pretrained_embeddings, embeddings_freeze)
                 
