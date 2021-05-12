@@ -250,9 +250,9 @@ class CaptionTrainRetrievalDataset(CaptionDataset):
     def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1):
         super().__init__(dataset_splits_dir, features_fn,
                          normalize, features_scale_factor)
-        #self.split = self.split[TRAIN_SPLIT]
-        self.split = self.split[VALID_SPLIT]
-        #TODO: REMOVE JUST FOR CHECKING
+        self.split = self.split[TRAIN_SPLIT]
+        #self.split = self.split[VALID_SPLIT]
+        #TODO: REMOVE VALID SPLIT JUST FOR CHECKING
 
 
     def __getitem__(self, i):
@@ -303,34 +303,28 @@ class ImageRetrieval():
             if i%5==0:
                 print("i and img index of ImageRetrival",i, imgs_indexes)
                 print("n of examples", self.datastore.ntotal)
-            if i>=5:    
-                break
-            # if len(self.imgs_indexes_of_dataloader) != self.datastore.ntotal:
-            #     print("imgs_indexes size", imgs_indexes.size())
-            #     print("self.datastore.ntotal size", self.datastore.ntotal)
-            #     print("stop não tem a mesma len", stop)
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
-        print("self query img", query_img)
+        #print("self query img", query_img)
         D, I = self.datastore.search(query_img, k)     # actual search
-        print("all nearest", I)
-        print("I firt", I[:,0])
-        print("I second", I[:,1])
+        # print("all nearest", I)
+        # print("I firt", I[:,0])
+        # print("I second", I[:,1])
 
-        print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
-        print("this is the img indexes", self.imgs_indexes_of_dataloader)
-        print("n of img index", len(self.imgs_indexes_of_dataloader))
-        print("n of examples", self.datastore.ntotal)
+        # print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
+        # print("this is the img indexes", self.imgs_indexes_of_dataloader)
+        # print("n of img index", len(self.imgs_indexes_of_dataloader))
+        # print("n of examples", self.datastore.ntotal)
 
         nearest_input = self.imgs_indexes_of_dataloader[I[:,1]]
-        print("the nearest input is actual the second for training", nearest_input)
+        #print("the nearest input is actual the second for training", nearest_input)
         return nearest_input
 
     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
         D, I = self.datastore.search(query_img, k)     # actual search
         nearest_input = self.imgs_indexes_of_dataloader[I[:,0]]
-        print("all nearest", I)
-        print("the nearest input", nearest_input)
+        # print("all nearest", I)
+        # print("the nearest input", nearest_input)
         return nearest_input
 
 

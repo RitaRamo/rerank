@@ -111,41 +111,25 @@ class TopDownDecoder(CaptioningDecoder):
 
 
         if self.training:
-            print("model is training")
             nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
-            print("nearest images", nearest_images)
         else:
-            print("entrei no val")
             nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.numpy())
 
         #for each image get the nearest cap embedding
         n_mean = torch.zeros((batch_size, self.embed_dim)).to(self.device)
-        print("n mean sze", n_mean.size())
         for i in range(batch_size):
             nearest_cocoid = str(nearest_images[i].item())
             lookup_nearest_image = self.target_lookup[nearest_cocoid]
-            
             caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
             len_of_nearest_image = lookup_nearest_image[DATA_CAPTION_LENGTHS][0]
 
-            print("just the first caps", caption_of_nearest_image)
-            print("len of nea", len_of_nearest_image)
-
             cap_without_padding = torch.tensor(caption_of_nearest_image[:len_of_nearest_image]).to(self.device) #ignore padding
-            print("without padding", cap_without_padding.size())
             encoded_nearest_caption=self.embeddings(cap_without_padding)
-            print("encode neares cap", encoded_nearest_caption)
-            print("encode neares cap", encoded_nearest_caption.size())
-            print("encoded_nearest_caption mean", encoded_nearest_caption.mean(0).size())
-
+          
             n_mean[i] = encoded_nearest_caption.mean(0)
-            print("n_mean", n_mean)
 
         h2 = self.init_h2(n_mean)
         c2 = self.init_c2(n_mean)
-
-        print("h2", h2.size())
-        print(stop)
 
         # h2 = self.init_h2(v_mean)
         # c2 = self.init_c2(v_mean)

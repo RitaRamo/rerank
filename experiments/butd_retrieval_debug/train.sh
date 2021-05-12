@@ -1,3 +1,4 @@
+#Retrieval 1 caption avg learned emb
 IMAGE_NAME="image_features.hdf5"
 MODEL_NAME="BOTTOM_UP_TOP_DOWN"
 MODEL_ABBR="butd_retrieval"
@@ -17,12 +18,11 @@ train_args="""
   --checkpoints-dir $CKPT_DIR \
 	--logging-dir $LOG_DIR \
 	--objective GENERATION \
-  --batch-size 2 \
-	--max-epochs 6 \
+  --batch-size 100 \
+	--max-epochs 120 \
 	--epochs-early-stopping 5 \
 	--max-caption-len 20 \
 	--print-freq 10 \
-	--debug \
 """
 
 model_args="""
