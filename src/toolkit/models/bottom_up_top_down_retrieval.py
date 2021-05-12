@@ -38,14 +38,12 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
             dropout=args.dropout,
         )
 
-        print("entrie no retrieval")
         train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
                                         args.workers, args.image_normalize)
 
-        target_lookup= train_retrieval_loader.dataset.captions_text
+        self.target_lookup= train_retrieval_loader.dataset.captions_text
 
         self.image_retrieval = get_retrieval(train_retrieval_loader, device)
-        print("retrieval", stop)
 
     @staticmethod
     def add_args(parser):
@@ -106,10 +104,35 @@ class TopDownDecoder(CaptioningDecoder):
         h1 = self.init_h1(v_mean)
         c1 = self.init_c1(v_mean)
 
-        if model.is_training():
+        if model.training():
+            print("model is training")
             nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.numpy())
             print("nearest images", nearest_images)
-            captions_text[nearest[0]]
+
+            #for each image get the nearest cap
+            imgs_nearest_caption = torch.tensor([])
+            for nearest_cocoid in nearest_images:
+                captions_of_nearest_image = self.target_lookup(nearest_cocoid)
+                print("lookup caps", captions_of_nearest_image)
+                caption_of_nearest_image = captions_of_nearest_image[0]
+                print("just the first caps", caption_of_nearest_image)
+
+                imgs_nearest_caption = torch.cat((imgs_nearest_caption,caption_of_nearest_image))
+
+            print("this are the nearest captions", imgs_nearest_caption)
+            print("this are the nearest captions size(", imgs_nearest_caption.size())
+
+            encoded_nearest_caption=self.embeddings(imgs_nearest_caption)
+            print("encoded nearest cap", encoded_nearest_caption.size())
+            n_mean = encoded_nearest_caption.mean(dim=1)
+
+            print("n_mean", n_mean.size())
+
+            h2 = self.init_h2(n_mean)
+            c2 = self.init_c2(n_mean)
+
+            print("h2", h2.size())
+
         else:
             nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.numpy())
         h2 = self.init_h2(v_mean)

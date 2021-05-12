@@ -303,12 +303,12 @@ class ImageRetrieval():
             if i%5==0:
                 print("i and img index of ImageRetrival",i, imgs_indexes)
                 print("n of examples", self.datastore.ntotal)
-            if i>5:    
+            if i>=5:    
                 break
-            if len(self.imgs_indexes_of_dataloader) != self.datastore.ntotal:
-                print("imgs_indexes size", imgs_indexes.size())
-                print("self.datastore.ntotal size", self.datastore.ntotal)
-                print("stop não tem a mesma len", stop)
+            # if len(self.imgs_indexes_of_dataloader) != self.datastore.ntotal:
+            #     print("imgs_indexes size", imgs_indexes.size())
+            #     print("self.datastore.ntotal size", self.datastore.ntotal)
+            #     print("stop não tem a mesma len", stop)
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
         print("self query img", query_img)
@@ -387,17 +387,17 @@ def get_retrieval(retrieval_data_loader, device):
     image_retrieval = ImageRetrieval(encoder_output_dim, retrieval_data_loader,device)
   
     
-    for i, (encoder_output, coco_ids) in enumerate(retrieval_data_loader):
-        print("this is the first batch of images", encoder_output.size())
-        print("coco ids", coco_ids)
-        input_imgs = encoder_output.mean(dim=1)
-        print("this  input_imgs suze after", input_imgs.size())
-        nearest=image_retrieval.retrieve_nearest_for_train_query(input_imgs.numpy())
-        print("this is nearest images", nearest)
+    # for i, (encoder_output, coco_ids) in enumerate(retrieval_data_loader):
+    #     print("this is the first batch of images", encoder_output.size())
+    #     print("coco ids", coco_ids)
+    #     input_imgs = encoder_output.mean(dim=1)
+    #     print("this  input_imgs suze after", input_imgs.size())
+    #     nearest=image_retrieval.retrieve_nearest_for_train_query(input_imgs.numpy())
+    #     print("this is nearest images", nearest)
 
-        nearest = image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
+    #     nearest = image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
         
-        print("retrieve for test query", nearest)
+    #     print("retrieve for test query", nearest)
 
         #print(stop)
     #     encoder_output= encoder_output.view(encoder_output.size()[0], -1, encoder_output.size()[-1])
