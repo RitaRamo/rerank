@@ -121,8 +121,8 @@ class TopDownDecoder(CaptioningDecoder):
                 nearest_cocoid = str(nearest_images[i].item())
                 lookup_nearest_image = self.target_lookup[nearest_cocoid]
                 
-                caption_of_nearest_image=loopup_nearest_image[DATA_CAPTIONS][0]
-                len_of_nearest_image = loopup_nearest_image[DATA_CAPTION_LENGTHS][0]
+                caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
+                len_of_nearest_image = lookup_nearest_image[DATA_CAPTION_LENGTHS][0]
 
                 print("just the first caps", caption_of_nearest_image)
                 print("len of nea", len_of_nearest_image)
