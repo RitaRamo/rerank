@@ -4,7 +4,7 @@ import json
 import torch
 from torch import nn
 
-from toolkit.utils import WORD_MAP_FILENAME, DATA_CAPTIONS, LSTMCell, load_pretrained_embedding_from_file
+from toolkit.utils import WORD_MAP_FILENAME, DATA_CAPTIONS, DATA_CAPTION_LENGTHS, LSTMCell, load_pretrained_embedding_from_file
 from toolkit.models.captioning_model import (
         CaptioningEncoderDecoderModel, CaptioningEncoder, CaptioningDecoder
 )
@@ -127,7 +127,7 @@ class TopDownDecoder(CaptioningDecoder):
                 #imgs_nearest_caption = torch.cat((imgs_nearest_caption,caption_of_nearest_image))
                 imgs_nearest_caption.append(caption_of_nearest_image)
 
-                len_cap = self.target_lookup[str(nearest_cocoid.item())][LEN]
+                len_cap = self.target_lookup[str(nearest_cocoid.item())][DATA_CAPTION_LENGTHS][0]
                 without_padding = torch.tensor(caption_of_nearest_image[:len_cap]).to(self.device) #ignore padding
                 print("without padding", without_padding.size())
                 print("caption_of_nearest_image with padding", len(caption_of_nearest_image))
