@@ -104,7 +104,7 @@ class TopDownDecoder(CaptioningDecoder):
         h1 = self.init_h1(v_mean)
         c1 = self.init_c1(v_mean)
 
-        if model.training():
+        if self.training():
             print("model is training")
             nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.numpy())
             print("nearest images", nearest_images)
