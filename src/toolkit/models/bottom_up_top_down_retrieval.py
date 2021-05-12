@@ -131,7 +131,7 @@ class TopDownDecoder(CaptioningDecoder):
                 without_padding = torch.tensor(caption_of_nearest_image[:len_cap]).to(self.device) #ignore padding
                 print("without padding", without_padding.size())
                 print("caption_of_nearest_image with padding", len(caption_of_nearest_image))
-                encoded_nearest_caption=self.embeddings(imgs_nearest_caption)
+                encoded_nearest_caption=self.embeddings(without_padding)
                 print("encode neares cap", encoded_nearest_caption)
 
                 mean_encoded_nearest_caption = encoded_nearest_caption.mean(0)
