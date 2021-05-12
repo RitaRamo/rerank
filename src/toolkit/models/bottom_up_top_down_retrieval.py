@@ -113,7 +113,7 @@ class TopDownDecoder(CaptioningDecoder):
         if self.training:
             nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
         else:
-            nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.numpy())
+            nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.cpu().numpy())
 
         #for each image get the nearest cap embedding
         n_mean = torch.zeros((batch_size, self.embed_dim)).to(self.device)
