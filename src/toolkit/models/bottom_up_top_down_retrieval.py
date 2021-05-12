@@ -95,8 +95,8 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h1 = nn.Linear(encoder_output_dim, self.attention_lstm.lstm_cell.hidden_size)
         self.init_c1 = nn.Linear(encoder_output_dim, self.attention_lstm.lstm_cell.hidden_size)
 
-        self.init_h2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
-        self.init_c2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
+        self.init_h2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
+        self.init_c2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
 
         self.target_lookup= train_retrieval_loader.dataset.image_metas
         self.image_retrieval = get_retrieval(train_retrieval_loader, device)
@@ -141,6 +141,7 @@ class TopDownDecoder(CaptioningDecoder):
             c2 = self.init_c2(n_mean)
 
             print("h2", h2.size())
+            print(stop)
 
         else:
             nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.numpy())
