@@ -128,7 +128,7 @@ class TopDownDecoder(CaptioningDecoder):
                 print("len of nea", len_of_nearest_image)
 
                 cap_without_padding = torch.tensor(caption_of_nearest_image[:len_of_nearest_image]).to(self.device) #ignore padding
-                print("without padding", without_padding.size())
+                print("without padding", cap_without_padding.size())
                 encoded_nearest_caption=self.embeddings(cap_without_padding)
                 print("encode neares cap", encoded_nearest_caption)
                 print("encode neares cap", encoded_nearest_caption.size())
