@@ -18,8 +18,8 @@ args="""
 	--output-path $EXP_DIR \
 	--split test \
 	--max-caption-len 20 \
-	--beam-size 5 \
-	--eval-beam-size 5 \
+	--beam-size 3 \
+	--eval-beam-size 3 \
 """
 
 #source activate /envs/syncap
