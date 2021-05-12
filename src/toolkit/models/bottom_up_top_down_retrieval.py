@@ -4,7 +4,7 @@ import json
 import torch
 from torch import nn
 
-from toolkit.utils import WORD_MAP_FILENAME, LSTMCell, load_pretrained_embedding_from_file
+from toolkit.utils import WORD_MAP_FILENAME, DATA_CAPTIONS, LSTMCell, load_pretrained_embedding_from_file
 from toolkit.models.captioning_model import (
         CaptioningEncoderDecoderModel, CaptioningEncoder, CaptioningDecoder
 )
@@ -98,7 +98,7 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
 
-        self.target_lookup= train_retrieval_loader.dataset.captions_text
+        self.target_lookup= train_retrieval_loader.dataset.image_metas
         self.image_retrieval = get_retrieval(train_retrieval_loader, device)
 
 
@@ -116,7 +116,7 @@ class TopDownDecoder(CaptioningDecoder):
             imgs_nearest_caption = torch.tensor([])
             for nearest_cocoid in nearest_images:
                 print("coco", str(nearest_cocoid.item()))
-                captions_of_nearest_image = self.target_lookup[str(nearest_cocoid.item())]
+                captions_of_nearest_image = self.target_lookup[str(nearest_cocoid.item())][DATA_CAPTIONS]
                 print("lookup caps", captions_of_nearest_image)
                 caption_of_nearest_image = captions_of_nearest_image[0]
                 print("just the first caps", caption_of_nearest_image)
