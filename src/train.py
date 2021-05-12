@@ -124,7 +124,7 @@ def train(model, data_loader,
           encoder_optimizer, decoder_optimizer,
           criterion, reg_param, reg_func, grad_clip,
           epoch, teacher_forcing, print_freq,
-          mask_prob, mask_type, debug=False):
+          mask_prob, mask_type, debug=False, target_lookup=None, image_retrieval=None):
     """
     Perform one training epoch.
 
@@ -138,6 +138,8 @@ def train(model, data_loader,
         target_captions = target_captions.to(device)
         caption_lengths = caption_lengths.to(device)
         images = images.to(device)
+
+        nearest_images=image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
 
         # Forward propagation
         decode_lengths = caption_lengths.squeeze(1) - 1
@@ -196,7 +198,7 @@ def train_joint(model, data_loader,
                 loss_weight_generation, loss_weight_ranking,
                 initial_generation_loss, initial_ranking_loss,
                 epoch, teacher_forcing, print_freq,
-                mask_prob, mask_type):
+                mask_prob, mask_type, target_lookup=None, image_retrieval=None):
     """
     Perform one training epoch for jointly learning to caption and rank.
 
@@ -212,10 +214,12 @@ def train_joint(model, data_loader,
         caption_lengths = caption_lengths.to(device)
         images = images.to(device)
 
+        nearest_images=image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
+
         # Forward propagation
         decode_lengths = caption_lengths.squeeze(1) - 1
         scores, decode_lengths, extras = model(images, target_captions, decode_lengths,
-                                               teacher_forcing, mask_prob, mask_type)
+                                               teacher_forcing, mask_prob, mask_type, nearest_images, target_lookup)
         images_embedded = extras.get("images_embedded", None)
         captions_embedded = extras.get("captions_embedded", None)
 
@@ -302,7 +306,7 @@ def train_joint(model, data_loader,
     logging.info("\n * LOSS - {loss.avg:.3f}".format(loss=losses))
 
 
-def validate(model, data_loader, max_caption_len, print_freq, debug=False):
+def validate(model, data_loader, max_caption_len, print_freq, debug=False, target_lookup=None, image_retrieval=None):
     """
     Perform validation of one training epoch.
 
@@ -319,9 +323,18 @@ def validate(model, data_loader, max_caption_len, print_freq, debug=False):
     for i, (images, all_captions_for_image, _, coco_id) in enumerate(data_loader):
         images = images.to(device)
 
+        nearest_images= image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.cpu().numpy())
+
         # Forward propagation
         decode_lengths = torch.full((images.size(0),), max_caption_len, dtype=torch.int64, device=device)
-        scores, decode_lengths, alphas = model(images, None, decode_lengths)
+        scores, decode_lengths, alphas = model(
+            encoder_output=images, 
+            target_captions=None,
+            decode_lengths=decode_lengths, 
+            nearest_images=nearest_images, 
+            target_lookup=target_lookup
+        )
+
 
         if i % print_freq == 0:
             logging.info("Validation: [Batch {0}/{1}]\t".format(i, len(data_loader)))
@@ -375,10 +388,11 @@ def main(args):
     val_data_loader = get_data_loader("val", 5, args.dataset_splits_dir, args.image_features_filename,
                                       args.workers, args.image_normalize)
 
-    # train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-    #                                     args.workers, args.image_normalize)
+    train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        args.workers, args.image_normalize)
 
-    # image_retrieval = get_retrieval(train_retrieval_loader, device)
+    target_lookup= train_retrieval_loader.dataset.image_metas
+    image_retrieval = get_retrieval(train_retrieval_loader, device)
 
     # Build model
     ckpt_filename = os.path.join(args.checkpoints_dir, "checkpoint.last.pth.tar")
@@ -453,7 +467,7 @@ def main(args):
             train(model, train_data_loader, encoder_optimizer, decoder_optimizer,
                   criterion, reg_param, reg_func, args.grad_clip,
                   epoch, args.teacher_forcing, args.print_freq,
-                  args.mask_prob, args.mask_type, args.debug)
+                  args.mask_prob, args.mask_type, args.debug, target_lookup, image_retrieval)
             extras = dict()
         elif args.objective == OBJECTIVE_JOINT:
             train_joint(model, train_data_loader, encoder_optimizer, decoder_optimizer,
@@ -468,7 +482,7 @@ def main(args):
                       'gradnorm_optimizer': gradnorm_optimizer}
 
         # Validate
-        gen_metric_score = validate(model, val_data_loader, args.max_caption_len, args.print_freq, args.debug)
+        gen_metric_score = validate(model, val_data_loader, args.max_caption_len, args.print_freq, args.debug, target_lookup, image_retrieval)
 
         # Update stats
         ckpt_is_best = gen_metric_score > best_gen_metric_score

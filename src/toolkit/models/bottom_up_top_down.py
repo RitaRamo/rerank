@@ -90,7 +90,7 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
 
-    def init_hidden_states(self, encoder_out):
+    def init_hidden_states(self, encoder_out, nearest_images=None, target_lookup=None):
         v_mean = encoder_out.mean(dim=1)
         h1 = self.init_h1(v_mean)
         c1 = self.init_c1(v_mean)

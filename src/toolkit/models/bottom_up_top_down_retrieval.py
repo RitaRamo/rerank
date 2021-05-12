@@ -12,7 +12,7 @@ from toolkit.data.datasets import get_data_loader, get_retrieval
 
 
 class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
-    def __init__(self, args, device):
+    def __init__(self, args):
         super(BUTDRetrievalModel, self).__init__()
 
         # Read word map
@@ -26,10 +26,6 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
         else:
             embeddings, embed_dim = None, args.embeddings_dim
 
-        retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        args.workers, args.image_normalize)
-
-
         self.decoder = TopDownDecoder(
             word_map=word_map,
             embed_dim=embed_dim,
@@ -39,9 +35,7 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
             language_lstm_dim=args.language_lstm_dim,
             attention_lstm_dim=args.attention_lstm_dim,
             attention_dim=args.attention_dim,
-            dropout=args.dropout,
-            train_retrieval_loader = retrieval_loader,
-            device = device
+            dropout=args.dropout
         )
 
     @staticmethod
@@ -67,7 +61,7 @@ class TopDownDecoder(CaptioningDecoder):
     def __init__(self, word_map, embed_dim=1000, encoder_output_dim=2048,
                  pretrained_embeddings=None, embeddings_freeze=False,
                  language_lstm_dim=1000, attention_lstm_dim=1000, 
-                 attention_dim=512, dropout=0.0, train_retrieval_loader = None, device = None):
+                 attention_dim=512, dropout=0.0):
         super(TopDownDecoder, self).__init__(word_map, embed_dim, encoder_output_dim,
                                              pretrained_embeddings, embeddings_freeze)
                 
@@ -98,28 +92,23 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
 
-        self.target_lookup= train_retrieval_loader.dataset.image_metas
-        self.image_retrieval = get_retrieval(train_retrieval_loader, device)
-        self.device = device
-
-
-    def init_hidden_states(self, encoder_out):
+    def init_hidden_states(self, encoder_out, nearest_images=None, target_lookup=None):
         v_mean = encoder_out.mean(dim=1)
         h1 = self.init_h1(v_mean)
         c1 = self.init_c1(v_mean)
         batch_size = v_mean.size(0)
 
 
-        if self.training:
-            nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
-        else:
-            nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.cpu().numpy())
+        # if self.training:
+        #     nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
+        # else:
+        #     nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.cpu().numpy())
 
         #for each image get the nearest cap embedding
         n_mean = torch.zeros((batch_size, self.embed_dim)).to(self.device)
         for i in range(batch_size):
             nearest_cocoid = str(nearest_images[i].item())
-            lookup_nearest_image = self.target_lookup[nearest_cocoid]
+            lookup_nearest_image = target_lookup[nearest_cocoid]
             caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
             len_of_nearest_image = lookup_nearest_image[DATA_CAPTION_LENGTHS][0]
 
