@@ -119,7 +119,7 @@ class TopDownDecoder(CaptioningDecoder):
             nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.numpy())
 
         #for each image get the nearest cap embedding
-        n_mean = torch.tensor((batch_size, self.embed_dim)).to(self.device)
+        n_mean = torch.zeros((batch_size, self.embed_dim)).to(self.device)
         print("n mean sze", n_mean.size())
         for i in range(batch_size):
             nearest_cocoid = str(nearest_images[i].item())
