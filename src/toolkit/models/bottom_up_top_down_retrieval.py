@@ -35,7 +35,8 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
             language_lstm_dim=args.language_lstm_dim,
             attention_lstm_dim=args.attention_lstm_dim,
             attention_dim=args.attention_dim,
-            dropout=args.dropout
+            dropout=args.dropout,
+            device=device
         )
 
     @staticmethod
