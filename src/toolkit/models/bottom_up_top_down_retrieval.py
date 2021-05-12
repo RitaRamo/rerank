@@ -38,13 +38,6 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
             dropout=args.dropout,
         )
 
-        train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        args.workers, args.image_normalize)
-
-        self.target_lookup= train_retrieval_loader.dataset.captions_text
-
-        self.image_retrieval = get_retrieval(train_retrieval_loader, device)
-
     @staticmethod
     def add_args(parser):
         """Add model-specific arguments to the parser"""
@@ -98,6 +91,14 @@ class TopDownDecoder(CaptioningDecoder):
 
         self.init_h2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
+
+        train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        args.workers, args.image_normalize)
+
+        self.target_lookup= train_retrieval_loader.dataset.captions_text
+
+        self.image_retrieval = get_retrieval(train_retrieval_loader, device)
+
 
     def init_hidden_states(self, encoder_out):
         v_mean = encoder_out.mean(dim=1)
