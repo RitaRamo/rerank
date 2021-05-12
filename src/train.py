@@ -322,11 +322,14 @@ def validate(model, data_loader, max_caption_len, print_freq, debug=False, targe
         # Forward propagation
         decode_lengths = torch.full((images.size(0),), max_caption_len, dtype=torch.int64, device=device)
         scores, decode_lengths, alphas = model(
-            encoder_out=images, 
-            target_captions=None,
-            decode_lengths=decode_lengths, 
-            target_lookup=target_lookup,
-            image_retrieval=image_retrieval
+            images, 
+            None,
+            decode_lengths,
+            None,
+            None, 
+            None,
+            target_lookup,
+            image_retrieval
         )
 
 
