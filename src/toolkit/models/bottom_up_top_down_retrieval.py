@@ -140,7 +140,7 @@ class TopDownDecoder(CaptioningDecoder):
                 print("mean_encoded_nearest_caption", mean_encoded_nearest_caption.size())
                 n_mean = torch.cat((n_mean, mean_encoded_nearest_caption))
 
-                with_mean = torch.cat((with_mean, self.embeddings(torch.tensor(caption_of_nearest_image)).mean(0)))
+                with_mean = torch.cat((with_mean, self.embeddings(torch.tensor(caption_of_nearest_image).to(self.device)).mean(0)))
 
             print("this are the nearest captions", imgs_nearest_caption)
             imgs_nearest_caption = torch.tensor(imgs_nearest_caption).to(self.device)
@@ -153,6 +153,7 @@ class TopDownDecoder(CaptioningDecoder):
             print("encoded nearest cap", encoded_nearest_caption)
 
             print("n_mean", n_mean)
+            print("n mean size", n_mean.size())
             print("with mean", with_mean)
             n_mean_old = encoded_nearest_caption.mean(dim=1)
 
