@@ -26,6 +26,10 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
         else:
             embeddings, embed_dim = None, args.embeddings_dim
 
+        retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        args.workers, args.image_normalize)
+
+
         self.decoder = TopDownDecoder(
             word_map=word_map,
             embed_dim=embed_dim,
@@ -36,6 +40,7 @@ class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
             attention_lstm_dim=args.attention_lstm_dim,
             attention_dim=args.attention_dim,
             dropout=args.dropout,
+            train_retrieval_loader = retrieval_loader
         )
 
     @staticmethod
@@ -61,7 +66,7 @@ class TopDownDecoder(CaptioningDecoder):
     def __init__(self, word_map, embed_dim=1000, encoder_output_dim=2048,
                  pretrained_embeddings=None, embeddings_freeze=False,
                  language_lstm_dim=1000, attention_lstm_dim=1000, 
-                 attention_dim=512, dropout=0.0):
+                 attention_dim=512, dropout=0.0, train_retrieval_loader = None):
         super(TopDownDecoder, self).__init__(word_map, embed_dim, encoder_output_dim,
                                              pretrained_embeddings, embeddings_freeze)
                 
@@ -92,11 +97,7 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
 
-        train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        args.workers, args.image_normalize)
-
         self.target_lookup= train_retrieval_loader.dataset.captions_text
-
         self.image_retrieval = get_retrieval(train_retrieval_loader, device)
 
 
