@@ -104,7 +104,7 @@ class CaptioningDecoder(nn.Module):
         return next_words
 
     def forward(self, encoder_output, target_captions=None, decode_lengths=None,
-                teacher_forcing=0.0, mask_prob=0.0, mask_type=None, nearest_images=None, target_lookup=None):
+                teacher_forcing=0.0, mask_prob=0.0, mask_type=None, target_lookup=None, image_retrieval=None):
         """
         Forward propagation.
 
@@ -120,7 +120,7 @@ class CaptioningDecoder(nn.Module):
         encoder_output = encoder_output.view(batch_size, -1, encoder_output.size(-1))
 
         # Initialize LSTM state
-        states = self.init_hidden_states(encoder_output, nearest_images, target_lookup)
+        states = self.init_hidden_states(encoder_output, image_retrieval, target_lookup)
 
         # Tensors to hold word prediction scores and alphas
         scores = torch.zeros((batch_size, max(decode_lengths), self.vocab_size), device=device)

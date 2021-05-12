@@ -139,12 +139,10 @@ def train(model, data_loader,
         caption_lengths = caption_lengths.to(device)
         images = images.to(device)
 
-        nearest_images=image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
-
         # Forward propagation
         decode_lengths = caption_lengths.squeeze(1) - 1
         scores, decode_lengths, extras = model(images, target_captions, decode_lengths,
-                                               teacher_forcing, mask_prob, mask_type)
+                                               teacher_forcing, mask_prob, mask_type, target_lookup, image_retrieval)
         alphas = extras.get("alphas", None)  # B x T x H*W
 
         # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
@@ -214,12 +212,10 @@ def train_joint(model, data_loader,
         caption_lengths = caption_lengths.to(device)
         images = images.to(device)
 
-        nearest_images=image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
-
         # Forward propagation
         decode_lengths = caption_lengths.squeeze(1) - 1
         scores, decode_lengths, extras = model(images, target_captions, decode_lengths,
-                                               teacher_forcing, mask_prob, mask_type, nearest_images, target_lookup)
+                                               teacher_forcing, mask_prob, mask_type, target_lookup, image_retrieval)
         images_embedded = extras.get("images_embedded", None)
         captions_embedded = extras.get("captions_embedded", None)
 
@@ -323,16 +319,14 @@ def validate(model, data_loader, max_caption_len, print_freq, debug=False, targe
     for i, (images, all_captions_for_image, _, coco_id) in enumerate(data_loader):
         images = images.to(device)
 
-        nearest_images= image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.cpu().numpy())
-
         # Forward propagation
         decode_lengths = torch.full((images.size(0),), max_caption_len, dtype=torch.int64, device=device)
         scores, decode_lengths, alphas = model(
             encoder_output=images, 
             target_captions=None,
             decode_lengths=decode_lengths, 
-            nearest_images=nearest_images, 
-            target_lookup=target_lookup
+            target_lookup=target_lookup,
+            image_retrieval=image_retrieval
         )
 
 

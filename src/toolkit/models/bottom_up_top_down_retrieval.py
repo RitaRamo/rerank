@@ -92,17 +92,17 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
 
-    def init_hidden_states(self, encoder_out, nearest_images=None, target_lookup=None):
+    def init_hidden_states(self, encoder_out, image_retrieval=None, target_lookup=None):
         v_mean = encoder_out.mean(dim=1)
         h1 = self.init_h1(v_mean)
         c1 = self.init_c1(v_mean)
         batch_size = v_mean.size(0)
 
 
-        # if self.training:
-        #     nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
-        # else:
-        #     nearest_images=self.image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.cpu().numpy())
+        if self.training:
+            nearest_images=image_retrieval.retrieve_nearest_for_train_query(v_mean.cpu().numpy())
+        else:
+            nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(v_mean.cpu().numpy())
 
         #for each image get the nearest cap embedding
         n_mean = torch.zeros((batch_size, self.embed_dim)).to(self.device)
