@@ -12,7 +12,7 @@ from toolkit.data.datasets import get_data_loader, get_retrieval
 
 
 class BUTDRetrievalModel(CaptioningEncoderDecoderModel):
-    def __init__(self, args):
+    def __init__(self, args, device):
         super(BUTDRetrievalModel, self).__init__()
 
         # Read word map
@@ -61,7 +61,7 @@ class TopDownDecoder(CaptioningDecoder):
     def __init__(self, word_map, embed_dim=1000, encoder_output_dim=2048,
                  pretrained_embeddings=None, embeddings_freeze=False,
                  language_lstm_dim=1000, attention_lstm_dim=1000, 
-                 attention_dim=512, dropout=0.0):
+                 attention_dim=512, dropout=0.0, device=None):
         super(TopDownDecoder, self).__init__(word_map, embed_dim, encoder_output_dim,
                                              pretrained_embeddings, embeddings_freeze)
                 
@@ -91,6 +91,8 @@ class TopDownDecoder(CaptioningDecoder):
 
         self.init_h2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
+
+        self.device=device
 
     def init_hidden_states(self, encoder_out, image_retrieval=None, target_lookup=None):
         v_mean = encoder_out.mean(dim=1)

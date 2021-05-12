@@ -70,7 +70,7 @@ def build_model(args, model_name):
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT:
         model = BUTRWeightModel(args)
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL:
-        model = BUTDRetrievalModel(args)
+        model = BUTDRetrievalModel(args, device)
     return model
 
 
@@ -470,7 +470,7 @@ def main(args):
                         loss_weight_generation, loss_weight_ranking,
                         initial_gen_loss, initial_rank_loss,
                         epoch, args.teacher_forcing, args.print_freq,
-                        args.mask_prob, args.mask_type)
+                        args.mask_prob, args.mask_type, target_lookup, image_retrieval)
             extras = {'loss_weight_generation': loss_weight_generation,
                       'loss_weight_ranking': loss_weight_ranking,
                       'gradnorm_optimizer': gradnorm_optimizer}
