@@ -107,6 +107,8 @@ class TopDownDecoder(CaptioningDecoder):
         v_mean = encoder_out.mean(dim=1)
         h1 = self.init_h1(v_mean)
         c1 = self.init_c1(v_mean)
+        batch_size = v_mean.size(0)
+
 
         if self.training:
             print("model is training")
@@ -114,8 +116,8 @@ class TopDownDecoder(CaptioningDecoder):
             print("nearest images", nearest_images)
 
             #for each image get the nearest cap embedding
-            n_mean = torch.tensor([v_mean.size(0), self.embed_dim]).to(self.device)
-            for i in nearest_images:
+            n_mean = torch.tensor([batch_size, self.embed_dim]).to(self.device)
+            for i in range(batch_size):
                 nearest_cocoid = str(nearest_images[i].item())
                 lookup_nearest_image = self.target_lookup[nearest_cocoid]
                 
