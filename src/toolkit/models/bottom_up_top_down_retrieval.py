@@ -115,7 +115,8 @@ class TopDownDecoder(CaptioningDecoder):
             #for each image get the nearest cap
             imgs_nearest_caption = torch.tensor([])
             for nearest_cocoid in nearest_images:
-                captions_of_nearest_image = self.target_lookup[str(nearest_cocoid)]
+                print("coco", str(nearest_cocoid.item()))
+                captions_of_nearest_image = self.target_lookup[str(nearest_cocoid.item())]
                 print("lookup caps", captions_of_nearest_image)
                 caption_of_nearest_image = captions_of_nearest_image[0]
                 print("just the first caps", caption_of_nearest_image)
