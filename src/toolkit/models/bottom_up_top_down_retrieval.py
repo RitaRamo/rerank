@@ -100,6 +100,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         self.target_lookup= train_retrieval_loader.dataset.image_metas
         self.image_retrieval = get_retrieval(train_retrieval_loader, device)
+        self.device = device
 
 
     def init_hidden_states(self, encoder_out):
@@ -113,7 +114,8 @@ class TopDownDecoder(CaptioningDecoder):
             print("nearest images", nearest_images)
 
             #for each image get the nearest cap
-            imgs_nearest_caption = torch.tensor([])
+            #imgs_nearest_caption = torch.tensor([])
+            imgs_nearest_caption = []
             for nearest_cocoid in nearest_images:
                 print("coco", str(nearest_cocoid.item()))
                 captions_of_nearest_image = self.target_lookup[str(nearest_cocoid.item())][DATA_CAPTIONS]
@@ -121,9 +123,12 @@ class TopDownDecoder(CaptioningDecoder):
                 caption_of_nearest_image = captions_of_nearest_image[0]
                 print("just the first caps", caption_of_nearest_image)
 
-                imgs_nearest_caption = torch.cat((imgs_nearest_caption,caption_of_nearest_image))
+                #imgs_nearest_caption = torch.cat((imgs_nearest_caption,caption_of_nearest_image))
+                imgs_nearest_caption.append(caption_of_nearest_image)
 
             print("this are the nearest captions", imgs_nearest_caption)
+            imgs_nearest_caption = torch.tensor(imgs_nearest_caption).to(self.device)
+            print("img nearest cap", imgs_nearest_caption)
             print("this are the nearest captions size(", imgs_nearest_caption.size())
 
             encoded_nearest_caption=self.embeddings(imgs_nearest_caption)
