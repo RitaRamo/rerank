@@ -135,7 +135,7 @@ class TopDownDecoder(CaptioningDecoder):
             print("imgs_nearest_caption 0 mean1", self.embeddings(imgs_nearest_caption[0]).mean(0))
             print("imgs_nearest_caption 0 mean1", self.embeddings(imgs_nearest_caption[0]).mean(0).size())
             print("imgs_nearest_caption 1 mean1", self.embeddings(imgs_nearest_caption[1]).mean(0))
-            mean_caps =  torch.tensor([])
+            mean_caps =  torch.tensor([]).to(self.device)
             torch.cat((mean_caps, self.embeddings(imgs_nearest_caption[0]).mean(0)))
             torch.cat((mean_caps, self.embeddings(imgs_nearest_caption[1]).mean(0)))
             print("mean caps", mean_caps)
