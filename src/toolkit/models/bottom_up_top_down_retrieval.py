@@ -109,7 +109,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         if self.training:
             print("model is training")
-            nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.numpy())
+            nearest_images=self.image_retrieval.retrieve_nearest_for_train_query(v_mean.to("cpu").numpy())
             print("nearest images", nearest_images)
 
             #for each image get the nearest cap
