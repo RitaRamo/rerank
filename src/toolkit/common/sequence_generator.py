@@ -8,7 +8,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def beam_search(model, images, beam_size, max_caption_len=20, 
-                store_alphas=False, store_beam=False, print_beam=False):
+                store_alphas=False, store_beam=False, print_beam=False, image_retrieval=None, target_lookup=None):
     """Generate and return the top k sequences using beam search."""
 
     # the max beam size is the dictionary size - 1, since we never select pad
@@ -44,7 +44,7 @@ def beam_search(model, images, beam_size, max_caption_len=20,
     beam = []
 
     # Initialize hidden states
-    states = model.decoder.init_hidden_states(encoder_output)
+    states = model.decoder.init_hidden_states(encoder_output, image_retrieval, target_lookup)
 
     # Start decoding
     for step in range(0, max_caption_len - 1):

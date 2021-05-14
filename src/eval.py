@@ -11,10 +11,10 @@ import torch.optim
 import torch.utils.data
 import torch.backends.cudnn as cudnn
 
-from toolkit.data.datasets import get_data_loader
+from toolkit.data.datasets import get_data_loader, get_retrieval
 from toolkit.util.analysis.visualize_attention import visualize_attention
 from toolkit.common.sequence_generator import beam_search, beam_re_ranking, nucleus_sampling
-from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, get_log_file_path, decode_caption
+from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, get_log_file_path, decode_caption
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -40,6 +40,13 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     image_normalize = None
     if model_name == MODEL_SHOW_ATTEND_TELL:
         image_normalize = "imagenet"
+
+    if model_name == MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL:
+        train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        args.workers, args.image_normalize)
+        target_lookup= train_retrieval_loader.dataset.image_metas
+        image_retrieval = get_retrieval(train_retrieval_loader, device)
+
     data_loader = get_data_loader(split, 1, dataset_splits_dir, image_features_fn, 1, image_normalize)
 
     if keep_special_tokens:
@@ -77,6 +84,8 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                 store_alphas=visualize,
                 store_beam=store_beam,
                 print_beam=print_beam,
+                image_retrieval=image_retrieval,
+                target_lookup=target_lookup
             )
 
         if visualize:
