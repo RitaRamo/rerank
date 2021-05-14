@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MODEL_NAME="BOTTOM_UP_TOP_DOWN"
-MODEL_ABBR="butd"
+MODEL_ABBR="butd_retrieval"
 MODEL_SUFF="_debug"
 SPLIT="val"
 
