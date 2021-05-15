@@ -390,8 +390,12 @@ def main(args):
     train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
                                         args.workers, args.image_normalize)
 
-    target_lookup= train_retrieval_loader.dataset.image_metas
-    image_retrieval = get_retrieval(train_retrieval_loader, device)
+    if abbr2name[args.model] == MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL:
+        target_lookup= train_retrieval_loader.dataset.image_metas
+        image_retrieval = get_retrieval(train_retrieval_loader, device)
+    else:
+        target_lookup=None
+        image_retrieval = None
 
     # Build model
     ckpt_filename = os.path.join(args.checkpoints_dir, "checkpoint.last.pth.tar")
