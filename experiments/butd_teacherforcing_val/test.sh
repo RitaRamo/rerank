@@ -1,7 +1,7 @@
 IMAGE_NAME="image_features.hdf5"
 MODEL_NAME="BOTTOM_UP_TOP_DOWN"
 MODEL_ABBR="butd"
-MODEL_SUFF="_teacherforcing"
+MODEL_SUFF="_teacherforcing_val"
 
 DATA_DIR="data/coco2014"
 IMGS_DIR="$DATA_DIR/images"
