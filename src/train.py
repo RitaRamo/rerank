@@ -348,7 +348,9 @@ def validate(model, data_loader, max_caption_len, print_freq, debug=False, targe
                     for caption in captions.tolist()]
         generated_captions.extend(captions)
 
-        coco_ids.append(coco_id[0])
+        # coco_ids.append(coco_id[0])
+        for coco in coco_id:
+                coco_ids.append(coco)
 
         assert len(target_captions) == len(generated_captions)
 
