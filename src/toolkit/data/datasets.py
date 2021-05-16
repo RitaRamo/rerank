@@ -303,8 +303,6 @@ class ImageRetrieval():
             if i%5==0:
                 print("i and img index of ImageRetrival",i, imgs_indexes)
                 print("n of examples", self.datastore.ntotal)
-                print("debug mode")
-                break
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
         #print("self query img", query_img)
