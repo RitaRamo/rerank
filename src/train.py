@@ -403,6 +403,7 @@ def main(args):
     #mudar o lookup...
     model = SentenceTransformer('paraphrase-distilroberta-base-v1')
     target_lookup= train_retrieval_loader.dataset.captions_text
+    cos = nn.CosineSimilarity(dim=-1, eps=1e-6)
     for i, (images, _, _, coco_id) in enumerate(val_data_loader):
         input_imgs = images.mean(dim=1)
         print("this  input_imgs suze after", input_imgs.size())
@@ -424,6 +425,8 @@ def main(args):
             caption_of_current_image=lookup_current_image[0]
             current_sentence_embeddings = model.encode(caption_of_current_image)
             print("sentence embe", current_sentence_embeddings)
+            cos_output = cos(nearest_sentence_embeddings, current_sentence_embeddings)
+            print("cos_output", cos_output)
             print(stop)
 
 
