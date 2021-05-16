@@ -41,6 +41,7 @@ from toolkit.utils import (
     # OBJECTIVE_MULTI,
     TOKEN_PAD
 )
+from sentence_transformers import SentenceTransformer
 
 abbr2name = {
     "sat": MODEL_SHOW_ATTEND_TELL, 
@@ -400,6 +401,7 @@ def main(args):
 
 
     #mudar o lookup...
+    model = SentenceTransformer('paraphrase-distilroberta-base-v1')
     target_lookup= train_retrieval_loader.dataset.captions_text
     for i, (images, _, _, coco_id) in enumerate(val_data_loader):
         input_imgs = images.mean(dim=1)
@@ -408,11 +410,14 @@ def main(args):
         print("this is nearest images", nearest_images)
        
         #res={}
+
         for i in range(len(nearest_images)):
             nearest_cocoid = str(nearest_images[i].item())
             lookup_nearest_image = target_lookup[nearest_cocoid]
             caption_of_nearest_image=lookup_nearest_image[0]
             print("caption of nearest image", caption_of_nearest_image)
+            sentence_embeddings = model.encode(caption_of_nearest_image)
+            print("sentence embe", sentence_embeddings)
             print(stop)
             # encoded_nearest_caption=self.model_roberta(cap_without_padding)
             
