@@ -411,7 +411,8 @@ def main(args):
         nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
         print("this is nearest images", nearest_images)
        
-        #res={}
+        results=[]
+        all_cos =[]
 
         for i in range(len(nearest_images)):
             nearest_cocoid = str(nearest_images[i].item())
@@ -429,6 +430,11 @@ def main(args):
             cos_output = cos(torch.from_numpy(nearest_sentence_embeddings), torch.from_numpy(current_sentence_embeddings))
             #print("cos sim", cosine_similarity(nearest_sentence_embeddings, current_sentence_embeddings))
             print("cos out", cos_output)
+            all_cos.append(cos_output.item())
+            results.append({"current_id":current_cocoid, "nearest_cocoid":nearest_cocoid, "cos":(cos_output.item())})
+            print("all cos", all_cos)
+            print("results", results)
+
             print(stop)
 
 
