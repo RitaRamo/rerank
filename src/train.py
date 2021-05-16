@@ -419,7 +419,8 @@ def main(args):
             nearest_sentence_embeddings = model.encode(caption_of_nearest_image)
             print("sentence embe", nearest_sentence_embeddings)
             print("coco id", coco_id)
-            lookup_current_image = target_lookup[coco_id]
+            current_cocoid = coco_id[i]
+            lookup_current_image = target_lookup[current_cocoid]
             caption_of_current_image=lookup_current_image[0]
             current_sentence_embeddings = model.encode(caption_of_current_image)
             print("sentence embe", current_sentence_embeddings)
