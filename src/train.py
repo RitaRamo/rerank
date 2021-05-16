@@ -3,6 +3,7 @@ import os
 import sys
 import logging
 import numpy as np
+import json
 from pycocoevalcap.bleu.bleu import Bleu
 
 import torch
@@ -405,16 +406,17 @@ def main(args):
     model = SentenceTransformer('paraphrase-distilroberta-base-v1')
     target_lookup= train_retrieval_loader.dataset.captions_text
     cos = nn.CosineSimilarity(dim=-1, eps=1e-6)
+    results=[]
+    all_cos =[]
+    n_caps=0
     for i, (images, _, _, coco_id) in enumerate(val_data_loader):
         input_imgs = images.mean(dim=1)
         print("this  input_imgs suze after", input_imgs.size())
         nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
         print("this is nearest images", nearest_images)
        
-        results=[]
-        all_cos =[]
-
         for i in range(len(nearest_images)):
+            n_caps +=1
             nearest_cocoid = str(nearest_images[i].item())
             lookup_nearest_image = target_lookup[nearest_cocoid]
             caption_of_nearest_image=lookup_nearest_image[0]
@@ -434,15 +436,11 @@ def main(args):
             results.append({"current_id":current_cocoid, "nearest_cocoid":nearest_cocoid, "cos":(cos_output.item())})
             print("all cos", all_cos)
             print("results", results)
-
+            print("avg", all_cos/n_caps)
+            with open("sim_caps", 'w+') as f:
+                json.dump(results, f, indent=2)
             print(stop)
 
-
-
-
-
-
-            print(stop)
             # encoded_nearest_caption=self.model_roberta(cap_without_padding)
             
             #   caption_of_actual = target_lookup[coco_id]
@@ -450,6 +448,7 @@ def main(args):
             #   torch.cosin_similarity()
             #   res[coco_id=, similar_coco_id, score, both sentences].
     #save end
+   
 
 
 
