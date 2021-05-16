@@ -426,8 +426,9 @@ def main(args):
             caption_of_current_image=lookup_current_image[0]
             current_sentence_embeddings = model.encode(caption_of_current_image)
             print("sentence embe", current_sentence_embeddings)
-            #cos_output = cos(nearest_sentence_embeddings, current_sentence_embeddings)
-            print("cos sim", cosine_similarity(nearest_sentence_embeddings, current_sentence_embeddings))
+            cos_output = cos(torch.from_numpy(nearest_sentence_embeddings), torch.from_numpy(current_sentence_embeddings))
+            #print("cos sim", cosine_similarity(nearest_sentence_embeddings, current_sentence_embeddings))
+            print("cos out", cos_output)
             print(stop)
 
 
