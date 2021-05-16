@@ -29,6 +29,7 @@ from toolkit.utils import (
     save_checkpoint,
     get_log_file_path,
     rm_caption_special_tokens,
+    DATA_CAPTIONS,
     MODEL_SHOW_ATTEND_TELL,
     MODEL_BOTTOM_UP_TOP_DOWN,
     MODEL_BOTTOM_UP_TOP_DOWN_RANKING,
@@ -396,6 +397,33 @@ def main(args):
     else:
         target_lookup=None
         image_retrieval = None
+
+
+    #mudar o lookup...
+    target_lookup= train_retrieval_loader.dataset.captions_text
+    for i, (images, _, _, coco_id) in enumerate(val_data_loader):
+        input_imgs = images.mean(dim=1)
+        print("this  input_imgs suze after", input_imgs.size())
+        nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
+        print("this is nearest images", nearest_images)
+       
+        #res={}
+        for i in range(len(nearest_images)):
+            nearest_cocoid = str(nearest_images[i].item())
+            lookup_nearest_image = target_lookup[nearest_cocoid]
+            caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
+            print("caption of nearest image", caption_of_nearest_image)
+            print(stop)
+            # encoded_nearest_caption=self.model_roberta(cap_without_padding)
+            
+            #   caption_of_actual = target_lookup[coco_id]
+            #   encoded_ actual cap= 
+            #   torch.cosin_similarity()
+            #   res[coco_id=, similar_coco_id, score, both sentences].
+    #save end
+
+
+
 
     # Build model
     ckpt_filename = os.path.join(args.checkpoints_dir, "checkpoint.last.pth.tar")
