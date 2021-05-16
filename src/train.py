@@ -42,6 +42,7 @@ from toolkit.utils import (
     TOKEN_PAD
 )
 from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 abbr2name = {
     "sat": MODEL_SHOW_ATTEND_TELL, 
@@ -426,7 +427,8 @@ def main(args):
             current_sentence_embeddings = model.encode(caption_of_current_image)
             print("sentence embe", current_sentence_embeddings)
             cos_output = cos(nearest_sentence_embeddings, current_sentence_embeddings)
-            print("cos_output", cos_output)
+            print("cos sim", cosine_similarity(nearest_sentence_embeddings, current_sentence_embeddings))
+
             print(stop)
 
 
