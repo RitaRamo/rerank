@@ -411,7 +411,7 @@ def main(args):
         for i in range(len(nearest_images)):
             nearest_cocoid = str(nearest_images[i].item())
             lookup_nearest_image = target_lookup[nearest_cocoid]
-            caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
+            caption_of_nearest_image=lookup_nearest_image[0]
             print("caption of nearest image", caption_of_nearest_image)
             print(stop)
             # encoded_nearest_caption=self.model_roberta(cap_without_padding)
