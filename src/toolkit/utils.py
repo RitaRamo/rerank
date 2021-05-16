@@ -7,7 +7,7 @@ import shutil
 import torch
 import torch.nn as nn
 
-from scipy.misc import imread, imresize
+#from scipy.misc import imread, imresize
 import matplotlib.pyplot as plt
 import numpy as np
 from torchvision.transforms import transforms
