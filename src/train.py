@@ -436,7 +436,7 @@ def main(args):
             results.append({"current_id":current_cocoid, "nearest_cocoid":nearest_cocoid, "cos":(cos_output.item())})
             print("all cos", all_cos)
             print("results", results)
-            print("avg", all_cos/n_caps)
+            print("avg", np.sum(all_cos)/n_caps)
             with open("sim_caps", 'w+') as f:
                 json.dump(results, f, indent=2)
             print(stop)
