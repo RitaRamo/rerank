@@ -90,7 +90,7 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h1 = nn.Linear(encoder_output_dim, self.attention_lstm.lstm_cell.hidden_size)
         self.init_c1 = nn.Linear(encoder_output_dim, self.attention_lstm.lstm_cell.hidden_size)
 
-        self.init_h2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
+        self.init_h2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(self.embed_dim, self.language_lstm.lstm_cell.hidden_size)
 
         self.device=device
@@ -119,9 +119,10 @@ class TopDownDecoder(CaptioningDecoder):
             encoded_nearest_caption=self.embeddings(cap_without_padding)
           
             n_mean[i] = encoded_nearest_caption.mean(0)
+        
 
-        h2 = self.init_h2(n_mean)
-        c2 = self.init_c2(n_mean)
+        h2 = self.init_h2(v_mean)
+        c2 = n_mean
 
         # h2 = self.init_h2(v_mean)
         # c2 = self.init_c2(v_mean)

@@ -402,50 +402,50 @@ def main(args):
         image_retrieval = None
 
 
-    #mudar o lookup...
-    model = SentenceTransformer('paraphrase-distilroberta-base-v1')
-    target_lookup= train_retrieval_loader.dataset.captions_text
-    cos = nn.CosineSimilarity(dim=-1, eps=1e-6)
-    results=[]
-    all_cos =[]
-    n_caps=0
-    for i, (images, _, _, coco_id) in enumerate(val_data_loader):
-        input_imgs = images.mean(dim=1)
-        #print("this  input_imgs suze after", input_imgs.size())
-        nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
-        #print("this is nearest images", nearest_images)
+    # #mudar o lookup...
+    # model = SentenceTransformer('paraphrase-distilroberta-base-v1')
+    # target_lookup= train_retrieval_loader.dataset.captions_text
+    # cos = nn.CosineSimilarity(dim=-1, eps=1e-6)
+    # results=[]
+    # all_cos =[]
+    # n_caps=0
+    # for i, (images, _, _, coco_id) in enumerate(val_data_loader):
+    #     input_imgs = images.mean(dim=1)
+    #     #print("this  input_imgs suze after", input_imgs.size())
+    #     nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
+    #     #print("this is nearest images", nearest_images)
        
-        for i in range(len(nearest_images)):
-            n_caps +=1
-            nearest_cocoid = str(nearest_images[i].item())
-            lookup_nearest_image = target_lookup[nearest_cocoid]
-            caption_of_nearest_image=lookup_nearest_image[0]
-            #print("caption of nearest image", caption_of_nearest_image)
-            nearest_sentence_embeddings = model.encode(caption_of_nearest_image)
-            #print("sentence embe", nearest_sentence_embeddings)
-            #print("coco id", coco_id)
-            current_cocoid = coco_id[i]
-            lookup_current_image = target_lookup[current_cocoid]
-            caption_of_current_image=lookup_current_image[0]
-            current_sentence_embeddings = model.encode(caption_of_current_image)
-            #print("sentence embe", current_sentence_embeddings)
-            cos_output = cos(torch.from_numpy(nearest_sentence_embeddings), torch.from_numpy(current_sentence_embeddings))
-            #print("cos sim", cosine_similarity(nearest_sentence_embeddings, current_sentence_embeddings))
-            #print("cos out", cos_output)
-            all_cos.append(cos_output.item())
-            results.append({"current_id":current_cocoid, "nearest_cocoid":nearest_cocoid, "cos":(cos_output.item())})
+    #     for i in range(len(nearest_images)):
+    #         n_caps +=1
+    #         nearest_cocoid = str(nearest_images[i].item())
+    #         lookup_nearest_image = target_lookup[nearest_cocoid]
+    #         caption_of_nearest_image=lookup_nearest_image[0]
+    #         #print("caption of nearest image", caption_of_nearest_image)
+    #         nearest_sentence_embeddings = model.encode(caption_of_nearest_image)
+    #         #print("sentence embe", nearest_sentence_embeddings)
+    #         #print("coco id", coco_id)
+    #         current_cocoid = coco_id[i]
+    #         lookup_current_image = target_lookup[current_cocoid]
+    #         caption_of_current_image=lookup_current_image[0]
+    #         current_sentence_embeddings = model.encode(caption_of_current_image)
+    #         #print("sentence embe", current_sentence_embeddings)
+    #         cos_output = cos(torch.from_numpy(nearest_sentence_embeddings), torch.from_numpy(current_sentence_embeddings))
+    #         #print("cos sim", cosine_similarity(nearest_sentence_embeddings, current_sentence_embeddings))
+    #         #print("cos out", cos_output)
+    #         all_cos.append(cos_output.item())
+    #         results.append({"current_id":current_cocoid, "nearest_cocoid":nearest_cocoid, "cos":(cos_output.item())})
             
-            # encoded_nearest_caption=self.model_roberta(cap_without_padding)
+    #         # encoded_nearest_caption=self.model_roberta(cap_without_padding)
             
-            #   caption_of_actual = target_lookup[coco_id]
-            #   encoded_ actual cap= 
-            #   torch.cosin_similarity()
-            #   res[coco_id=, similar_coco_id, score, both sentences].
-    #save end
-    print("avg", np.sum(all_cos)/n_caps)
-    with open("sim_caps", 'w+') as f:
-        json.dump(results, f, indent=2)
-    print(stop)
+    #         #   caption_of_actual = target_lookup[coco_id]
+    #         #   encoded_ actual cap= 
+    #         #   torch.cosin_similarity()
+    #         #   res[coco_id=, similar_coco_id, score, both sentences].
+    # #save end
+    # print("avg", np.sum(all_cos)/n_caps)
+    # with open("sim_caps", 'w+') as f:
+    #     json.dump(results, f, indent=2)
+    # print(stop)
    
 
 
