@@ -122,7 +122,7 @@ class TopDownDecoder(CaptioningDecoder):
         
 
         h2 = self.init_h2(v_mean)
-        c2 = n_mean
+        c2 = self.init_c2(n_mean)
 
         # h2 = self.init_h2(v_mean)
         # c2 = self.init_c2(v_mean)
