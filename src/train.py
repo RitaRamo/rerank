@@ -56,6 +56,7 @@ abbr2name = {
 }
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("my device", device)
 cudnn.benchmark = True  # improve performance if inputs to model are fixed size
 
 
