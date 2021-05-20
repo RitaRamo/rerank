@@ -7,6 +7,8 @@ import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 import faiss
+from sentence_transformers import SentenceTransformer
+
 
 from scipy.misc import imresize
 
@@ -20,7 +22,8 @@ from toolkit.utils import (
     DATASET_SPLITS_FILENAME,
     IMAGENET_IMAGES_MEAN,
     IMAGENET_IMAGES_STD,
-    CAPTIONS_FILENAME
+    CAPTIONS_FILENAME,
+    WORD_MAP_FILENAME
 )
 
 
@@ -132,117 +135,115 @@ class CaptionEvalDataset(CaptionDataset):
 
 
 
-# class CaptionTrainRetrievalDataset(CaptionDataset):
-#     """
-#     PyTorch training dataset that provides batches of images with a corresponding caption each.
-#     """
+class CaptionTrainTRetrievalDataset(CaptionDataset):
+    """
+    PyTorch training dataset that provides batches of images with a corresponding caption each.
+    """
 
-#     def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1):
-#         super().__init__(dataset_splits_dir, features_fn,
-#                          normalize, features_scale_factor)
-#         self.split = self.split[TRAIN_SPLIT]
-#         #self.model = roberta...
+    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1):
+        super().__init__(dataset_splits_dir, features_fn,
+                         normalize, features_scale_factor)
+        self.split = self.split[TRAIN_SPLIT]
+        
+        word_map_filename = os.path.join(dataset_splits_dir, WORD_MAP_FILENAME)
+        with open(word_map_filename) as f:
+            self.word_map = json.load(f)
+        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
-#     def __getitem__(self, i):
-#         # Convert index depending on the dataset split
-#         coco_id = self.split[i // self.captions_per_image]
-#         caption_index = i % self.captions_per_image
+        #self.model = roberta...
 
-#         image = self.get_image_features(coco_id)
-#         text_caption = self.captions_text[coco_id][caption_index]
-#         for i in text_caption:
-#             #iterar pelas captions para teres o contexto...
-#             text_enc=self.model.encode(text_caption[:MAX_LEN]) #what is max ln?
-#             #save target word (next word) in a file...
+    def __getitem__(self, i):
+        # Convert index depending on the dataset split
+        coco_id = self.split[i]
+
+        image = self.get_image_features(coco_id)
+        print("images size", image)
+        print("im mean", image.mean(dim=1))
+
+        image_caps = self.captions_text[coco_id]
+        text_encs = torch.tensor([])
+        targets= []
+        for cap_index in range(len(image_caps)):
+            text_caption = image_caps[cap_index]
+            words_caption = text_caption.split()
+            for i in range(len(words_caption)):
+                text_enc=self.sentence_model.encode(words_caption[:i]) #tens de substituir isto... 
+                text_encs= torch.cat((text_encs,torch.tensor(text_enc)))
+                targets.append(self.word_map[words_caption[i]])
+
+        images = image.expand(text_encs.size(0), image.size(1), image.size(-1))
+        print("images size after expand", image)
+
+        #concatenar text_encs
+        return images, text_encs, targets
+
+    #depois o retrieval coloca as imagens concatenas com text_encs
+    # depois os targets ficam um atributo da retrieval 
+    #estes targets espero ter em encoded index...!!
+
+    def __len__(self):
+        return len(self.split)
+
+class ImageTRetrieval():
+
+    def __init__(self, dim_examples, train_dataloader_images, device):
+        #print("self dim exam", dim_examples)
+        self.datastore = faiss.IndexFlatL2(dim_examples) #datastore
+
+        #data
+        self.device=device
+        self.imgs_indexes_of_dataloader = torch.tensor([]).long().to(device)
+        #print("self.imgs_indexes_of_dataloader type", self.imgs_indexes_of_dataloader)
+
+        #print("len img dataloader", self.imgs_indexes_of_dataloader.size())
+        self._add_examples(train_dataloader_images)
+        #print("len img dataloader final", self.imgs_indexes_of_dataloader.size())
+        #print("como ficou img dataloader final", self.imgs_indexes_of_dataloader)
+
+
+    def _add_examples(self, train_dataloader_images):
+        print("\nadding input examples to datastore (retrieval)")
+        for i, (encoder_text_outputs, imgs_indexes) in enumerate(train_dataloader_images):
+            #add to the datastore
+            encoder_output=encoder_output.to(self.device)
+            imgs_indexes = torch.tensor(list(map(int, imgs_indexes))).to(self.device)
+            #print("\nimages ind", imgs_indexes)
+            #print("img index type", imgs_indexes)
+            #print("encoder out", encoder_output.size())
+            #encoder_output = encoder_output.view(encoder_output.size()[0], -1, encoder_output.size()[-1])
+            #print("encoder out", encoder_output.size())
+            input_img = encoder_output.mean(dim=1)
+            #print("input image size", input_img.size())
             
-#             torch.cat(image, text_enc)
-#             #add to retrieval...
+            self.datastore.add(input_img.cpu().numpy())
+            self.imgs_indexes_of_dataloader= torch.cat((self.imgs_indexes_of_dataloader,imgs_indexes))
 
-#         return image, caption
+            if i%5==0:
+                print("i and img index of ImageRetrival",i, imgs_indexes)
+                print("n of examples", self.datastore.ntotal)
+    
+    def retrieve_nearest_for_train_query(self, query_img, k=2):
+        #print("self query img", query_img)
+        D, I = self.datastore.search(query_img, k)     # actual search
+        # print("all nearest", I)
+        # print("I firt", I[:,0])
+        # print("I second", I[:,1])
 
-#     def __len__(self):
-#         return len(self.split) * self.captions_per_image
+        # print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
+        # print("this is the img indexes", self.imgs_indexes_of_dataloader)
+        # print("n of img index", len(self.imgs_indexes_of_dataloader))
+        # print("n of examples", self.datastore.ntotal)
 
+        nearest_input = self.imgs_indexes_of_dataloader[I[:,1]]
+        #print("the nearest input is actual the second for training", nearest_input)
+        return nearest_input
 
-# class ImageRetrieval():
-
-#     def __init__(self, dim_examples, encoder, train_dataloader_images, device):
-#         #print("self dim exam", dim_examples)
-#         self.datastore = faiss.IndexFlatL2(dim_examples) #datastore
-#         self.encoder= encoder
-
-#         #data
-#         self.device=device
-#         self.imgs_indexes_of_dataloader = torch.tensor([]).long().to(device)
-#         #print("self.imgs_indexes_of_dataloader type", self.imgs_indexes_of_dataloader)
-
-#         #print("len img dataloader", self.imgs_indexes_of_dataloader.size())
-#         self._add_examples(train_dataloader_images)
-#         #print("len img dataloader final", self.imgs_indexes_of_dataloader.size())
-#         #print("como ficou img dataloader final", self.imgs_indexes_of_dataloader)
-
-
-#     def _add_examples(self, train_dataloader_images):
-#         print("\nadding input examples to datastore (retrieval)")
-#         for i, (imgs, imgs_indexes) in enumerate(train_dataloader_images):
-#             #add to the datastore
-#             imgs=imgs.to(self.device)
-#             imgs_indexes = imgs_indexes.long().to(self.device)
-#             #print("img index type", imgs_indexes)
-#             encoder_output = self.encoder(imgs)
-
-#             encoder_output = encoder_output.view(encoder_output.size()[0], -1, encoder_output.size()[-1])
-#             input_img = encoder_output.mean(dim=1)
-            
-#             self.datastore.add(input_img.cpu().numpy())
-
-#             if i%5==0:
-#                 print("i and img index of ImageRetrival",i, imgs_indexes)
-#                 print("n of examples", self.datastore.ntotal)
-#             self.imgs_indexes_of_dataloader= torch.cat((self.imgs_indexes_of_dataloader,imgs_indexes))
-
-
-#     def _add_examples(self, train_dataloader):
-#         print("\nadding input examples to datastore (retrieval)")
-#         for i, (image, caption, caption_length) in enumerate(train_dataloader):
-#             #add to the datastore
-            
-#             #o que fazes com a imagem??
-#             imgs=imgs.to(self.device)
-#             imgs_indexes = imgs_indexes.long().to(self.device)
-#             #print("img index type", imgs_indexes)
-#             encoder_output = self.encoder(imgs)
-
-#             encoder_output = encoder_output.view(encoder_output.size()[0], -1, encoder_output.size()[-1])
-#             input_img = encoder_output.mean(dim=1)
-            
-#             self.datastore.add(input_img.cpu().numpy())
-
-#             if i%5==0:
-#                 print("i and img index of ImageRetrival",i, imgs_indexes)
-#                 print("n of examples", self.datastore.ntotal)
-#             self.imgs_indexes_of_dataloader= torch.cat((self.imgs_indexes_of_dataloader,imgs_indexes))
-
-
-
-#     def retrieve_nearest_for_train_query(self, query_img, k=2):
-#         #print("self query img", query_img)
-#         D, I = self.datastore.search(query_img, k)     # actual search
-#         #print("all nearest", I)
-#         #print("I firt", I[:,0])
-#         #print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
-#         nearest_input = self.imgs_indexes_of_dataloader[I[:,1]]
-#         #print("the nearest input is actual the second for training", nearest_input)
-#         #nearest_input = I[0,1]
-#         #print("actual nearest_input", nearest_input)
-#         return nearest_input
-
-#     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
-#         D, I = self.datastore.search(query_img, k)     # actual search
-#         nearest_input = self.imgs_indexes_of_dataloader[I[:,0]]
-#         #print("all nearest", I)
-#         #print("the nearest input", nearest_input)
-#         return nearest_input
+    def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
+        D, I = self.datastore.search(query_img, k)     # actual search
+        nearest_input = self.imgs_indexes_of_dataloader[I[:,0]]
+        # print("all nearest", I)
+        # print("the nearest input", nearest_input)
+        return nearest_input
 
 
 class CaptionTrainRetrievalDataset(CaptionDataset):
@@ -365,6 +366,12 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
+                batch_size=batch_size, shuffle=False, num_workers=workers, pin_memory=True
+            )
+
+    elif split == "t_retrieval":
+        data_loader = torch.utils.data.DataLoader(
+                CaptionTrainTRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
                 batch_size=batch_size, shuffle=False, num_workers=workers, pin_memory=True
             )
 

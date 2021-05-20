@@ -56,7 +56,6 @@ abbr2name = {
 }
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("my device", device)
 cudnn.benchmark = True  # improve performance if inputs to model are fixed size
 
 
@@ -402,6 +401,15 @@ def main(args):
         target_lookup=None
         image_retrieval = None
 
+    train_t_retrieval_loader = get_data_loader("t_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        args.workers, args.image_normalize)
+ 
+    for i, (images, enc_texts, targets) in enumerate(train_t_retrieval_loader):
+        
+        print("images", images)
+        print("enc texts", enc_texts)
+        print("thise are the targets", targets)
+        print(stop)
 
     # #mudar o lookup...
     # model = SentenceTransformer('paraphrase-distilroberta-base-v1')
