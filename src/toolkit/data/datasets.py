@@ -201,6 +201,9 @@ class ContextRetrieval():
         for i, (encoder_text_outputs, targets) in enumerate(train_dataloader_images):
             #add to the datastore
             print("enc tex", encoder_text_outputs.squeeze(0).size())
+            print("enc to cpu", encoder_text_outputs.squeeze(0).cpu().numpy())
+            print("enc tex", encoder_text_outputs.squeeze(0).numpy())
+
             self.datastore.add(encoder_text_outputs.squeeze(0).numpy())
             targets = targets.to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
