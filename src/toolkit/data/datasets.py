@@ -186,7 +186,7 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         images = image.expand(text_encs.size(0), image.size(-1))
         print("images size after expand", images.size())
 
-        context = torch.cat((images,text_encs), dim=0)
+        context = torch.cat((images,text_encs), dim=-1)
         print("conte size", context.size())
         print(stop)
 
