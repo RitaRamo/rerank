@@ -182,7 +182,7 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         print("targets", targets)
         print("text_encs", text_encs.size())
         images = image.expand(text_encs.size(0), image.size(-1))
-        print("images size after expand", image.size())
+        print("images size after expand", images.size())
         print(stop)
 
         #concatenar text_encs
