@@ -20,7 +20,7 @@ from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
 from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
 from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
 from toolkit.models.show_attend_tell import SATModel
-from toolkit.data.datasets import get_data_loader, get_retrieval
+from toolkit.data.datasets import get_data_loader, get_retrieval, get_context_retrieval
 from toolkit.optim import create_optimizer
 from toolkit.criterions import create_criterion, create_regularizer
 from toolkit.utils import (
@@ -401,15 +401,10 @@ def main(args):
         target_lookup=None
         image_retrieval = None
 
-    train_t_retrieval_loader = get_data_loader("t_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+    train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
                                         0, args.image_normalize)
  
-    for i, (images, enc_texts, targets) in enumerate(train_t_retrieval_loader):
-        
-        print("images", images)
-        print("enc texts", enc_texts)
-        print("thise are the targets", targets)
-        print(stop)
+    context_retrieval = get_context_retrieval(train_context_retrieval_loader, device)
 
     # #mudar o lookup...
     # model = SentenceTransformer('paraphrase-distilroberta-base-v1')
