@@ -402,7 +402,7 @@ def main(args):
         image_retrieval = None
 
     train_t_retrieval_loader = get_data_loader("t_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        args.workers, args.image_normalize)
+                                        0, args.image_normalize)
  
     for i, (images, enc_texts, targets) in enumerate(train_t_retrieval_loader):
         
