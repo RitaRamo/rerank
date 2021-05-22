@@ -240,21 +240,10 @@ class ContextRetrieval():
         print("\nadding input examples to datastore (retrieval)")
         for i, (images, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
-            print("image", images.size())
-            print("image conte", contexts, len(contexts))
-            print("image conte", targets, len(targets))
-           
             images = images.mean(dim=1).numpy()
-            print("images size", images.dtype)
             enc_contexts=self.sentence_model.encode(contexts)
-            print("enc cont", enc_contexts)
             images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-            print("images and tex", numpy.shape(images_and_text_context))
-            print("images and tex", images_and_text_context.dtype)
-
-            # print("enc tex", encoder_text_outputs.squeeze(0))
-            # print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
-
+          
             self.datastore.add(images_and_text_context)
             targets = torch.tensor(targets).to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
@@ -262,7 +251,6 @@ class ContextRetrieval():
             if i%5==0:
                 print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
                 print("n of examples", self.datastore.ntotal)
-            print(stop)
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
         #print("self query img", query_img)
@@ -470,7 +458,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=2, shuffle=False, num_workers=workers, pin_memory=True
+                batch_size=64, shuffle=False, num_workers=workers, pin_memory=True
             )
 
     else:
