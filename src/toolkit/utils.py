@@ -87,6 +87,10 @@ TEST_SPLIT = "test_images"
 HELDOUT_PAIRS = "heldout_pairs"
 WORD_MAP_FILENAME = "word_map.json"
 ENCODED_METAS_FILENAME = "encoded_captions.json"
+TRAIN_CONTEXT_IMAGES_FILENAME = "train_context_images.json"
+TRAIN_CONTEXT_FILENAME = "train_context.json"
+TRAIN_TARGETS_FILENAME = "train_context_targets.json"
+
 
 # Models
 MODEL_SHOW_ATTEND_TELL = "SHOW_ATTEND_TELL"
