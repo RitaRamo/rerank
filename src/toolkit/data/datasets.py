@@ -168,7 +168,7 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         text_encs = torch.tensor([])
         targets= []
         for cap_index in range(len(image_caps)):
-            text_caption = TOKEN_START + image_caps[cap_index] + TOKEN_END
+            text_caption = TOKEN_START + " " + image_caps[cap_index] + " "+ TOKEN_END
             words_caption = text_caption.split()
             print("all words caption", words_caption)
             for i in range(len(words_caption)):
