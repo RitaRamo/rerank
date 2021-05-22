@@ -247,8 +247,8 @@ class ContextRetrieval():
         for i, (image, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
             print("image", image.size())
-            print("image conte", contexts)
-            print("image conte", targets)
+            print("image conte", contexts, len(contexts))
+            print("image conte", targets, len(targets))
             print("ola")
             print(stop)
             # print("enc tex", encoder_text_outputs.squeeze(0))
@@ -468,7 +468,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=1, shuffle=False, num_workers=workers, pin_memory=True
+                batch_size=2, shuffle=False, num_workers=workers, pin_memory=True
             )
 
     else:
