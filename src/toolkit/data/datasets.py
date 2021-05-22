@@ -213,7 +213,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
             words_caption = text_caption.split()
             for i in range(len(words_caption)):
                 #text_enc=self.sentence_model.encode(words_caption[:i]) #tens de substituir isto... 
-                contexts.append(words_caption[:i])
+                contexts.append(" ".join(words_caption[:i]))
                 targets.append(self.word_map[words_caption[i]])
 
         
