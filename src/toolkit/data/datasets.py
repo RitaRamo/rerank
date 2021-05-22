@@ -159,7 +159,6 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         image = self.get_image_features(coco_id)
         image = image.mean(dim=0) #get 2048 dim
         print("images size", image.size())
-        print("im mean", image.mean(dim=1).size())
 
         #TODO:FALTA START E END TOKEN
 
