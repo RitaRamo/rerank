@@ -243,18 +243,25 @@ class ContextRetrieval():
             print("image", images.size())
             print("image conte", contexts, len(contexts))
             print("image conte", targets, len(targets))
-            print("sentence model", self.sentence_model.encode(contexts).size())
-            print(stop)
+           
+            images = images.mean(dim=1)
+            print("images size", images.size())
+            enc_contexts=self.sentence_model.encode(contexts)
+            print("enc cont", enc_contexts.size())
+            images_and_text_context = torch.cat((images,enc_contexts), dim=-1) #(n_contexts, 2048 + 768)
+            print("images and tex", images_and_text_context.size())
+
             # print("enc tex", encoder_text_outputs.squeeze(0))
             # print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
 
-            # self.datastore.add(encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
-            # targets = torch.tensor(targets).to(self.device)
-            # self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
+            self.datastore.add(images_and_text_context.squeeze(0).numpy())
+            targets = torch.tensor(targets).to(self.device)
+            self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
 
-            # if i%5==0:
-            #     print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
-            #     print("n of examples", self.datastore.ntotal)
+            if i%5==0:
+                print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
+                print("n of examples", self.datastore.ntotal)
+            print(stop)
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
         #print("self query img", query_img)
