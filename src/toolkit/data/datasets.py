@@ -23,7 +23,9 @@ from toolkit.utils import (
     IMAGENET_IMAGES_MEAN,
     IMAGENET_IMAGES_STD,
     CAPTIONS_FILENAME,
-    WORD_MAP_FILENAME
+    WORD_MAP_FILENAME,
+    TOKEN_START,
+    TOKEN_END
 )
 
 
@@ -166,7 +168,7 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         text_encs = torch.tensor([])
         targets= []
         for cap_index in range(len(image_caps)):
-            text_caption = image_caps[cap_index]
+            text_caption = TOKEN_START + image_caps[cap_index] + TOKEN_END
             words_caption = text_caption.split()
             print("all words caption", words_caption)
             for i in range(len(words_caption)):
@@ -183,10 +185,13 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         print("text_encs", text_encs.size())
         images = image.expand(text_encs.size(0), image.size(-1))
         print("images size after expand", images.size())
+
+        context = torch.cat((images,text_encs))
+        print("conte size", context.size())
         print(stop)
 
         #concatenar text_encs
-        return images, text_encs, targets
+        return context, targets
 
     #depois o retrieval coloca as imagens concatenas com text_encs
     # depois os targets ficam um atributo da retrieval 
