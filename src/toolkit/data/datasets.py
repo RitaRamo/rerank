@@ -26,7 +26,10 @@ from toolkit.utils import (
     CAPTIONS_FILENAME,
     WORD_MAP_FILENAME,
     TOKEN_START,
-    TOKEN_END
+    TOKEN_END,
+    TRAIN_CONTEXT_IMAGES_FILENAME,
+    TRAIN_CONTEXT_FILENAME,
+    TRAIN_TARGETS_FILENAME
 )
 
 
@@ -189,40 +192,30 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
     def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1):
         super().__init__(dataset_splits_dir, features_fn,
                          normalize, features_scale_factor)
-        #self.split = self.split[TRAIN_SPLIT]
-        self.split = self.split[VALID_SPLIT]
 
-        word_map_filename = os.path.join(dataset_splits_dir, WORD_MAP_FILENAME)
-        with open(word_map_filename) as f:
-            self.word_map = json.load(f)
-        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
+        all_images_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_IMAGES_FILENAME) #aqui esse ficheio
+        all_contexts_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_FILENAME) #aqui esse ficheio
+        all_targets_filename = os.path.join(dataset_splits_dir, TRAIN_TARGETS_FILENAME) #aqui esse ficheio
+
+        with open(all_images_filename) as f:
+            self.all_images = json.load(f)
+
+        with open(all_contexts_filename) as f:
+            self.all_contexts = json.load(f)
+
+        with open(all_targets_filename) as f:
+            self.all_targets = json.load(f)  
+        #self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
     def __getitem__(self, i):
-        # Convert index depending on the dataset split
-        coco_id = self.split[i]
-
+        coco_id=self.all_images[i]
         image = self.get_image_features(coco_id) #32, 2048
-        image = image.mean(dim=0) #2048 dim
-
-        image_caps = self.captions_text[coco_id]
-        text_encs = torch.tensor([])
-        targets= []
-        contexts = []
-        for cap_index in range(len(image_caps)):
-            text_caption = TOKEN_START + " " + image_caps[cap_index] + " "+ TOKEN_END
-            words_caption = text_caption.split()
-            for i in range(len(words_caption)):
-                #text_enc=self.sentence_model.encode(words_caption[:i]) #tens de substituir isto... 
-                contexts.append(" ".join(words_caption[:i]))
-                targets.append(self.word_map[words_caption[i]])
-
-        
-        images = image.expand(text_encs.size(0), image.size(-1))
-        #context = torch.cat((images,text_encs), dim=-1) #(n_contexts, 2048 + 768)
-        return image, contexts, targets
+        context=self.all_contexts[i]
+        target=self.all_targets[i]
+        return image, context, target
 
     def __len__(self):
-        return len(self.split)
+        return len(self.all_images)
 
 
 class ContextRetrieval():
@@ -230,6 +223,7 @@ class ContextRetrieval():
     def __init__(self, dim_examples, train_dataloader_images, device):
         #print("self dim exam", dim_examples)
         self.datastore = faiss.IndexFlatL2(dim_examples) #datastore
+        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
         #data
         self.device=device
@@ -244,12 +238,12 @@ class ContextRetrieval():
 
     def _add_examples(self, train_dataloader_images):
         print("\nadding input examples to datastore (retrieval)")
-        for i, (image, contexts, targets) in enumerate(train_dataloader_images):
+        for i, (images, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
-            print("image", image.size())
+            print("image", images.size())
             print("image conte", contexts, len(contexts))
             print("image conte", targets, len(targets))
-            print("ola")
+            print("sentence model", self.sentence_model.encode(contexts))
             print(stop)
             # print("enc tex", encoder_text_outputs.squeeze(0))
             # print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
