@@ -157,8 +157,8 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         coco_id = self.split[i]
 
         image = self.get_image_features(coco_id)
-        print("images size", image)
-        print("im mean", image.mean(dim=1))
+        print("images size", image.size())
+        print("im mean", image.mean(dim=1).size())
 
         image_caps = self.captions_text[coco_id]
         text_encs = torch.tensor([])
@@ -166,11 +166,19 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         for cap_index in range(len(image_caps)):
             text_caption = image_caps[cap_index]
             words_caption = text_caption.split()
+            print("all words caption", words_caption)
             for i in range(len(words_caption)):
                 text_enc=self.sentence_model.encode(words_caption[:i]) #tens de substituir isto... 
+                print("words_caption[:i]", words_caption[:i])
+                print("target words_caption[i]", words_caption[i])
+
                 text_encs= torch.cat((text_encs,torch.tensor(text_enc)))
+                print("text_encs[:i]", text_encs)
+
                 targets.append(self.word_map[words_caption[i]])
 
+        print("targets", targets)
+        print("text_encs", text_encs.size())
         images = image.expand(text_encs.size(0), image.size(1), image.size(-1))
         print("images size after expand", image)
 
