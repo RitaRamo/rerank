@@ -8,6 +8,7 @@ from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 import faiss
 from sentence_transformers import SentenceTransformer
+import numpy
 
 
 from scipy.misc import imresize
@@ -201,10 +202,10 @@ class ContextRetrieval():
         for i, (encoder_text_outputs, targets) in enumerate(train_dataloader_images):
             #add to the datastore
             print("enc tex", encoder_text_outputs.squeeze(0).size())
-            print("enc to cpu", encoder_text_outputs.squeeze(0).cpu().numpy().dtype)
-            print("enc tex", encoder_text_outputs.squeeze(0).numpy().dtype)
+            print("enc to cpu", encoder_text_outputs.squeeze(0).cpu().numpy().float32.dtype)
+            print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
 
-            self.datastore.add(encoder_text_outputs.squeeze(0).numpy())
+            self.datastore.add(encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
             targets = targets.to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
 
