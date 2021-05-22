@@ -201,8 +201,8 @@ class ContextRetrieval():
         for i, (encoder_text_outputs, targets) in enumerate(train_dataloader_images):
             #add to the datastore
             print("enc tex", encoder_text_outputs.squeeze(0).size())
-            print("enc to cpu", encoder_text_outputs.squeeze(0).cpu().numpy())
-            print("enc tex", encoder_text_outputs.squeeze(0).numpy())
+            print("enc to cpu", encoder_text_outputs.squeeze(0).cpu().numpy().dtype)
+            print("enc tex", encoder_text_outputs.squeeze(0).numpy().dtype)
 
             self.datastore.add(encoder_text_outputs.squeeze(0).numpy())
             targets = targets.to(self.device)
