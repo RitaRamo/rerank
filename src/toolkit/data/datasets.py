@@ -201,11 +201,11 @@ class ContextRetrieval():
         print("\nadding input examples to datastore (retrieval)")
         for i, (encoder_text_outputs, targets) in enumerate(train_dataloader_images):
             #add to the datastore
-            print("enc tex", encoder_text_outputs.squeeze(0).size())
+            print("enc tex", encoder_text_outputs.squeeze(0))
             print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
 
             self.datastore.add(encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
-            targets = targets.to(self.device)
+            targets = torch.tensor(targets).to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
 
             if i%5==0:
