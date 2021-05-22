@@ -137,7 +137,7 @@ class CaptionEvalDataset(CaptionDataset):
 
 
 
-class CaptionTrainTRetrievalDataset(CaptionDataset):
+class CaptionTrainContextRetrievalDataset(CaptionDataset):
     """
     PyTorch training dataset that provides batches of images with a corresponding caption each.
     """
@@ -145,24 +145,20 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
     def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1):
         super().__init__(dataset_splits_dir, features_fn,
                          normalize, features_scale_factor)
-        self.split = self.split[TRAIN_SPLIT]
-        
+        #self.split = self.split[TRAIN_SPLIT]
+        self.split = self.split[VALID_SPLIT]
+
         word_map_filename = os.path.join(dataset_splits_dir, WORD_MAP_FILENAME)
         with open(word_map_filename) as f:
             self.word_map = json.load(f)
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
-        #self.model = roberta...
-
     def __getitem__(self, i):
         # Convert index depending on the dataset split
         coco_id = self.split[i]
 
-        image = self.get_image_features(coco_id)
-        image = image.mean(dim=0) #get 2048 dim
-        print("images size", image.size())
-
-        #TODO:FALTA START E END TOKEN
+        image = self.get_image_features(coco_id) #32, 2048
+        image = image.mean(dim=0) #2048 dim
 
         image_caps = self.captions_text[coco_id]
         text_encs = torch.tensor([])
@@ -170,37 +166,20 @@ class CaptionTrainTRetrievalDataset(CaptionDataset):
         for cap_index in range(len(image_caps)):
             text_caption = TOKEN_START + " " + image_caps[cap_index] + " "+ TOKEN_END
             words_caption = text_caption.split()
-            print("all words caption", words_caption)
             for i in range(len(words_caption)):
                 text_enc=self.sentence_model.encode(words_caption[:i]) #tens de substituir isto... 
-                print("words_caption[:i]", words_caption[:i])
-                print("target words_caption[i]", words_caption[i])
-
                 text_encs= torch.cat((text_encs,torch.tensor(text_enc)))
-                print("text_encs[:i]", text_encs)
-
                 targets.append(self.word_map[words_caption[i]])
 
-        print("targets", targets)
-        print("text_encs", text_encs.size())
+        
         images = image.expand(text_encs.size(0), image.size(-1))
-        print("images size after expand", images.size())
-
-        context = torch.cat((images,text_encs), dim=-1)
-        print("conte size", context.size())
-        print(stop)
-
-        #concatenar text_encs
+        context = torch.cat((images,text_encs), dim=-1) #(n_contexts, 2048 + 768)
         return context, targets
-
-    #depois o retrieval coloca as imagens concatenas com text_encs
-    # depois os targets ficam um atributo da retrieval 
-    #estes targets espero ter em encoded index...!!
 
     def __len__(self):
         return len(self.split)
 
-class ImageTRetrieval():
+class ContextRetrieval():
 
     def __init__(self, dim_examples, train_dataloader_images, device):
         #print("self dim exam", dim_examples)
@@ -208,7 +187,7 @@ class ImageTRetrieval():
 
         #data
         self.device=device
-        self.imgs_indexes_of_dataloader = torch.tensor([]).long().to(device)
+        self.targets_of_dataloader = torch.tensor([]).long().to(device)
         #print("self.imgs_indexes_of_dataloader type", self.imgs_indexes_of_dataloader)
 
         #print("len img dataloader", self.imgs_indexes_of_dataloader.size())
@@ -219,23 +198,14 @@ class ImageTRetrieval():
 
     def _add_examples(self, train_dataloader_images):
         print("\nadding input examples to datastore (retrieval)")
-        for i, (encoder_text_outputs, imgs_indexes) in enumerate(train_dataloader_images):
+        for i, (encoder_text_outputs, targets) in enumerate(train_dataloader_images):
             #add to the datastore
-            encoder_output=encoder_output.to(self.device)
-            imgs_indexes = torch.tensor(list(map(int, imgs_indexes))).to(self.device)
-            #print("\nimages ind", imgs_indexes)
-            #print("img index type", imgs_indexes)
-            #print("encoder out", encoder_output.size())
-            #encoder_output = encoder_output.view(encoder_output.size()[0], -1, encoder_output.size()[-1])
-            #print("encoder out", encoder_output.size())
-            input_img = encoder_output.mean(dim=1)
-            #print("input image size", input_img.size())
-            
-            self.datastore.add(input_img.cpu().numpy())
-            self.imgs_indexes_of_dataloader= torch.cat((self.imgs_indexes_of_dataloader,imgs_indexes))
+            self.datastore.add(encoder_text_outputs.cpu().numpy())
+            targets = targets.to(self.device)
+            self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
 
             if i%5==0:
-                print("i and img index of ImageRetrival",i, imgs_indexes)
+                print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
                 print("n of examples", self.datastore.ntotal)
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
@@ -250,13 +220,13 @@ class ImageTRetrieval():
         # print("n of img index", len(self.imgs_indexes_of_dataloader))
         # print("n of examples", self.datastore.ntotal)
 
-        nearest_input = self.imgs_indexes_of_dataloader[I[:,1]]
+        nearest_input = self.targets_of_dataloader[I[:,1]]
         #print("the nearest input is actual the second for training", nearest_input)
         return nearest_input
 
     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
         D, I = self.datastore.search(query_img, k)     # actual search
-        nearest_input = self.imgs_indexes_of_dataloader[I[:,0]]
+        nearest_input = self.targets_of_dataloader[I[:,0]]
         # print("all nearest", I)
         # print("the nearest input", nearest_input)
         return nearest_input
@@ -385,7 +355,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
                 batch_size=batch_size, shuffle=False, num_workers=workers, pin_memory=True
             )
 
-    elif split == "t_retrieval":
+    elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainTRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
                 batch_size=batch_size, shuffle=False, num_workers=workers, pin_memory=True
@@ -424,6 +394,29 @@ def get_retrieval(retrieval_data_loader, device):
     #     #falta imprimir o coco id dos nearest 
 
     #print("stop remove from dataloader o VAL e coloca TRAIN", stop)
+
+
+    return image_retrieval
+
+
+def get_context_retrieval(retrieval_data_loader, device):
+
+    encoder_output_dim = 2048 + 768 #faster r-cnn features
+
+    image_retrieval = ContextRetrieval(encoder_output_dim, retrieval_data_loader,device)
+  
+    for i, (context, target) in enumerate(retrieval_data_loader):
+        print("this is the first batch of images", context.size())
+        print("targt", target)
+     
+        nearest=image_retrieval.retrieve_nearest_for_train_query(context.numpy())
+        print("this is nearest train images", nearest)
+
+        nearest = image_retrieval.retrieve_nearest_for_val_or_test_query(context.numpy())
+        
+        print("retrieve for test query", nearest)
+
+    print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
 
     return image_retrieval
