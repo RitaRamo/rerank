@@ -243,7 +243,7 @@ class ContextRetrieval():
             print("image", images.size())
             print("image conte", contexts, len(contexts))
             print("image conte", targets, len(targets))
-            print("sentence model", self.sentence_model.encode(contexts))
+            print("sentence model", self.sentence_model.encode(contexts).size())
             print(stop)
             # print("enc tex", encoder_text_outputs.squeeze(0))
             # print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
