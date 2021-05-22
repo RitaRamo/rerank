@@ -244,17 +244,17 @@ class ContextRetrieval():
             print("image conte", contexts, len(contexts))
             print("image conte", targets, len(targets))
            
-            images = images.mean(dim=1)
-            print("images size", images.size())
+            images = images.mean(dim=1).numpy()
+            print("images size", type(images))
             enc_contexts=self.sentence_model.encode(contexts)
             print("enc cont", enc_contexts)
-            images_and_text_context = torch.cat((images,enc_contexts), dim=-1) #(n_contexts, 2048 + 768)
-            print("images and tex", images_and_text_context.size())
+            images_and_text_context = numpy.cat((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+            print("images and tex", numpy.shape(images_and_text_context))
 
             # print("enc tex", encoder_text_outputs.squeeze(0))
             # print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
 
-            self.datastore.add(images_and_text_context.squeeze(0).numpy())
+            self.datastore.add(images_and_text_context)
             targets = torch.tensor(targets).to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
 
