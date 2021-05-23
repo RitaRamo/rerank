@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from toolkit.utils import TOKEN_START, TOKEN_END, TOKEN_PAD, rm_caption_special_tokens, decode_caption
+from toolkit.utils import TOKEN_START, TOKEN_END, TOKEN_PAD,DATA_CAPTIONS, rm_caption_special_tokens, decode_caption
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -13,7 +13,8 @@ def get_retrieved_caption(images, image_retrieval, target_lookup):
     print("this is nearest images", nearest_images)    
     nearest_cocoid = str(nearest_images[0].item())
     lookup_nearest_image = target_lookup[nearest_cocoid]
-    caption_of_nearest_image=lookup_nearest_image[0]
+    print("lookup nearest image", lookup_nearest_image)
+    caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
     print("caption_of_nearest_image", caption_of_nearest_image)
     return caption_of_nearest_image
 
