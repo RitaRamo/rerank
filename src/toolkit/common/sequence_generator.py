@@ -16,7 +16,7 @@ def get_retrieved_caption(images, image_retrieval, target_lookup):
     print("lookup nearest image", lookup_nearest_image)
     caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
     print("caption_of_nearest_image", caption_of_nearest_image)
-    return caption_of_nearest_image, None, None
+    return [caption_of_nearest_image], None, None
 
 
 def beam_search(model, images, beam_size, max_caption_len=20, 
