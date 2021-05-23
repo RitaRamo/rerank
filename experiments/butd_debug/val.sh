@@ -19,8 +19,9 @@ args="""
 	--output-path $EXP_DIR \
 	--split val \
 	--max-caption-len 20 \
-	--beam-size 100 \
-	--eval-beam-size 5 \
+	--beam-size 1 \
+	--eval-beam-size 1 \
+	--eval_retrieved
 """
 
 #source activate /envs/syncap

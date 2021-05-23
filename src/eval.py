@@ -13,7 +13,7 @@ import torch.backends.cudnn as cudnn
 
 from toolkit.data.datasets import get_data_loader, get_retrieval
 from toolkit.util.analysis.visualize_attention import visualize_attention
-from toolkit.common.sequence_generator import beam_search, beam_re_ranking, nucleus_sampling
+from toolkit.common.sequence_generator import beam_search, beam_re_ranking, nucleus_sampling, get_retrieved_caption
 from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, get_log_file_path, decode_caption
 
 
@@ -23,7 +23,7 @@ cudnn.benchmark = True  # improve performance if inputs to model are fixed size
 
 def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, output_path,
              max_caption_len, beam_size, eval_beam_size, re_ranking, keep_special_tokens, nucleus_sampling_size,
-             visualize, print_beam, print_captions):
+             visualize, print_beam, print_captions, eval_retrieved=False):
     # Load model
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
@@ -81,15 +81,28 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                 print_beam=print_beam,
             )
         else:
-            top_k_generated_captions, alphas, beam = beam_search(
-                model, image_features, beam_size,
-                max_caption_len=max_caption_len,
-                store_alphas=visualize,
-                store_beam=store_beam,
-                print_beam=print_beam,
-                image_retrieval=image_retrieval,
-                target_lookup=target_lookup
-            )
+            if eval_retrieved:
+                train_retrieval_loader = get_data_loader("retrieval", 100, dataset_splits_dir, image_features_fn,
+                                        1, image_normalize)
+                target_lookup= train_retrieval_loader.dataset.image_metas
+                image_retrieval = get_retrieval(train_retrieval_loader, device)
+                top_k_generated_captions, alphas, beam = get_retrieved_caption(
+                    image_features, 
+                    image_retrieval=image_retrieval,
+                    target_lookup=target_lookup
+                )
+                
+            else:
+
+                top_k_generated_captions, alphas, beam = beam_search(
+                    model, image_features, beam_size,
+                    max_caption_len=max_caption_len,
+                    store_alphas=visualize,
+                    store_beam=store_beam,
+                    print_beam=print_beam,
+                    image_retrieval=image_retrieval,
+                    target_lookup=target_lookup
+                )
 
         if visualize:
             logging.info("Image COCO ID: {}".format(coco_id))
@@ -114,6 +127,9 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
 
         assert len(target_captions) == len(generated_captions)
 
+        print("gener", generated_captions)
+        break
+
     # Save results
     name = split
     if re_ranking:
@@ -131,18 +147,34 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     # Save results file with top caption for each image :
     # (JSON file of image -> caption output by the model)
     results = []
-    for coco_id, top_k_captions in generated_captions.items():
-        caption = decode_caption(rm_special_tokens(top_k_captions[0], word_map), word_map)
-        results.append({"image_id": int(coco_id), "caption": caption})
+    if eval_retrieved:
+        #cena
+        #print("vit model")
+        for coco_id, top_k_captions in generated_captions.items():
+            caption = top_k_captions[0]
+            results.append({"image_id": int(coco_id), "caption": caption})
+            print("cap", caption)
+            print(stop)
+    else:  
+        for coco_id, top_k_captions in generated_captions.items():
+            caption = decode_caption(rm_special_tokens(top_k_captions[0], word_map), word_map)
+            results.append({"image_id": int(coco_id), "caption": caption})
     results_output_file_name = os.path.join(outputs_dir, name + ".json")
     json.dump(results, open(results_output_file_name, "w"))
 
     # Save results file with all generated captions for each image:
     # JSON file of image -> top-k captions output by the model. Used for recall.
     results = []
-    for coco_id, top_k_captions in generated_captions.items():
-        captions = [decode_caption(rm_special_tokens(capt, word_map), word_map) for capt in top_k_captions]
-        results.append({"image_id": int(coco_id), "captions": captions})
+    if eval_retrieved:
+        #cena
+        #print("vit model")
+        for coco_id, top_k_captions in generated_captions.items():
+            captions = top_k_captions
+            results.append({"image_id": int(coco_id), "caption": caption})
+    else:
+        for coco_id, top_k_captions in generated_captions.items():
+            captions = [decode_caption(rm_special_tokens(capt, word_map), word_map) for capt in top_k_captions]
+            results.append({"image_id": int(coco_id), "captions": captions})
     results_output_file_name = os.path.join(outputs_dir, name + ".top_%d" % eval_beam_size + ".json")
     json.dump(results, open(results_output_file_name, "w"))
 
@@ -185,6 +217,8 @@ def check_args(args):
                         help="Print the decoding beam for every sample")
     parser.add_argument("--print-captions", default=False, action="store_true",
                         help="Print the generated captions for every sample")
+    parser.add_argument("--eval_retrieved", default=False, action="store_true",
+                        help="Eval retrieved caps")
 
     parsed_args = parser.parse_args(args)
     return parsed_args
@@ -212,4 +246,5 @@ if __name__ == "__main__":
         visualize=args.visualize_attention,
         print_beam=args.print_beam,
         print_captions=args.print_captions,
+        eval_retrieved = args.eval_retrieved
     )
