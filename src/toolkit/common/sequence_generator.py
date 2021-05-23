@@ -9,7 +9,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def get_retrieved_caption(images, image_retrieval, target_lookup):
     input_imgs = images.mean(dim=1)
     print("this  input_imgs suze after", input_imgs.size())
-    nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.numpy())
+    nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.cpu().numpy())
     print("this is nearest images", nearest_images)    
     nearest_cocoid = str(nearest_images[0].item())
     lookup_nearest_image = target_lookup[nearest_cocoid]
