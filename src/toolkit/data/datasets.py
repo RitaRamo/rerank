@@ -458,7 +458,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=64, shuffle=False, num_workers=workers, pin_memory=True
+                batch_size=500, shuffle=False, num_workers=workers, pin_memory=True
             )
 
     else:
