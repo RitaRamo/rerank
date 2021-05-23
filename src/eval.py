@@ -117,7 +117,6 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                     logging.info(decode_caption(rm_special_tokens(caption, word_map), word_map))
             top_k_generated_captions = beam_re_ranking(model, image_features, top_k_generated_captions, word_map)
 
-        print("top k top_k_generated_captions", top_k_generated_captions)
         generated_captions[coco_id] = top_k_generated_captions[:eval_beam_size]
         if print_captions:
             logging.info("COCO ID: {}".format(coco_id))
@@ -127,9 +126,6 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
             generated_beams[coco_id] = beam
 
         assert len(target_captions) == len(generated_captions)
-
-        print("gener", generated_captions)
-        break
 
     # Save results
     name = split
@@ -155,7 +151,6 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
             caption = top_k_captions[0]
             results.append({"image_id": int(coco_id), "caption": caption})
             print("cap", caption)
-            print(stop)
     else:  
         for coco_id, top_k_captions in generated_captions.items():
             caption = decode_caption(rm_special_tokens(top_k_captions[0], word_map), word_map)
