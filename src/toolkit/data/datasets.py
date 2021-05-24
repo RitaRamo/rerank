@@ -390,6 +390,7 @@ class ImageRetrieval():
             if i%5==0:
                 print("i and img index of ImageRetrival",i, imgs_indexes)
                 print("n of examples", self.datastore.ntotal)
+            break
     
     def retrieve_nearest_for_train_query(self, query_img, k=2):
         #print("self query img", query_img)
@@ -458,7 +459,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=500, shuffle=False, num_workers=workers, pin_memory=True
+                batch_size=1000, shuffle=False, num_workers=workers, pin_memory=True
             )
 
     else:
@@ -504,15 +505,18 @@ def get_context_retrieval(retrieval_data_loader, device):
     encoder_output_dim = 2048 + 768 #faster r-cnn features
 
     image_retrieval = ContextRetrieval(encoder_output_dim, retrieval_data_loader,device)
-  
-    for i, (context, target) in enumerate(retrieval_data_loader):
-        print("this is the first batch of images", context.size())
-        print("targt", target)
-     
-        nearest=image_retrieval.retrieve_nearest_for_train_query(context.numpy())
+
+    for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
+        print("this is the first batch of images", contexts.size())
+        print("targt", targets)
+        images = images.mean(dim=1).numpy()
+        enc_contexts=image_retrieval.sentence_model.encode(contexts)
+        images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+          
+        nearest=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
         print("this is nearest train images", nearest)
 
-        nearest = image_retrieval.retrieve_nearest_for_val_or_test_query(context.numpy())
+        nearest = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
         
         print("retrieve for test query", nearest)
         print("stop")
