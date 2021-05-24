@@ -240,6 +240,7 @@ class ContextRetrieval():
         print("\nadding input examples to datastore (retrieval)")
         for i, (images, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
+            print("context added", targets)
             images = images.mean(dim=1).numpy()
             enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
