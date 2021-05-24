@@ -518,7 +518,7 @@ def get_context_retrieval(retrieval_data_loader, device):
         nearest = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
         
         print("retrieve for test query", nearest)
-        print("stop")
+        print(stop)
 
     print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
