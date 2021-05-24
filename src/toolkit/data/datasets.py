@@ -507,7 +507,6 @@ def get_context_retrieval(retrieval_data_loader, device):
     image_retrieval = ContextRetrieval(encoder_output_dim, retrieval_data_loader,device)
 
     for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
-        print("this is the first batch of images", contexts.size())
         print("targt", targets)
         images = images.mean(dim=1).numpy()
         enc_contexts=image_retrieval.sentence_model.encode(contexts)
