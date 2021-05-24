@@ -251,12 +251,13 @@ class ContextRetrieval():
             if i%5==0:
                 print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
                 print("n of examples", self.datastore.ntotal)
-            break
+            if i>2:
+                break
 
     def retrieve_nearest_for_train_query(self, query_img, k=2):
         #print("self query img", query_img)
         D, I = self.datastore.search(query_img, k)     # actual search
-        # print("all nearest", I)
+        print("all nearest", I)
         # print("I firt", I[:,0])
         # print("I second", I[:,1])
 
@@ -272,7 +273,7 @@ class ContextRetrieval():
     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
         D, I = self.datastore.search(query_img, k)     # actual search
         nearest_input = self.targets_of_dataloader[I[:,0]]
-        # print("all nearest", I)
+        print("all nearest", I)
         # print("the nearest input", nearest_input)
         return nearest_input
 
