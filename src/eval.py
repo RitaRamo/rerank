@@ -50,6 +50,12 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         target_lookup=None
         image_retrieval=None
 
+    if eval_retrieved:
+        train_retrieval_loader = get_data_loader("retrieval", 500, dataset_splits_dir, image_features_fn,
+                                1, image_normalize)
+        target_lookup= train_retrieval_loader.dataset.image_metas
+        image_retrieval = get_retrieval(train_retrieval_loader, device)
+
     data_loader = get_data_loader(split, 1, dataset_splits_dir, image_features_fn, 1, image_normalize)
 
     if keep_special_tokens:
@@ -82,10 +88,6 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
             )
         else:
             if eval_retrieved:
-                train_retrieval_loader = get_data_loader("retrieval", 100, dataset_splits_dir, image_features_fn,
-                                        1, image_normalize)
-                target_lookup= train_retrieval_loader.dataset.image_metas
-                image_retrieval = get_retrieval(train_retrieval_loader, device)
                 top_k_generated_captions, alphas, beam = get_retrieved_caption(
                     image_features, 
                     image_retrieval=image_retrieval,
