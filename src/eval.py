@@ -150,7 +150,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         #cena
         #print("vit model")
         for coco_id, top_k_captions in generated_captions.items():
-            caption = top_k_captions[0]
+            caption = decode_caption(rm_special_tokens(top_k_captions[0], word_map), word_map)
             results.append({"image_id": int(coco_id), "caption": caption})
             print("cap", caption)
     else:  
@@ -167,7 +167,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         #cena
         #print("vit model")
         for coco_id, top_k_captions in generated_captions.items():
-            captions = top_k_captions
+            caption = decode_caption(rm_special_tokens(top_k_captions[0], word_map), word_map)
             results.append({"image_id": int(coco_id), "caption": caption})
     else:
         for coco_id, top_k_captions in generated_captions.items():
