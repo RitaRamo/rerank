@@ -18,7 +18,7 @@ train_args="""
   --checkpoints-dir $CKPT_DIR \
 	--logging-dir $LOG_DIR \
 	--objective GENERATION \
-  --batch-size 100 \
+  --batch-size 5 \
 	--max-epochs 120 \
 	--epochs-early-stopping 5 \
 	--max-caption-len 20 \

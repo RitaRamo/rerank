@@ -137,11 +137,17 @@ class TopDownDecoder(CaptioningDecoder):
         
         images = encoder_output.mean(dim=1).cpu().numpy()
         enc_contexts= retrieval.sentence_model.encode(self.texts_so_far)
+        print("enc con", numpy.shape(enc_contexts))
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+        print("image and contex", numpy.shape(images_and_text_context))
+
         nearest_targets, distances=retrieval.retrieve_nearest_for_train_query(images_and_text_context)
 
+        print("nearest_targets", nearest_targets)
+        print("distances", distances)
+
         #supostamente é só softmax vê se é compativel...
-        nearest_scores_softmax = self.log_softmax(-1.*distances)
+        nearest_scores_softmax = self.log_softmax(-1.*torch.tensor(distances))
         #aggregate...
         interpolatation_scores
         return interpolatation_scores
