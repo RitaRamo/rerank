@@ -3,6 +3,7 @@ import json
 
 import torch
 from torch import nn
+import numpy
 
 from toolkit.utils import WORD_MAP_FILENAME, LSTMCell, load_pretrained_embedding_from_file
 from toolkit.models.captioning_model_context import (
