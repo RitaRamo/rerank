@@ -10,7 +10,7 @@ from toolkit.models.captioning_model_context import (
 )
 
 class BUTDContextModel(CaptioningEncoderDecoderContextModel):
-    def __init__(self, args):
+    def __init__(self, args, device):
         super(BUTDContextModel, self).__init__()
 
         # Read word map
@@ -34,6 +34,7 @@ class BUTDContextModel(CaptioningEncoderDecoderContextModel):
             attention_lstm_dim=args.attention_lstm_dim,
             attention_dim=args.attention_dim,
             dropout=args.dropout,
+            device=device
         )
 
     @staticmethod
@@ -59,7 +60,7 @@ class TopDownDecoder(CaptioningDecoder):
     def __init__(self, word_map, embed_dim=1000, encoder_output_dim=2048,
                  pretrained_embeddings=None, embeddings_freeze=False,
                  language_lstm_dim=1000, attention_lstm_dim=1000, 
-                 attention_dim=512, dropout=0.0):
+                 attention_dim=512, dropout=0.0, device=None):
         super(TopDownDecoder, self).__init__(word_map, embed_dim, encoder_output_dim,
                                              pretrained_embeddings, embeddings_freeze)
                 
@@ -92,6 +93,9 @@ class TopDownDecoder(CaptioningDecoder):
 
         self.log_softmax = nn.LogSoftmax()
         self.rev_word_map = {v: k for k, v in word_map.items()}
+
+        self.device=device
+
 
         #loss = nn.NLLLoss()
 
