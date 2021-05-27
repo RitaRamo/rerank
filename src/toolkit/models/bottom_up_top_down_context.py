@@ -146,10 +146,10 @@ class TopDownDecoder(CaptioningDecoder):
         #supostamente é só softmax vê se é compativel...
         nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
         print("nearest_scores_softmax ", nearest_probs)
-
-        all_w=torch.zeros(scores.size())
+        nearest_targets= nearest_targets.cpu()
+        all_w=torch.zeros(scores.size()).cpu()
         for index in nearest_targets.unique():
-            all_w[index]= nearest_probs[numpy.where(nearest_targets.cpu()==index)].sum().item()
+            all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
         #aggregate...
 
         print("al w", all_w.size())
