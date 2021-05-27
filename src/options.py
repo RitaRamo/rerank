@@ -4,14 +4,16 @@ from toolkit.utils import OBJECTIVE_GENERATION, OBJECTIVE_JOINT, OBJECTIVE_MULTI
 from toolkit.models.show_attend_tell import SATModel
 from toolkit.models.bottom_up_top_down import BUTDModel
 from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
-
+from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
+from toolkit.models.bottom_up_top_down_context import BUTDContextModel
 from toolkit.models.bottom_up_top_down_ranking import BUTRModel
 from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
 from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
 
 abbr2class = {"sat": SATModel, "butd": BUTDModel, "butr": BUTRModel,
               "butr_mean": BUTRMeanModel, "butr_weight": BUTRWeightModel,
-              "butd_retrieval": BUTDRetrievalModel}
+              "butd_retrieval": BUTDRetrievalModel,
+              "butd_context": BUTDContextModel}
 
 
 def check_args(args):

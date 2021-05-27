@@ -19,6 +19,7 @@ from toolkit.models.bottom_up_top_down_ranking import BUTRModel
 from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
 from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
 from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
+from toolkit.models.bottom_up_top_down_context import BUTDContextModel
 from toolkit.models.show_attend_tell import SATModel
 from toolkit.data.datasets import get_data_loader, get_retrieval, get_context_retrieval
 from toolkit.optim import create_optimizer
@@ -40,7 +41,8 @@ from toolkit.utils import (
     OBJECTIVE_GENERATION,
     OBJECTIVE_JOINT,
     # OBJECTIVE_MULTI,
-    TOKEN_PAD
+    TOKEN_PAD,
+    MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT
 )
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -52,6 +54,7 @@ abbr2name = {
     "butr_mean": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_MEAN,
     "butr_weight": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT,
     "butd_retrieval": MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, 
+    "butd_context": MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT, 
 
 }
 
@@ -75,6 +78,8 @@ def build_model(args, model_name):
         model = BUTRWeightModel(args)
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL:
         model = BUTDRetrievalModel(args, device)
+    elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
+        model = BUTDContextModel(args, device)
     return model
 
 
