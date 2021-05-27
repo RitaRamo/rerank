@@ -128,8 +128,9 @@ class TopDownDecoder(CaptioningDecoder):
         scores_softmax = self.log_softmax(scores)
         print("socres log softmax", scores_softmax)
         #veres se é preciso exp para interpolar... 
-        for i in len(prev_word_embeddings):
+        for i in range(len(prev_word_embeddings)):
           self.texts_so_far[i]=+ self.rev_word_map[prev_word_embeddings[i]] + " "
+        
         images = encoder_output.mean(dim=1).cpu().numpy()
         enc_contexts= retrieval.sentence_model.encode(self.texts_so_far)
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
