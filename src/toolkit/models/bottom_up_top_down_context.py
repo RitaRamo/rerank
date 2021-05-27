@@ -152,7 +152,7 @@ class TopDownDecoder(CaptioningDecoder):
             all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
         #aggregate...
 
-        print("al w", all_w.size())
+        print("al w", all_w)
         print(stop)
 
         y_pred = torch.clamp(y_pred, 1e-9, 1 - 1e-9)
