@@ -92,11 +92,10 @@ class TopDownDecoder(CaptioningDecoder):
         self.init_h2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
         self.init_c2 = nn.Linear(encoder_output_dim, self.language_lstm.lstm_cell.hidden_size)
 
-        self.log_softmax = nn.LogSoftmax()
+        self.softmax = nn.Softmax()
         self.rev_word_map = {v: k for k, v in word_map.items()}
 
         self.device=device
-
 
         #loss = nn.NLLLoss()
 
@@ -126,7 +125,7 @@ class TopDownDecoder(CaptioningDecoder):
 
     def interpolate_train(self, scores, encoder_output, prev_word_embeddings, retrieval, target_lookup):
         print("socres", scores)
-        scores_softmax = self.log_softmax(scores)
+        scores_softmax = self.softmax(scores)
         print("socres log softmax", scores_softmax)
         #veres se é preciso exp para interpolar... 
         for i in range(len(prev_word_embeddings)):
@@ -145,11 +144,28 @@ class TopDownDecoder(CaptioningDecoder):
         print("distances", distances)
 
         #supostamente é só softmax vê se é compativel...
-        nearest_scores_softmax = self.log_softmax(-1.*torch.tensor(distances))
+        nearest_probs = self.softmax(-1.*torch.tensor(distances))
         print("nearest_scores_softmax ", nearest_scores_softmax)
+
+        all_w=torch.zeros(scores.size())
+        for index in nearest_targets.unique():
+            all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
         #aggregate...
+
+        print("al w", all_w.size())
         print(stop)
+
+        y_pred = torch.clamp(y_pred, 1e-9, 1 - 1e-9)
+        torch.log(y_pred)
+
         return interpolatation_scores
+
+
+    # EPS = 1e-15
+    # predicted = np.clip(predicted, EPS, 1 - EPS)
+    # loss = -np.sum(actual * np.log(predicted))
+    # return loss # / float(predicted.shape[0])
+
 
     #1º adicionar o modelo
     #2º ver se o retrieval as distances funcaram
