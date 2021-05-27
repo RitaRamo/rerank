@@ -149,7 +149,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         all_w=torch.zeros(scores.size())
         for index in nearest_targets.unique():
-            all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
+            all_w[index]= nearest_probs[numpy.where(nearest_targets.cpu()==index)].sum().item()
         #aggregate...
 
         print("al w", all_w.size())
