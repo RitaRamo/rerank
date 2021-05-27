@@ -145,7 +145,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         #supostamente é só softmax vê se é compativel...
         nearest_probs = self.softmax(-1.*torch.tensor(distances))
-        print("nearest_scores_softmax ", nearest_scores_softmax)
+        print("nearest_scores_softmax ", nearest_probs)
 
         all_w=torch.zeros(scores.size())
         for index in nearest_targets.unique():
