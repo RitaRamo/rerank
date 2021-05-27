@@ -130,10 +130,8 @@ class TopDownDecoder(CaptioningDecoder):
         print("socres log softmax", scores_softmax)
         #veres se é preciso exp para interpolar... 
         for i in range(len(prev_word_embeddings)):
-            print("i", i)
-            print("self.texts_so_far[i]", self.texts_so_far[i])
-            print("self.rev_word_map[prev_word_embeddings[i].item()]", self.rev_word_map[prev_word_embeddings[i].item()])
             self.texts_so_far[i]+= self.rev_word_map[prev_word_embeddings[i].item()] + " "
+        print("self texts so far", self.texts_so_far)
         
         images = encoder_output.mean(dim=1).cpu().numpy()
         enc_contexts= retrieval.sentence_model.encode(self.texts_so_far)
@@ -148,8 +146,9 @@ class TopDownDecoder(CaptioningDecoder):
 
         #supostamente é só softmax vê se é compativel...
         nearest_scores_softmax = self.log_softmax(-1.*torch.tensor(distances))
+        print("nearest_scores_softmax ", nearest_scores_softmax)
         #aggregate...
-        interpolatation_scores
+        print(stop)
         return interpolatation_scores
 
     #1º adicionar o modelo
