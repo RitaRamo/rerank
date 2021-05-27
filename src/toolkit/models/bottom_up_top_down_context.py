@@ -5,11 +5,11 @@ import torch
 from torch import nn
 
 from toolkit.utils import WORD_MAP_FILENAME, LSTMCell, load_pretrained_embedding_from_file
-from toolkit.models.captioning_model import (
-        CaptioningEncoderDecoderModel, CaptioningEncoder, CaptioningDecoder
+from toolkit.models.captioning_model_context import (
+        CaptioningEncoderDecoderContextModel, CaptioningDecoder
 )
 
-class BUTDContextModel(CaptioningEncoderDecoderModel):
+class BUTDContextModel(CaptioningEncoderDecoderContextModel):
     def __init__(self, args):
         super(BUTDContextModel, self).__init__()
 
@@ -117,10 +117,9 @@ class TopDownDecoder(CaptioningDecoder):
         scores = self.fc(self.dropout(h2))
 
         states = [h1, c1, h2, c2]
-        print(stop)
         return scores, states, None
 
-    def interpolate_train(self, scores, encoder_output, prev_word_embeddings, retrieval):
+    def interpolate_train(self, scores, encoder_output, prev_word_embeddings, retrieval, target_lookup):
         print("socres", scores)
         scores_softmax = self.log_softmax(scores)
         print("socres log softmax", scores_softmax)

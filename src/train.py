@@ -396,20 +396,24 @@ def main(args):
     val_data_loader = get_data_loader("val", 5, args.dataset_splits_dir, args.image_features_filename,
                                       args.workers, args.image_normalize)
 
-    train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        args.workers, args.image_normalize)
+
 
     if abbr2name[args.model] == MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL:
+        train_retrieval_loader = get_data_loader("retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        args.workers, args.image_normalize)
         target_lookup= train_retrieval_loader.dataset.image_metas
         image_retrieval = get_retrieval(train_retrieval_loader, device)
+    
+    elif abbr2name[args.model] == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
+        train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        0, args.image_normalize)
+ 
+        image_retrieval = get_context_retrieval(train_context_retrieval_loader, device)
+        target_lookup= image_retrieval.targets_of_dataloader
+        
     else:
         target_lookup=None
         image_retrieval = None
-
-    train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        0, args.image_normalize)
- 
-    context_retrieval = get_context_retrieval(train_context_retrieval_loader, device)
 
     # #mudar o lookup...
     # model = SentenceTransformer('paraphrase-distilroberta-base-v1')
