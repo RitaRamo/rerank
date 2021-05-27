@@ -117,6 +117,7 @@ class TopDownDecoder(CaptioningDecoder):
         scores = self.fc(self.dropout(h2))
 
         states = [h1, c1, h2, c2]
+        print(stop)
         return scores, states, None
 
     def interpolate_train(self, scores, encoder_output, prev_word_embeddings, retrieval):

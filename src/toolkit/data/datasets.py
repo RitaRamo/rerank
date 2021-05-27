@@ -269,14 +269,14 @@ class ContextRetrieval():
 
         nearest_input = self.targets_of_dataloader[I[:,1]]
         #print("the nearest input is actual the second for training", nearest_input)
-        return nearest_input
+        return nearest_input, D[:,1]
 
     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
         D, I = self.datastore.search(query_img, k)     # actual search
         nearest_input = self.targets_of_dataloader[I[:,0]]
         print("all nearest", I)
         # print("the nearest input", nearest_input)
-        return nearest_input
+        return nearest_input, D[:,1]
 
 
 # class ContextRetrieval():
@@ -514,12 +514,12 @@ def get_context_retrieval(retrieval_data_loader, device):
         enc_contexts=image_retrieval.sentence_model.encode(contexts)
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
-        nearest=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        print("this is nearest train images", nearest)
+        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        print("this is nearest train images", nearest_targets, distances)
 
-        nearest = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
+        nearest_targets,distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
         
-        print("retrieve for test query", nearest)
+        print("retrieve for test query", nearest_targets, distances)
         print(stop)
 
     print("stop remove from dataloader o VAL e coloca TRAIN", stop)
