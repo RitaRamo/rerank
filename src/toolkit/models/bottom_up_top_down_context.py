@@ -155,6 +155,7 @@ class TopDownDecoder(CaptioningDecoder):
 
 
         all_w=torch.zeros(scores.size()).cpu()
+        print("all w", all_w.size())
 
         for batch_i in range(len(nearest_targets)):
             print("i",batch_i)
