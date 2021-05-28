@@ -175,7 +175,7 @@ class TopDownDecoder(CaptioningDecoder):
         print("al w", all_w)
         print("al w", all_w.size())
 
-        scores_softmax=interpolation*scores_softmax + (1-interpolation)*all_w
+        scores_softmax=interpolation*scores_softmax + (1-interpolation)*all_w.to(self.device)
         print("scores soft", scores_softmax)
         print("scores soft sum -1", scores_softmax.sum(dim=-1))
         print("scores sum", scores_softmax.sum())
