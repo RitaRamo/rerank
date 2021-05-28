@@ -176,10 +176,10 @@ class TopDownDecoder(CaptioningDecoder):
         print("al w", softmax_nearest.size())
 
         print("softmax_scores", softmax_scores)
-        softmax_scores=interpolation*softmax_nearest + (1-interpolation)*softmax_scores.to(self.device)
-        print("scores soft", softmax_scores)
-        print("scores soft sum -1", softmax_scores.sum(dim=-1))
-        print("scores sum", softmax_scores.sum())
+        softmax_interpolation=interpolation*softmax_nearest.to(self.device) + (1-interpolation)*softmax_scores
+        print("scores soft", softmax_interpolation)
+        print("scores soft sum -1", softmax_interpolation.sum(dim=-1))
+        print("scores sum", softmax_interpolation.sum())
 
 
 
@@ -189,6 +189,8 @@ class TopDownDecoder(CaptioningDecoder):
         torch.log(y_pred)
 
         return interpolatation_scores
+
+    #falta isto e fa
 
 
     # EPS = 1e-15
