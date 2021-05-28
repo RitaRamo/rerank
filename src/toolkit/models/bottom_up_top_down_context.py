@@ -162,7 +162,9 @@ class TopDownDecoder(CaptioningDecoder):
             print("probs i", nearest_probs[batch_i])
             print("probs i",nearest_targets[batch_i].unique())
 
-            for ind in nearest_targets[batch_i].unique():                
+            for ind in nearest_targets[batch_i].unique():   
+                print("nearest_targets[batch_i]==ind", nearest_targets[batch_i]==ind)       
+                print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])      
                 all_w[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
             print("all w all_w[batch_i,ind]", all_w[batch_i,ind])
 
