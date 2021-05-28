@@ -269,7 +269,7 @@ class ContextRetrieval():
         print("self targets", self.targets_of_dataloader)
         nearest_input = self.targets_of_dataloader[torch.tensor(I)]
         #print("the nearest input is actual the second for training", nearest_input)
-        return nearest_input, D[:,1]
+        return nearest_input, D
 
     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
         D, I = self.datastore.search(query_img, k)     # actual search
