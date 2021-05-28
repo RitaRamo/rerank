@@ -128,6 +128,7 @@ class TopDownDecoder(CaptioningDecoder):
         softmax_scores = self.softmax(scores)
         print("socres log softmax", softmax_scores)
         #veres se é preciso exp para interpolar... 
+
         for i in range(len(prev_word_embeddings)):
             self.texts_so_far[i]+= self.rev_word_map[prev_word_embeddings[i].item()] + " "
         print("self texts so far", self.texts_so_far)
@@ -138,7 +139,10 @@ class TopDownDecoder(CaptioningDecoder):
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
         print("image and contex", numpy.shape(images_and_text_context))
 
-        nearest_targets, distances=retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        if self.training:
+            nearest_targets, distances=retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        else:
+            nearest_targets, distances=retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
 
         print("nearest_targets", nearest_targets)
         print("distances", distances)
@@ -176,19 +180,16 @@ class TopDownDecoder(CaptioningDecoder):
         print("al w", softmax_nearest.size())
 
         print("softmax_scores", softmax_scores)
+        print("argmax", torch.argmax(softmax_scores, dim=1))
         softmax_interpolation=interpolation*softmax_nearest.to(self.device) + (1-interpolation)*softmax_scores
+        print("argmax int", torch.argmax(softmax_interpolation, dim=1))
+
         print("scores soft", softmax_interpolation)
         print("scores soft sum -1", softmax_interpolation.sum(dim=-1))
         print("scores sum", softmax_interpolation.sum())
 
-
-
-        print(stop)
-
-        y_pred = torch.clamp(y_pred, 1e-9, 1 - 1e-9)
-        torch.log(y_pred)
-
-        return interpolatation_scores
+        softmax_interpolation = torch.clamp(softmax_interpolation, 1e-9, 1 - 1e-9)
+        return torch.log(softmax_interpolation)
 
     #falta isto e fa
 
