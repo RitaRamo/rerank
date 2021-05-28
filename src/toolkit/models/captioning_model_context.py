@@ -174,7 +174,7 @@ class CaptioningDecoder(nn.Module):
             scores_for_timestep = self.interpolate_train(scores_for_timestep, encoder_output, prev_words, context_retrieval, target_lookup)
             print("new scores", scores_for_timestep)
             # Update the previously predicted words
-            prev_words = self.update_previous_word(scores_for_timestep, target_clones, t, teacher_forcing)
+            prev_words = self.update_previous_word(scores_for_timestep, target_clones, t, 0.0)
             print("prev_words", prev_words)
             print(stop)
             scores[incomplete_sequences_ixs, t, :] = scores_for_timestep[incomplete_sequences_ixs]
