@@ -187,6 +187,7 @@ class TopDownDecoder(CaptioningDecoder):
         print("scores soft", softmax_interpolation)
         print("scores soft sum -1", softmax_interpolation.sum(dim=-1))
         print("scores sum", softmax_interpolation.sum())
+        print(stop)
 
         softmax_interpolation = torch.clamp(softmax_interpolation, 1e-9, 1 - 1e-9)
         return torch.log(softmax_interpolation)
