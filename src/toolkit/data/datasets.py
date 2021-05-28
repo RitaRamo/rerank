@@ -258,7 +258,7 @@ class ContextRetrieval():
     def retrieve_nearest_for_train_query(self, query_img, k=3):
         #print("self query img", query_img)
         D, I = self.datastore.search(query_img, k)     # actual search
-        print("all nearest", I)
+        print("all nearest", torch.tensor(I))
         # print("I firt", I[:,0])
         # print("I second", I[:,1])
 
@@ -267,7 +267,7 @@ class ContextRetrieval():
         # print("n of img index", len(self.imgs_indexes_of_dataloader))
         # print("n of examples", self.datastore.ntotal)
         print("self targets", self.targets_of_dataloader)
-        nearest_input = self.targets_of_dataloader[I]
+        nearest_input = self.targets_of_dataloader[torch.tensor(I)]
         #print("the nearest input is actual the second for training", nearest_input)
         return nearest_input, D[:,1]
 
