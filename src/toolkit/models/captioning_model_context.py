@@ -175,7 +175,8 @@ class CaptioningDecoder(nn.Module):
             print("new scores", scores_for_timestep)
             # Update the previously predicted words
             prev_words = self.update_previous_word(scores_for_timestep, target_clones, t, teacher_forcing)
-
+            print("prev_words", prev_words)
+            print(stop)
             scores[incomplete_sequences_ixs, t, :] = scores_for_timestep[incomplete_sequences_ixs]
             if alphas_for_timestep is not None:
                 alphas[incomplete_sequences_ixs, t, :] = alphas_for_timestep[incomplete_sequences_ixs]
