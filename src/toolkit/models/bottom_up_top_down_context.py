@@ -146,12 +146,28 @@ class TopDownDecoder(CaptioningDecoder):
         #supostamente é só softmax vê se é compativel...
         nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
         print("nearest_scores_softmax ", nearest_probs)
-        nearest_targets= nearest_targets.cpu()
-        all_w=torch.zeros(scores.size()).cpu()
-        for index in nearest_targets.unique():
-            all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
-        #aggregate...
+        print("nearest_scores_softmax ", nearest_probs.sum())
 
+        nearest_targets= nearest_targets.cpu()
+        # all_w=torch.zeros(scores.size()).cpu()
+        # for index in nearest_targets.unique():
+        #     all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
+
+
+        all_w=torch.zeros(scores.size()).cpu()
+
+        for batch_i in range(len(nearest_targets)):
+            print("i",batch_i)
+            print("index i", nearest_targets[batch_i])
+            print("probs i", nearest_probs[batch_i])
+            print("probs i",nearest_targets[batch_i].unique())
+
+            for ind in nearest_targets[batch_i].unique():                
+                all_w[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
+            print("all w all_w[batch_i,ind]", all_w[batch_i,ind])
+
+        
+        #aggregate...
         print("al w", all_w)
         print(stop)
 
