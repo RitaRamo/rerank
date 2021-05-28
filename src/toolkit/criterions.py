@@ -12,6 +12,8 @@ def create_criterion(name):
         loss = ContrastiveLoss().to(device)
     elif name == "l1":
         loss = nn.L1Loss().to(device)
+    elif name == "nll":
+        loss = nn.NLLLoss().to(device)
     return loss
 
 
