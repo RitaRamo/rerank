@@ -266,7 +266,7 @@ class ContextRetrieval():
         # print("this is the img indexes", self.imgs_indexes_of_dataloader)
         # print("n of img index", len(self.imgs_indexes_of_dataloader))
         # print("n of examples", self.datastore.ntotal)
-
+        print("self targets", self.targets_of_dataloader)
         nearest_input = self.targets_of_dataloader[I]
         #print("the nearest input is actual the second for training", nearest_input)
         return nearest_input, D[:,1]
