@@ -123,7 +123,7 @@ class TopDownDecoder(CaptioningDecoder):
         states = [h1, c1, h2, c2]
         return scores, states, None
 
-    def interpolate_train(self, scores, encoder_output, prev_word_embeddings, retrieval, target_lookup):
+    def interpolate_train(self, scores, encoder_output, prev_word_embeddings, retrieval, target_lookup, interpolation=0.25):
         print("socres", scores)
         scores_softmax = self.softmax(scores)
         print("socres log softmax", scores_softmax)
@@ -165,13 +165,23 @@ class TopDownDecoder(CaptioningDecoder):
 
             for ind in nearest_targets[batch_i].unique():   
                 print("nearest_targets[batch_i]==ind", nearest_targets[batch_i]==ind)       
-                print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])      
+                print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])
+                print("value", nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item())      
                 all_w[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
             print("all w all_w[batch_i,ind]", all_w[batch_i,ind])
 
         
         #aggregate...
         print("al w", all_w)
+        print("al w", all_w.size())
+
+        scores_softmax=interpolation*scores_softmax + (1-interpolation)*all_w
+        print("scores soft", scores_softmax)
+        print("scores soft sum -1", scores_softmax.sum(dim=-1))
+        print("scores sum", scores_softmax.sum())
+
+
+
         print(stop)
 
         y_pred = torch.clamp(y_pred, 1e-9, 1 - 1e-9)
