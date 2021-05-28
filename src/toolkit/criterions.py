@@ -13,6 +13,7 @@ def create_criterion(name):
     elif name == "l1":
         loss = nn.L1Loss().to(device)
     elif name == "nll":
+        print("nll loss")
         loss = nn.NLLLoss().to(device)
     return loss
 
