@@ -125,8 +125,8 @@ class TopDownDecoder(CaptioningDecoder):
 
     def interpolate_train(self, scores, encoder_output, prev_word_embeddings, retrieval, target_lookup, interpolation=0.25):
         print("socres", scores)
-        scores_softmax = self.softmax(scores)
-        print("socres log softmax", scores_softmax)
+        softmax_scores = self.softmax(scores)
+        print("socres log softmax", softmax_scores)
         #veres se é preciso exp para interpolar... 
         for i in range(len(prev_word_embeddings)):
             self.texts_so_far[i]+= self.rev_word_map[prev_word_embeddings[i].item()] + " "
@@ -145,8 +145,8 @@ class TopDownDecoder(CaptioningDecoder):
 
         #supostamente é só softmax vê se é compativel...
         nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
-        print("nearest_scores_softmax ", nearest_probs)
-        print("nearest_scores_softmax ", nearest_probs.sum())
+        print("nearest_softmax_scores ", nearest_probs)
+        print("nearest_softmax_scores ", nearest_probs.sum())
 
         nearest_targets= nearest_targets.cpu()
         # all_w=torch.zeros(scores.size()).cpu()
@@ -154,8 +154,8 @@ class TopDownDecoder(CaptioningDecoder):
         #     all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
 
 
-        all_w=torch.zeros(scores.size()).cpu()
-        print("all w", all_w.size())
+        softmax_nearest=torch.zeros(scores.size()).cpu()
+        print("all w", softmax_nearest.size())
 
         for batch_i in range(len(nearest_targets)):
             print("i",batch_i)
@@ -167,19 +167,19 @@ class TopDownDecoder(CaptioningDecoder):
                 print("nearest_targets[batch_i]==ind", nearest_targets[batch_i]==ind)       
                 print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])
                 print("value", nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item())      
-                all_w[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
-            print("all w all_w[batch_i,ind]", all_w[batch_i,ind])
+                softmax_nearest[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
+            print("all w all_w[batch_i,ind]", softmax_nearest[batch_i,ind])
 
         
         #aggregate...
-        print("al w", all_w)
-        print("al w", all_w.size())
+        print("al w", softmax_nearest)
+        print("al w", softmax_nearest.size())
 
-        print("scores_softmax", scores_softmax)
-        scores_softmax=interpolation*scores_softmax + (1-interpolation)*all_w.to(self.device)
-        print("scores soft", scores_softmax)
-        print("scores soft sum -1", scores_softmax.sum(dim=-1))
-        print("scores sum", scores_softmax.sum())
+        print("softmax_scores", softmax_scores)
+        softmax_scores=interpolation*softmax_nearest + (1-interpolation)*softmax_scores.to(self.device)
+        print("scores soft", softmax_scores)
+        print("scores soft sum -1", softmax_scores.sum(dim=-1))
+        print("scores sum", softmax_scores.sum())
 
 
 
@@ -215,7 +215,7 @@ class TopDownDecoder(CaptioningDecoder):
         # na parte do traino iteras por cada texto:
         # e ficas com as várias frases e envias para o modelo
         # 
-        # scores_softmax=
+        # softmax_scores=
         # self.texts_so_far[i]=+rev_word_token(prev_word_embeddings)
         # nearest=model.encode(self.texts_so_far)
         # nearest_softmax=
@@ -224,7 +224,7 @@ class TopDownDecoder(CaptioningDecoder):
         #return interpolatation_scores
 
     # def interpolate_lstm(self, scores, prev_word_embeddings):
-    #     #scores_softmax=
+    #     #softmax_scores=
     #     # embeddings= lstm_unfreeze(prev_word_embeddings)
     #     # nearest_softmax=search (embeddings)
     #     # aggregate
