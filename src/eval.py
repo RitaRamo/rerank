@@ -31,7 +31,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     logging.info("Model: {}".format(model_name))
 
     model = checkpoint["model"]
-    print("checkpoint model", model.state_dict())
+    print("checkpoint model", model.decoder.state_dict())
     model = model.to(device)
     model.eval()
     word_map = model.decoder.word_map
