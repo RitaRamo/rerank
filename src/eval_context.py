@@ -23,7 +23,7 @@ cudnn.benchmark = True  # improve performance if inputs to model are fixed size
 
 def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, output_path,
              max_caption_len, beam_size, eval_beam_size, re_ranking, keep_special_tokens, nucleus_sampling_size,
-             visualize, print_beam, print_captions, eval_retrieved=False):
+             visualize, print_beam, print_captions, eval_retrieved=False, args=None):
     # Load model
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
