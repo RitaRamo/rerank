@@ -15,7 +15,7 @@ from toolkit.data.datasets import get_data_loader, get_retrieval
 from toolkit.util.analysis.visualize_attention import visualize_attention
 from toolkit.common.sequence_generator import beam_search, beam_re_ranking, nucleus_sampling, get_retrieved_caption
 from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, get_log_file_path, decode_caption
-from train import build_model
+from train import build_model, abbr2name
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 cudnn.benchmark = True  # improve performance if inputs to model are fixed size
@@ -27,7 +27,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     # Load model
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
-    model_name = checkpoint["model_name"]
+    model_name = abbr2name[args.model]
     logging.info("Model: {}".format(model_name))
 
     print("model name", model_name)
