@@ -38,7 +38,6 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     model.decoder.load_state_dict(checkpoint["model"].decoder.state_dict())
     #model.encoder.load_state_dict(checkpoint["model"].encoder.state_dict())
 
-    print(stop)
     model = model.to(device)
     model.eval()
     word_map = model.decoder.word_map
