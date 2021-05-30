@@ -34,12 +34,15 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     print("model name", model_name)
     model = build_model(args, model_name)    
     print("model", model)
-
-    model.decoder.load_state_dict(checkpoint["model"].decoder.state_dict())
-    #model.encoder.load_state_dict(checkpoint["model"].encoder.state_dict())
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
     model = model.to(device)
+
+    print("after device")
+
+    model.decoder.load_state_dict(checkpoint["model"].decoder.state_dict())
+    #model.encoder.load_state_dict(checkpoint["model"].encoder.state_dict())
+    
     model.eval()
     word_map = model.decoder.word_map
     logging.info("Model params: {}".format(vars(model)))
