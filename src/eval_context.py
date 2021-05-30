@@ -16,6 +16,7 @@ from toolkit.util.analysis.visualize_attention import visualize_attention
 from toolkit.common.sequence_generator import beam_search, beam_re_ranking, nucleus_sampling, get_retrieved_caption
 from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, get_log_file_path, decode_caption
 from train import build_model, abbr2name
+from options import add_model_args
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 cudnn.benchmark = True  # improve performance if inputs to model are fixed size
@@ -223,6 +224,9 @@ def check_args(args):
                         help="Print the generated captions for every sample")
     parser.add_argument("--eval_retrieved", default=False, action="store_true",
                         help="Eval retrieved caps")
+
+    add_model_args(parser)
+
 
     parsed_args = parser.parse_args(args)
     return parsed_args
