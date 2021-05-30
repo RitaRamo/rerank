@@ -30,8 +30,10 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     model_name = checkpoint["model_name"]
     logging.info("Model: {}".format(model_name))
 
+    print("model name", model_name)
     model = build_model(args, model_name)    
-    
+    print("model", model)
+
     model.decoder.load_state_dict(checkpoint["model"].state_dict())
     model.encoder.load_state_dict(checkpoint["model"].state_dict())
 
