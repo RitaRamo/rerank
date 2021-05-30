@@ -82,8 +82,8 @@ class TopDownDecoder(CaptioningDecoder):
 
         # Linear layer to find scores over vocabulary
         self.fc = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
-        self.fc_w = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
-        self.fc_t = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
+        # self.fc_w = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
+        # self.fc_t = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
 
         # Linear layers to find initial states of LSTMs
         self.init_h1 = nn.Linear(encoder_output_dim, self.attention_lstm.lstm_cell.hidden_size)
@@ -243,21 +243,21 @@ class TopDownDecoder(CaptioningDecoder):
 
 
 
-    def forward_multi_step(self, encoder_output, prev_word_embeddings, states):
-        """Perform a single decoding step for tag-word prediction."""
+    # def forward_multi_step(self, encoder_output, prev_word_embeddings, states):
+    #     """Perform a single decoding step for tag-word prediction."""
 
-        v_mean = encoder_output.mean(dim=1)
-        h1, c1, h2, c2 = states
+    #     v_mean = encoder_output.mean(dim=1)
+    #     h1, c1, h2, c2 = states
 
-        h1, c1 = self.attention_lstm(h1, c1, h2, v_mean, prev_word_embeddings)
-        v_hat = self.attention(encoder_output, h1)
-        h2, c2 = self.language_lstm(h2, c2, h1, v_hat)
-        w_scores = self.fc_w(self.dropout(h2))
-        t_scores = self.fc_t(self.dropout(h2))
+    #     h1, c1 = self.attention_lstm(h1, c1, h2, v_mean, prev_word_embeddings)
+    #     v_hat = self.attention(encoder_output, h1)
+    #     h2, c2 = self.language_lstm(h2, c2, h1, v_hat)
+    #     w_scores = self.fc_w(self.dropout(h2))
+    #     t_scores = self.fc_t(self.dropout(h2))
 
-        scores = [w_scores, t_scores]
-        states = [h1, c1, h2, c2]
-        return scores, states, None
+    #     scores = [w_scores, t_scores]
+    #     states = [h1, c1, h2, c2]
+    #     return scores, states, None
 
 
 

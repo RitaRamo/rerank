@@ -36,7 +36,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     print("model", model)
 
     model.decoder.load_state_dict(checkpoint["model"].decoder.state_dict())
-    model.encoder.load_state_dict(checkpoint["model"].encoder.state_dict())
+    #model.encoder.load_state_dict(checkpoint["model"].encoder.state_dict())
 
     print(stop)
     model = model.to(device)
