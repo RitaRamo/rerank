@@ -140,6 +140,7 @@ def beam_search_context(model, images, beam_size, max_caption_len=20,
     sorted_alphas = None
     if store_alphas:
         sorted_alphas = [alpha for _, alpha in sorted(zip(complete_seqs_scores, complete_seqs_alpha), reverse=True)]
+    print(stop)
     return sorted_sequences, sorted_alphas, beam
 
 def beam_search(model, images, beam_size, max_caption_len=20, 
