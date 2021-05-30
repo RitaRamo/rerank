@@ -8,7 +8,7 @@ IMGS_DIR="$DATA_DIR/images"
 EXP_DIR="experiments/${MODEL_ABBR}${MODEL_SUFF}" #VER ESTE!!!
 CAPS_DIR="$DATA_DIR/datasets"
 LOG_DIR="myfirstlog"
-CKPT="experiments/${MODEL_ABBR}${MODEL_SUFF}/checkpoints/checkpoint.best.pth.tar"
+CKPT="experiments/butd_ebug/checkpoints/checkpoint.best.pth.tar"
 
 
 args="""
@@ -24,7 +24,7 @@ args="""
 """
 
 model_args="""
-butd
+butd_context
 """
 
 #source activate /envs/syncap

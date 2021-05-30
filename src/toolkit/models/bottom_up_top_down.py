@@ -80,8 +80,8 @@ class TopDownDecoder(CaptioningDecoder):
 
         # Linear layer to find scores over vocabulary
         self.fc = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
-        #self.fc_w = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
-        #self.fc_t = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
+        self.fc_w = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
+        self.fc_t = nn.Linear(language_lstm_dim, self.vocab_size, bias=True)
 
         # Linear layers to find initial states of LSTMs
         self.init_h1 = nn.Linear(encoder_output_dim, self.attention_lstm.lstm_cell.hidden_size)
