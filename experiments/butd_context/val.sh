@@ -31,7 +31,7 @@ butd
 
 export PYTHONWARNINGS="ignore"
 
-time python3 src/eval_context.py $args
+time python3 src/eval_context.py $args $model_args
 
 #conda deactivate
 
