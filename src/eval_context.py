@@ -54,7 +54,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         target_lookup= train_retrieval_loader.dataset.image_metas
         image_retrieval = get_retrieval(train_retrieval_loader, device)
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
-        train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+        train_context_retrieval_loader = get_data_loader("context_retrieval", 100, args.dataset_splits_dir, args.image_features_filename,
                                         0, args.image_normalize)
  
         image_retrieval = get_context_retrieval(train_context_retrieval_loader, device)
