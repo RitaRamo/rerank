@@ -125,33 +125,33 @@ class TopDownDecoder(CaptioningDecoder):
         return scores, states, None
 
     def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation=0.25):
-        print("socres", scores)
+        #print("socres", scores)
         softmax_scores = self.softmax(scores)
-        print("socres log softmax", softmax_scores)
+        #print("socres log softmax", softmax_scores)
         #veres se é preciso exp para interpolar... 
 
         for i in range(len(prev_words)):
             self.texts_so_far[i]+= self.rev_word_map[prev_words[i].item()] + " "
-        print("self texts so far", self.texts_so_far)
+        #print("self texts so far", self.texts_so_far)
         
         images = encoder_output.mean(dim=1).cpu().numpy()
         enc_contexts= retrieval.sentence_model.encode(self.texts_so_far)
-        print("enc con", numpy.shape(enc_contexts))
+        #print("enc con", numpy.shape(enc_contexts))
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-        print("image and contex", numpy.shape(images_and_text_context))
+        #print("image and contex", numpy.shape(images_and_text_context))
 
         if self.training:
-            nearest_targets, distances=retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+            nearest_targets, distances= retrieval.retrieve_nearest_for_train_query(images_and_text_context)
         else:
-            nearest_targets, distances=retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
+            nearest_targets, distances= retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
 
-        print("nearest_targets", nearest_targets)
-        print("distances", distances)
+        #print("nearest_targets", nearest_targets)
+        #print("distances", distances)
 
         #supostamente é só softmax vê se é compativel...
         nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
-        print("nearest_softmax_scores ", nearest_probs)
-        print("nearest_softmax_scores ", nearest_probs.sum())
+        #print("nearest_softmax_scores ", nearest_probs)
+        #print("nearest_softmax_scores ", nearest_probs.sum())
 
         nearest_targets= nearest_targets.cpu()
         # all_w=torch.zeros(scores.size()).cpu()
@@ -160,34 +160,34 @@ class TopDownDecoder(CaptioningDecoder):
 
 
         softmax_nearest=torch.zeros(scores.size()).cpu()
-        print("all w", softmax_nearest.size())
+        #print("all w", softmax_nearest.size())
 
         for batch_i in range(len(nearest_targets)):
-            print("i",batch_i)
-            print("index i", nearest_targets[batch_i])
-            print("probs i", nearest_probs[batch_i])
-            print("probs i",nearest_targets[batch_i].unique())
+            #print("i",batch_i)
+            #print("index i", nearest_targets[batch_i])
+            #print("probs i", nearest_probs[batch_i])
+            #print("probs i",nearest_targets[batch_i].unique())
 
             for ind in nearest_targets[batch_i].unique():   
-                print("nearest_targets[batch_i]==ind", nearest_targets[batch_i]==ind)       
-                print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])
-                print("value", nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item())      
+                #print("nearest_targets[batch_i]==ind", nearest_targets[batch_i]==ind)       
+                #print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])
+                #print("value", nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item())      
                 softmax_nearest[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
-            print("all w all_w[batch_i,ind]", softmax_nearest[batch_i,ind])
+            #print("all w all_w[batch_i,ind]", softmax_nearest[batch_i,ind])
 
         
         #aggregate...
-        print("al w", softmax_nearest)
-        print("al w", softmax_nearest.size())
+        #print("al w", softmax_nearest)
+        #print("al w", softmax_nearest.size())
 
-        print("softmax_scores", softmax_scores)
-        print("argmax", torch.argmax(softmax_scores, dim=1))
+        #print("softmax_scores", softmax_scores)
+        #print("argmax", torch.argmax(softmax_scores, dim=1))
         softmax_interpolation=interpolation*softmax_nearest.to(self.device) + (1-interpolation)*softmax_scores
-        print("argmax int", torch.argmax(softmax_interpolation, dim=1))
+        #print("argmax int", torch.argmax(softmax_interpolation, dim=1))
 
-        print("scores soft", softmax_interpolation)
-        print("scores soft sum -1", softmax_interpolation.sum(dim=-1))
-        print("scores sum", softmax_interpolation.sum())
+        #print("scores soft", softmax_interpolation)
+        #print("scores soft sum -1", softmax_interpolation.sum(dim=-1))
+        #print("scores sum", softmax_interpolation.sum())
 
         softmax_interpolation = torch.clamp(softmax_interpolation, 1e-9, 1 - 1e-9)
         return torch.log(softmax_interpolation)

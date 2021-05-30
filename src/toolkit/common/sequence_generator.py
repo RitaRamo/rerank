@@ -60,7 +60,7 @@ def beam_search_context(model, images, beam_size, max_caption_len=20,
         prev_word_embeddings = model.decoder.embeddings(prev_words)
         predictions, states, alpha = model.decoder.forward_step(encoder_output, prev_word_embeddings, states)
         
-        print("encod out", encoder_output.size())
+        #print("encod out", encoder_output.size())
         scores = model.decoder.interpolate(predictions, encoder_output, prev_words, image_retrieval, target_lookup)
 
 #        print('predictions', predictions.size())
@@ -118,10 +118,10 @@ def beam_search_context(model, images, beam_size, max_caption_len=20,
         for i in range(len(states)):
             states[i] = states[i][prev_seq_inds[incomplete_inds].long()]
         encoder_output = encoder_output[prev_seq_inds[incomplete_inds].long()]
-        print("prev_seq_inds[incomplete_inds].long()", prev_seq_inds[incomplete_inds].long())
-        print("text so far", model.decoder.texts_so_far)
+        #print("prev_seq_inds[incomplete_inds].long()", prev_seq_inds[incomplete_inds].long())
+        #print("text so far", model.decoder.texts_so_far)
         model.decoder.texts_so_far = [model.decoder.texts_so_far[current_ind] for current_ind in prev_seq_inds[incomplete_inds].long()]
-        print("now model decoder texts so far", model.decoder.texts_so_far)
+        #print("now model decoder texts so far", model.decoder.texts_so_far)
         top_k_scores = top_k_scores[incomplete_inds]
         if store_alphas:
             seqs_alpha = seqs_alpha[incomplete_inds]
@@ -140,7 +140,6 @@ def beam_search_context(model, images, beam_size, max_caption_len=20,
     sorted_alphas = None
     if store_alphas:
         sorted_alphas = [alpha for _, alpha in sorted(zip(complete_seqs_scores, complete_seqs_alpha), reverse=True)]
-    print(stop)
     return sorted_sequences, sorted_alphas, beam
 
 def beam_search(model, images, beam_size, max_caption_len=20, 
