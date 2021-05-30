@@ -59,7 +59,7 @@ def beam_search_context(model, images, beam_size, max_caption_len=20,
 
         prev_word_embeddings = model.decoder.embeddings(prev_words)
         predictions, states, alpha = model.decoder.forward_step(encoder_output, prev_word_embeddings, states)
-        scores = model.decoder.interpolate_train(predictions, encoder_output, prev_words, image_retrieval, target_lookup)
+        scores = model.decoder.interpolate(predictions, encoder_output, prev_words, image_retrieval, target_lookup)
 
 #        print('predictions', predictions.size())
         #(predictions, _), states, alpha = model.decoder.forward_multi_step(encoder_output, prev_word_embeddings, states)
