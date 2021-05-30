@@ -240,7 +240,7 @@ class ContextRetrieval():
         print("\nadding input examples to datastore (retrieval)")
         for i, (images, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
-            print("context added", targets)
+            #print("context added", targets)
             images = images.mean(dim=1).numpy()
             enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
@@ -249,13 +249,13 @@ class ContextRetrieval():
             targets = torch.tensor(targets).to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
 
-            if i%5==0:
-                print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
+            if i%100==0:
+                #print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
                 print("n of examples", self.datastore.ntotal)
-            if i>2:
-                break
+            # if i>2:
+            #     break
 
-    def retrieve_nearest_for_train_query(self, query_img, k=3):
+    def retrieve_nearest_for_train_query(self, query_img, k=16):
         #print("self query img", query_img)
         D, I = self.datastore.search(query_img, k)     # actual search
         print("all nearest", torch.tensor(I))
@@ -271,7 +271,7 @@ class ContextRetrieval():
         #print("the nearest input is actual the second for training", nearest_input)
         return nearest_input, D
 
-    def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
+    def retrieve_nearest_for_val_or_test_query(self, query_img, k=16):
         D, I = self.datastore.search(query_img, k)     # actual search
         nearest_input = self.targets_of_dataloader[torch.tensor(I)]
         # print("the nearest input", nearest_input)
@@ -460,7 +460,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=5, shuffle=False, num_workers=workers, pin_memory=True
+                batch_size=1000, shuffle=False, num_workers=workers, pin_memory=True
             )
 
     else:
