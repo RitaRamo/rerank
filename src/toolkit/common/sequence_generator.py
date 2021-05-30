@@ -118,6 +118,10 @@ def beam_search_context(model, images, beam_size, max_caption_len=20,
         for i in range(len(states)):
             states[i] = states[i][prev_seq_inds[incomplete_inds].long()]
         encoder_output = encoder_output[prev_seq_inds[incomplete_inds].long()]
+        print("prev_seq_inds[incomplete_inds].long()", prev_seq_inds[incomplete_inds].long())
+        print("text so far", model.decoder.texts_so_far)
+        model.decoder.texts_so_far = [model.decoder.texts_so_far[current_ind] for current_ind in prev_seq_inds[incomplete_inds].long()]
+        print("now model decoder texts so far", model.decoder.texts_so_far)
         top_k_scores = top_k_scores[incomplete_inds]
         if store_alphas:
             seqs_alpha = seqs_alpha[incomplete_inds]
