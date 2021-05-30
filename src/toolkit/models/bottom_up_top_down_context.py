@@ -124,7 +124,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         return scores, states, None
 
-    def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation):
+    def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation=0.25):
         print("socres", scores)
         softmax_scores = self.softmax(scores)
         print("socres log softmax", softmax_scores)
