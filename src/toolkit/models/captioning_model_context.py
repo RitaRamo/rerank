@@ -171,7 +171,7 @@ class CaptioningDecoder(nn.Module):
             scores_for_timestep, states, alphas_for_timestep = \
                 self.forward_step(encoder_output, prev_words_embedded, states)
             
-            scores_for_timestep = self.interpolate_train(scores_for_timestep, encoder_output, prev_words, context_retrieval, target_lookup)
+            #scores_for_timestep = self.interpolate_train(scores_for_timestep, encoder_output, prev_words, context_retrieval, target_lookup)
             print("new scores", scores_for_timestep)
             # Update the previously predicted words
             prev_words = self.update_previous_word(scores_for_timestep, target_clones, t, 0.0)
@@ -188,7 +188,7 @@ class CaptioningDecoder(nn.Module):
     def forward_step(self, encoder_output, prev_words_embedded, hidden_states):
         raise NotImplementedError
 
-    def interpolate_train(self, scores, encoder_output, prev_words_embedded, context_retrieval, target_lookup):
+    def interpolate(self, scores, encoder_output, prev_words_embedded, context_retrieval, target_lookup):
         raise NotImplementedError
 
     def forward_multi(self, encoder_output, target_captions=None, decode_lengths=None, teacher_forcing=0.0):

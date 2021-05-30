@@ -11,10 +11,10 @@ import torch.optim
 import torch.utils.data
 import torch.backends.cudnn as cudnn
 
-from toolkit.data.datasets import get_data_loader, get_retrieval
+from toolkit.data.datasets import get_data_loader, get_retrieval, get_context_retrieval
 from toolkit.util.analysis.visualize_attention import visualize_attention
-from toolkit.common.sequence_generator import beam_search, beam_re_ranking, nucleus_sampling, get_retrieved_caption
-from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, get_log_file_path, decode_caption
+from toolkit.common.sequence_generator import beam_search, beam_search_context, beam_re_ranking, nucleus_sampling, get_retrieved_caption
+from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL,MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT, get_log_file_path, decode_caption
 from train import build_model, abbr2name
 from options import add_model_args
 
@@ -53,6 +53,14 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                                         1, image_normalize)
         target_lookup= train_retrieval_loader.dataset.image_metas
         image_retrieval = get_retrieval(train_retrieval_loader, device)
+    elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
+        train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        0, args.image_normalize)
+ 
+        image_retrieval = get_context_retrieval(train_context_retrieval_loader, device)
+        target_lookup= image_retrieval.targets_of_dataloader
+        
+        #preencher isto e depois
     else:
         target_lookup=None
         image_retrieval=None
@@ -100,9 +108,19 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                     image_retrieval=image_retrieval,
                     target_lookup=target_lookup
                 )
+
+            elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
+                 top_k_generated_captions, alphas, beam = beam_search_context(
+                    model, image_features, beam_size,
+                    max_caption_len=max_caption_len,
+                    store_alphas=visualize,
+                    store_beam=store_beam,
+                    print_beam=print_beam,
+                    image_retrieval=image_retrieval,
+                    target_lookup=target_lookup
+                )
                 
             else:
-
                 top_k_generated_captions, alphas, beam = beam_search(
                     model, image_features, beam_size,
                     max_caption_len=max_caption_len,
