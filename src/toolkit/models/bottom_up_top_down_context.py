@@ -135,7 +135,6 @@ class TopDownDecoder(CaptioningDecoder):
         print("self texts so far", self.texts_so_far)
         
         images = encoder_output.mean(dim=1).cpu().numpy()
-        print("images", images.size())
         enc_contexts= retrieval.sentence_model.encode(self.texts_so_far)
         print("enc con", numpy.shape(enc_contexts))
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
