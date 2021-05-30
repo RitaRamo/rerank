@@ -109,7 +109,7 @@ class TopDownDecoder(CaptioningDecoder):
         self.texts_so_far = [""]*v_mean.size(0)
         return states
 
-    def forward_step(self, encoder_output, prev_word_embeddings, states, retrieval=None, target_lookup=None, interpolation=0.25):
+    def forward_step(self, encoder_output, prev_word_embeddings, states):
         """Perform a single decoding step."""
 
         v_mean = encoder_output.mean(dim=1)
@@ -122,18 +122,16 @@ class TopDownDecoder(CaptioningDecoder):
 
         states = [h1, c1, h2, c2]
 
-        scores = self.interpolate(scores, encoder_output, prev_word_embeddings, retrieval, target_lookup, interpolation)
-
         return scores, states, None
 
-    def interpolate(self, scores, encoder_output, prev_word_embeddings, retrieval, target_lookup, interpolation):
+    def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation):
         print("socres", scores)
         softmax_scores = self.softmax(scores)
         print("socres log softmax", softmax_scores)
         #veres se é preciso exp para interpolar... 
 
-        for i in range(len(prev_word_embeddings)):
-            self.texts_so_far[i]+= self.rev_word_map[prev_word_embeddings[i].item()] + " "
+        for i in range(len(prev_words)):
+            self.texts_so_far[i]+= self.rev_word_map[prev_words[i].item()] + " "
         print("self texts so far", self.texts_so_far)
         
         images = encoder_output.mean(dim=1).cpu().numpy()
