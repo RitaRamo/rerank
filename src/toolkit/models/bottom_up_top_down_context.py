@@ -141,9 +141,9 @@ class TopDownDecoder(CaptioningDecoder):
         #print("image and contex", numpy.shape(images_and_text_context))
 
         if self.training:
-            nearest_targets, distances= retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+            nearest_targets, distances= retrieval.retrieve_nearest_for_train_query(images_and_text_context, k=3)
         else:
-            nearest_targets, distances= retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
+            nearest_targets, distances= retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context, k=3)
 
         #print("nearest_targets", nearest_targets)
         #print("distances", distances)
@@ -193,6 +193,7 @@ class TopDownDecoder(CaptioningDecoder):
         print("nearest_targets2.size(", nearest_targets2.size())
 
         softmax_nearest[:, ind.cpu(),nearest_targets2.cpu()] = nearest_probs.cpu()
+        print("softmax nearest", softmax_nearest)
         softmax_nearest = softmax_nearest.sum(1)
         print("softmax_nearest", softmax_nearest)
         print(stop)
