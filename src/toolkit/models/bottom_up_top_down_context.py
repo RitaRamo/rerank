@@ -185,7 +185,7 @@ class TopDownDecoder(CaptioningDecoder):
         ind=torch.arange(0, softmax_nearest.size(1)).expand(softmax_nearest.size(0), -1).to(self.device)
         print("ind", ind.size())
         print("ind", ind)
-        softmax_nearest[:, ind,nearest_targets2] = nearest_probs
+        softmax_nearest[:, ind,nearest_targets2.to(self.device)] = nearest_probs
         print("softmax_nearest", softmax_nearest)
         print(stop)
         #aggregate...
