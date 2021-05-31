@@ -180,7 +180,7 @@ class TopDownDecoder(CaptioningDecoder):
         print("this is softmax nearest before", softmax_nearest)
 
         softmax_nearest = torch.zeros(scores.size()).cpu()
-        nearest_probs = self.softmax(-1.*torch.tensor(distances)).to(self.device)
+        nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
         print("this is softmax", softmax_nearest.size())
         ind=torch.arange(0, softmax_nearest.size(1)).expand(softmax_nearest.size(0), -1).cpu()
         print("ind", ind.size())
