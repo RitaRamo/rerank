@@ -2,16 +2,28 @@ import torch
 import torch.nn.functional as F
 
 from toolkit.utils import TOKEN_START, TOKEN_END, TOKEN_PAD,DATA_CAPTIONS, rm_caption_special_tokens, decode_caption
+from sentence_transformers import util
+from PIL import Image
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def get_retrieved_caption(images, image_retrieval, target_lookup):
+def get_retrieved_caption(images, image_retrieval, target_lookup, cocos_id, images_names, clip_model, dataset_splits_dir):
     input_imgs = images.mean(dim=1)
     nearest_images=image_retrieval.retrieve_nearest_for_val_or_test_query(input_imgs.cpu().numpy())
     nearest_cocoid = str(nearest_images[0].item())
     lookup_nearest_image = target_lookup[nearest_cocoid]
     caption_of_nearest_image=lookup_nearest_image[DATA_CAPTIONS][0]
+    print("cocos_id ini", cocos_id)
+    print("cocos_id ini 0", cocos_id[0])
+
+    images_names[cocos_id[0]]
+    opened_image= Image.open(dataset_splits_dir + images_names[cocos_id[0]])
+    img_emb = clip_model.encode(opened_image)
+    text_emb = clip_model.encode(lookup_nearest_image[DATA_CAPTIONS])
+    cos_scores = util.cos_sim(img_emb, text_emb)
+    print("cos scores", cos_scores)
+    print(stop)
     return [caption_of_nearest_image], None, None
 
 def beam_search_context(model, images, beam_size, max_caption_len=20, 

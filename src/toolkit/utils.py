@@ -34,6 +34,8 @@ DATA_COCO_SPLIT = "coco_split"
 CAPTIONS_FILENAME = "captions.json"
 IMAGES_FILENAME = "images.hdf5"
 BU_FEATURES_FILENAME = "image_features.hdf5"
+IMAGES_NAMES_FILENAME = "images_names.json"
+
 
 # Syntax attributes and filenames
 TOKEN_IDLE = "IDLE"

@@ -14,7 +14,9 @@ import torch.backends.cudnn as cudnn
 from toolkit.data.datasets import get_data_loader, get_retrieval
 from toolkit.util.analysis.visualize_attention import visualize_attention
 from toolkit.common.sequence_generator import beam_search, beam_re_ranking, nucleus_sampling, get_retrieved_caption
-from toolkit.utils import rm_caption_special_tokens, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, get_log_file_path, decode_caption
+from toolkit.utils import rm_caption_special_tokens, IMAGES_NAMES_FILENAME, MODEL_SHOW_ATTEND_TELL, MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, get_log_file_path, decode_caption
+import json
+from sentence_transformers import SentenceTransformer
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -52,10 +54,13 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         image_retrieval=None
 
     if eval_retrieved:
+        clip_model= SentenceTransformer('clip-ViT-B-32')
         train_retrieval_loader = get_data_loader("retrieval", 100, dataset_splits_dir, image_features_fn,
                                 1, image_normalize)
         target_lookup= train_retrieval_loader.dataset.image_metas
         image_retrieval = get_retrieval(train_retrieval_loader, device)
+        with open(os.path.join(dataset_splits_dir, IMAGES_NAMES_FILENAME)) as f:
+            images_names = json.load(f)
 
     data_loader = get_data_loader(split, 1, dataset_splits_dir, image_features_fn, 1, image_normalize)
 
@@ -69,9 +74,13 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     generated_captions = {}
     generated_beams = {}
 
+
     for image_features, all_captions_for_image, caption_lengths, coco_id in tqdm(
             data_loader, desc="Evaluate with beam size " + str(beam_size)):
+        coco_ids=coco_id
+        print("coco_id", coco_id)
         coco_id = coco_id[0]
+        print("coco_id after", coco_id)
 
         # Target captions
         target_captions[coco_id] = [rm_special_tokens(caption, word_map)
@@ -86,6 +95,10 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                 model, image_features, beam_size,
                 top_p=nucleus_sampling_size,
                 print_beam=print_beam,
+                coco_ids=coco_ids,
+                images_names=images_names,
+                clip_model=clip_model,
+                dataset_splits_dir=dataset_splits_dir
             )
         else:
             if eval_retrieved:
