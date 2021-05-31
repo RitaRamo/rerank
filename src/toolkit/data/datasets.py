@@ -248,6 +248,7 @@ class ContextRetrieval():
             self.datastore.add(images_and_text_context)
             targets = torch.tensor(targets).to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
+            break
 
             if i%100==0:
                 #print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
