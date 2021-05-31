@@ -148,7 +148,7 @@ class TopDownDecoder(CaptioningDecoder):
         #print("nearest_targets", nearest_targets)
         #print("distances", distances)
 
-        nearest_targets2=nearest_targets
+        nearest_targets2=nearest_targets.to(self.device)
 
         #supostamente é só softmax vê se é compativel...
         nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
@@ -179,10 +179,10 @@ class TopDownDecoder(CaptioningDecoder):
 
         print("this is softmax nearest before", softmax_nearest)
 
-        softmax_nearest = torch.zeros(scores.size())
-        nearest_probs = self.softmax(-1.*torch.tensor(distances))
+        softmax_nearest = torch.zeros(scores.size()).to(self.device)
+        nearest_probs = self.softmax(-1.*torch.tensor(distances)).to(self.device)
         print("this is softmax", softmax_nearest.size())
-        ind=torch.arange(0, softmax_nearest.size(1)).expand(softmax_nearest.size(0), -1)
+        ind=torch.arange(0, softmax_nearest.size(1)).expand(softmax_nearest.size(0), -1).to(self.device)
         print("ind", ind.size())
         print("ind", ind)
         softmax_nearest[:, ind,nearest_targets2] = nearest_probs
