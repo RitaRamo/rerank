@@ -124,7 +124,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         return scores, states, None
 
-    def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation=0.25):
+    def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation=0.25, k_neighbours=3):
         #print("socres", scores)
         softmax_scores = self.softmax(scores)
         #print("socres log softmax", softmax_scores)
@@ -134,73 +134,52 @@ class TopDownDecoder(CaptioningDecoder):
             self.texts_so_far[i]+= self.rev_word_map[prev_words[i].item()] + " "
         #print("self texts so far", self.texts_so_far)
         
-        images = encoder_output.mean(dim=1).cpu().numpy()
+        images = encoder_output.mean(dim=1)
         enc_contexts= retrieval.sentence_model.encode(self.texts_so_far)
         #print("enc con", numpy.shape(enc_contexts))
-        images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+        images_and_text_context = numpy.concatenate((images.cpu().numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
         #print("image and contex", numpy.shape(images_and_text_context))
 
         if self.training:
-            nearest_targets, distances= retrieval.retrieve_nearest_for_train_query(images_and_text_context, k=3)
+            nearest_targets, distances= retrieval.retrieve_nearest_for_train_query(images_and_text_context, k_neighbours)
         else:
-            nearest_targets, distances= retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context, k=3)
-
-        #print("nearest_targets", nearest_targets)
-        #print("distances", distances)
-
-        nearest_targets2=nearest_targets.to(self.device)
+            nearest_targets, distances= retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context,k_neighbours)
 
         #supostamente é só softmax vê se é compativel...
-        nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
+        nearest_probs = self.softmax(-1.*torch.tensor(distances))
         #print("nearest_softmax_scores ", nearest_probs)
         #print("nearest_softmax_scores ", nearest_probs.sum())
 
-        nearest_targets= nearest_targets.cpu()
-        # all_w=torch.zeros(scores.size()).cpu()
-        # for index in nearest_targets.unique():
-        #     all_w[index]= nearest_probs[numpy.where(nearest_targets==index)].sum().item()
+        # softmax_nearest=torch.zeros(scores.size()).cpu()
+        # #print("all w", softmax_nearest.size())
+
+        # for batch_i in range(len(nearest_targets)):
+        #     #print("i",batch_i)
+        #     #print("index i", nearest_targets[batch_i])
+        #     #print("probs i", nearest_probs[batch_i])
+        #     #print("probs i",nearest_targets[batch_i].unique())
+
+        #     for ind in nearest_targets[batch_i].unique():   
+        #         #print("nearest_targets[batch_i]==ind", nearest_targets[batch_i]==ind)       
+        #         #print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])
+        #         #print("value", nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item())      
+        #         softmax_nearest[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
+        #     #print("all w all_w[batch_i,ind]", softmax_nearest[batch_i,ind])
 
 
-        softmax_nearest=torch.zeros(scores.size()).cpu()
-        #print("all w", softmax_nearest.size())
+        scores_size=scores.size()
+        softmax_nearest = torch.zeros(scores_size[0], nearest_targets.size(1),k_neighbours)
+        nearest_probs = self.softmax(-1.*torch.tensor(distances))
+        ind=torch.arange(0, k_neighbours).expand(softmax_nearest.size(0), -1)
+        ind_batch=torch.arange(0, scores_size[0]).reshape(-1,1)
 
-        for batch_i in range(len(nearest_targets)):
-            #print("i",batch_i)
-            #print("index i", nearest_targets[batch_i])
-            #print("probs i", nearest_probs[batch_i])
-            #print("probs i",nearest_targets[batch_i].unique())
 
-            for ind in nearest_targets[batch_i].unique():   
-                #print("nearest_targets[batch_i]==ind", nearest_targets[batch_i]==ind)       
-                #print("[numpy.where(nearest_targets[batch_i]==ind)]", [numpy.where(nearest_targets[batch_i]==ind)])
-                #print("value", nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item())      
-                softmax_nearest[batch_i,ind]= nearest_probs[batch_i][numpy.where(nearest_targets[batch_i]==ind)].sum().item()
-            #print("all w all_w[batch_i,ind]", softmax_nearest[batch_i,ind])
+        print("sof nearest", softmax_nearest.get_device())
+        print("sof nearest", nearest_probs.get_device())
+        print("ind", ind.get_device())
+        print("ind_batch", ind_batch.get_device())
 
-        print("this is softmax nearest before", softmax_nearest)
-
-        softmax_nearest = torch.zeros(scores.size()[0], nearest_targets2.size(1),scores.size()[1]).cpu()
-        nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
-        probs_ind=torch.arange(0, nearest_probs.size()[0]).reshape(-1,1).cpu()
-
-        print("this is softmax", softmax_nearest.size())
-        ind=torch.arange(0, nearest_targets2.size(1)).expand(softmax_nearest.size(0), -1).cpu()
-        ind_batch=torch.arange(0, softmax_nearest.size(0)).reshape(-1,1).cpu()
-
-        # print("ind", ind.size())
-        # print("ind", ind)
-
-        # print("nearest_probs.size(", nearest_probs.size())
-        # print("ind.size(", ind.size())
-        # print("softmax_nearest.size(", softmax_nearest.size())
-        # print("nearest_targets2.size(", nearest_targets2.size())
-        # print("softmax neares com nd", softmax_nearest[:, ind.cpu(),nearest_targets2.cpu()])
-        # print("distances", distances)
-        # print("prob befre", nearest_probs)
-        # print("nearest_targets2", nearest_targets2)
-        # print("nearest_probs[probs_ind].cpu()", nearest_probs[probs_ind].cpu())
-
-        softmax_nearest[ind_batch.cpu(), ind.cpu(),nearest_targets2.cpu()] = nearest_probs.cpu()
+        softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
         
         print("softmax nearest", softmax_nearest)
         softmax_nearest = softmax_nearest.sum(1)
