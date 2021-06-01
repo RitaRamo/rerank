@@ -168,10 +168,10 @@ class TopDownDecoder(CaptioningDecoder):
 
 
         scores_size=scores.size()
-        softmax_nearest = torch.zeros(scores_size[0], k_neighbours,scores_size[1])
-        nearest_probs = self.softmax(-1.*torch.tensor(distances))
-        ind=torch.arange(0, k_neighbours).expand(softmax_nearest.size(0), -1)
-        ind_batch=torch.arange(0, scores_size[0]).reshape(-1,1)
+        softmax_nearest = torch.zeros(scores_size[0], k_neighbours,scores_size[1]).to(self.device)
+        nearest_probs = self.softmax(-1.*torch.tensor(distances)).to(self.device)
+        ind=torch.arange(0, k_neighbours).expand(softmax_nearest.size(0), -1).to(self.device)
+        ind_batch=torch.arange(0, scores_size[0]).reshape(-1,1).to(self.device)
 
 
         print("sof nearest", softmax_nearest.device, softmax_nearest.size())
