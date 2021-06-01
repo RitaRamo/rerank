@@ -241,14 +241,12 @@ class ContextRetrieval():
         for i, (images, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
             #print("context added", targets)
-            images = images.mean(dim=1).numpy()
             enc_contexts=self.sentence_model.encode(contexts)
-            images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+            images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
             self.datastore.add(images_and_text_context)
             targets = torch.tensor(targets).to(self.device)
             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-            break
 
             if i%100==0:
                 #print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
@@ -525,7 +523,7 @@ def get_context_retrieval(retrieval_data_loader, device):
 
     #print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
-    faiss.write_index(image_retrieval.datastore, "context_retrieval")
+    faiss.write_index(image_retrieval.datastore, "/home/guests/rpr/context_retrieval")
 
 
     return image_retrieval

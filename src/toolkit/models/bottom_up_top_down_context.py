@@ -124,7 +124,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         return scores, states, None
 
-    def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation=0.25, k_neighbours=3):
+    def interpolate(self, scores, encoder_output, prev_words, retrieval, target_lookup, interpolation=0.25, k_neighbours=5):
         #print("socres", scores)
         softmax_scores = self.softmax(scores)
         #print("socres log softmax", softmax_scores)
@@ -146,7 +146,6 @@ class TopDownDecoder(CaptioningDecoder):
             nearest_targets, distances= retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context,k_neighbours)
 
         #supostamente é só softmax vê se é compativel...
-        nearest_probs = self.softmax(-1.*torch.tensor(distances))
         #print("nearest_softmax_scores ", nearest_probs)
         #print("nearest_softmax_scores ", nearest_probs.sum())
 
@@ -173,19 +172,10 @@ class TopDownDecoder(CaptioningDecoder):
         ind=torch.arange(0, k_neighbours).expand(softmax_nearest.size(0), -1).to(self.device)
         ind_batch=torch.arange(0, scores_size[0]).reshape(-1,1).to(self.device)
 
-
-        print("sof nearest", softmax_nearest.device, softmax_nearest.size())
-        print("nearest_probs nearest", nearest_probs.device, nearest_probs.size())
-        print("ind", ind.device, ind.size())
-        print("ind_batch", ind_batch.device, ind_batch.size())
-        print("nearest target", nearest_targets.device, nearest_targets.size())
-
         softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
         
-        print("softmax nearest", softmax_nearest)
         softmax_nearest = softmax_nearest.sum(1)
-        print("softmax_nearest sum", softmax_nearest)
-        print(stop)
+     
         #aggregate...
         #print("al w", softmax_nearest)
         #print("al w", softmax_nearest.size())
