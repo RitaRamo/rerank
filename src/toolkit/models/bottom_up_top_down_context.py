@@ -192,11 +192,14 @@ class TopDownDecoder(CaptioningDecoder):
         print("ind.size(", ind.size())
         print("softmax_nearest.size(", softmax_nearest.size())
         print("nearest_targets2.size(", nearest_targets2.size())
+        print("softmax neares com nd", softmax_nearest[:, ind.cpu(),nearest_targets2.cpu()])
+        print("nearest_probs[probs_ind].cpu()", nearest_probs[probs_ind].cpu())
 
         softmax_nearest[:, ind.cpu(),nearest_targets2.cpu()] = nearest_probs[probs_ind].cpu()
+        
         print("softmax nearest", softmax_nearest)
         softmax_nearest = softmax_nearest.sum(1)
-        print("softmax_nearest", softmax_nearest)
+        print("softmax_nearest sum", softmax_nearest)
         print(stop)
         #aggregate...
         #print("al w", softmax_nearest)
