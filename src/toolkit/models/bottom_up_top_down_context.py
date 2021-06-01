@@ -174,11 +174,11 @@ class TopDownDecoder(CaptioningDecoder):
         ind_batch=torch.arange(0, scores_size[0]).reshape(-1,1)
 
 
-        print("sof nearest", softmax_nearest.get_device(), softmax_nearest.size())
-        print("nearest_probs nearest", nearest_probs.get_device(), nearest_probs.size())
-        print("ind", ind.get_device(), ind.size())
-        print("ind_batch", ind_batch.get_device(), ind_batch.size())
-        print("nearest target", nearest_targets.get_device(), nearest_targets.size())
+        print("sof nearest", softmax_nearest.device(), softmax_nearest.size())
+        print("nearest_probs nearest", nearest_probs.device(), nearest_probs.size())
+        print("ind", ind.device(), ind.size())
+        print("ind_batch", ind_batch.device(), ind_batch.size())
+        print("nearest target", nearest_targets.device(), nearest_targets.size())
 
         softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
         
