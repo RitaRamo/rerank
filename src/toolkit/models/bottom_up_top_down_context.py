@@ -174,7 +174,7 @@ class TopDownDecoder(CaptioningDecoder):
         ind_batch=torch.arange(0, scores_size[0]).reshape(-1,1)
 
 
-        print("sof nearest", softmax_nearest.device(), softmax_nearest.size())
+        print("sof nearest", softmax_nearest.device, softmax_nearest.size())
         print("nearest_probs nearest", nearest_probs.device, nearest_probs.size())
         print("ind", ind.device, ind.size())
         print("ind_batch", ind_batch.device, ind_batch.size())
