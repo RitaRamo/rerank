@@ -179,7 +179,7 @@ class TopDownDecoder(CaptioningDecoder):
 
         print("this is softmax nearest before", softmax_nearest)
 
-        softmax_nearest = torch.zeros(scores.size()[0], scores.size()[1],scores.size()[1]).cpu()
+        softmax_nearest = torch.zeros(scores.size()[0], nearest_targets2.size(1),scores.size()[1]).cpu()
         nearest_probs = self.softmax(-1.*torch.tensor(distances)).cpu()
         probs_ind=torch.arange(0, nearest_probs.size()[0]).reshape(-1,1).cpu()
 
@@ -187,18 +187,18 @@ class TopDownDecoder(CaptioningDecoder):
         ind=torch.arange(0, nearest_targets2.size(1)).expand(softmax_nearest.size(0), -1).cpu()
         ind_batch=torch.arange(0, softmax_nearest.size(0)).reshape(-1,1).cpu()
 
-        print("ind", ind.size())
-        print("ind", ind)
+        # print("ind", ind.size())
+        # print("ind", ind)
 
-        print("nearest_probs.size(", nearest_probs.size())
-        print("ind.size(", ind.size())
-        print("softmax_nearest.size(", softmax_nearest.size())
-        print("nearest_targets2.size(", nearest_targets2.size())
-        print("softmax neares com nd", softmax_nearest[:, ind.cpu(),nearest_targets2.cpu()])
-        print("distances", distances)
-        print("prob befre", nearest_probs)
-        print("nearest_targets2", nearest_targets2)
-        print("nearest_probs[probs_ind].cpu()", nearest_probs[probs_ind].cpu())
+        # print("nearest_probs.size(", nearest_probs.size())
+        # print("ind.size(", ind.size())
+        # print("softmax_nearest.size(", softmax_nearest.size())
+        # print("nearest_targets2.size(", nearest_targets2.size())
+        # print("softmax neares com nd", softmax_nearest[:, ind.cpu(),nearest_targets2.cpu()])
+        # print("distances", distances)
+        # print("prob befre", nearest_probs)
+        # print("nearest_targets2", nearest_targets2)
+        # print("nearest_probs[probs_ind].cpu()", nearest_probs[probs_ind].cpu())
 
         softmax_nearest[ind_batch.cpu(), ind.cpu(),nearest_targets2.cpu()] = nearest_probs.cpu()
         
