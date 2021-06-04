@@ -523,7 +523,7 @@ def get_context_retrieval(retrieval_data_loader, device):
 
     #print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
-    faiss.write_index(image_retrieval.datastore, "/home/guests/rpr/context_retrieval")
+    #faiss.write_index(image_retrieval.datastore, "/home/guests/rpr/context_retrieval")
 
 
     return image_retrieval
