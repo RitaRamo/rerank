@@ -34,9 +34,9 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     print("model name", model_name)
     model = build_model(args, model_name)    
     print("model", model)
-    if torch.cuda.device_count() > 1:
-        print("data parallel")
-        model = nn.DataParallel(model)
+    # if torch.cuda.device_count() > 1:
+    #     print("data parallel")
+    #     model = nn.DataParallel(model)
     model = model.to(device)
 
     print("after device")
