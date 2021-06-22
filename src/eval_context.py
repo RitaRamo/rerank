@@ -3,7 +3,7 @@
 import sys
 import json
 import os.path
-import logging
+#import logging
 import argparse
 from tqdm import tqdm
 from torch import nn
@@ -29,7 +29,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
     model_name = abbr2name[args.model]
-    logging.info("Model: {}".format(model_name))
+    #logging.info("Model: {}".format(model_name))
 
     print("model name", model_name)
     model = build_model(args, model_name)    
@@ -46,7 +46,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     
     model.eval()
     word_map = model.decoder.word_map
-    logging.info("Model params: {}".format(vars(model)))
+    #logging.info("Model params: {}".format(vars(model)))
 
     # DataLoader
     image_normalize = None
@@ -60,10 +60,11 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         image_retrieval = get_retrieval(train_retrieval_loader, device)
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
         print("loading datastore")
-        train_context_retrieval_loader = get_data_loader("context_retrieval", 5000, args.dataset_splits_dir, args.image_features_filename,
-                                        0, args.image_normalize)
+        
+        # train_context_retrieval_loader = get_data_loader("context_retrieval", 5000, args.dataset_splits_dir, args.image_features_filename,
+        #                                 0, args.image_normalize)
  
-        image_retrieval = get_context_retrieval(train_context_retrieval_loader, device)
+        image_retrieval = get_context_retrieval()
         target_lookup= image_retrieval.targets_of_dataloader
         
         #preencher isto e depois
@@ -138,23 +139,23 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                 )
 
         if visualize:
-            logging.info("Image COCO ID: {}".format(coco_id))
+            #logging.info("Image COCO ID: {}".format(coco_id))
             for caption, alpha in zip(top_k_generated_captions, alphas):
                 visualize_attention(image_features.squeeze(0), caption, alpha, word_map, smoothen=True)
 
         if re_ranking:
-            if print_captions:
-                logging.info("COCO ID: {}".format(coco_id))
-                logging.info("Before re-ranking:")
-                for caption in top_k_generated_captions[:eval_beam_size]:
-                    logging.info(decode_caption(rm_special_tokens(caption, word_map), word_map))
+            #if print_captions:
+                #logging.info("COCO ID: {}".format(coco_id))
+                #logging.info("Before re-ranking:")
+                #for caption in top_k_generated_captions[:eval_beam_size]:
+                    #logging.info(decode_caption(rm_special_tokens(caption, word_map), word_map))
             top_k_generated_captions = beam_re_ranking(model, image_features, top_k_generated_captions, word_map)
 
         generated_captions[coco_id] = top_k_generated_captions[:eval_beam_size]
-        if print_captions:
-            logging.info("COCO ID: {}".format(coco_id))
-            for caption in generated_captions[coco_id]:
-                logging.info(decode_caption(rm_special_tokens(caption, word_map), word_map))
+        #if print_captions:
+            #logging.info("COCO ID: {}".format(coco_id))
+            #for caption in generated_captions[coco_id]:
+                #logging.info(decode_caption(rm_special_tokens(caption, word_map), word_map))
         if store_beam:
             generated_beams[coco_id] = beam
 
@@ -259,10 +260,10 @@ def check_args(args):
 if __name__ == "__main__":
     args = check_args(sys.argv[1:])
     #logging.basicConfig(filename=get_log_file_path(args.logging_dir, args.split), level=logging.INFO)
-    logging.basicConfig(
-            format='%(levelname)s: %(message)s', level=logging.INFO)
+    # logging.basicConfig(
+    #         format='%(levelname)s: %(message)s', level=logging.INFO)
 
-    logging.info(args)
+    # logging.info(args)
     evaluate(
         image_features_fn=args.image_features_filename,
         dataset_splits_dir=args.dataset_splits_dir,
