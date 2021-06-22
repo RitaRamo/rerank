@@ -220,13 +220,13 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, nlist = 100, m = 8):
+    def __init__(self, dim_examples, nlist = 10000, m = 8):
         #print("self dim exam", dim_examples)
 
         quantizer = faiss.IndexFlatL2(dim_examples)
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
         #faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples)) #datastore
-        self.datastore.nprobe = 100
+        self.datastore.nprobe = 16
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
@@ -262,7 +262,7 @@ class ContextRetrieval():
                 #targets = torch.tensor(targets).to(self.device)
                 #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
                 self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
-            break
+
         faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
         print("n of examples", self.datastore.ntotal)
 
@@ -496,7 +496,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=10000, shuffle=True, num_workers=workers, pin_memory=True
+                batch_size=2000000, shuffle=True, num_workers=workers, pin_memory=True
             )
 
     else:
@@ -549,6 +549,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         # Ve se funciona chamar o eval
         # Depois tenta usar o tal Index
         #Tenta com um dataset mais pequeno e vê se funciona 
+        print(stop)
     else:
         image_retrieval.datastore = faiss.read_index("/media/jlsstorage/rita/context_retrieval")
 
