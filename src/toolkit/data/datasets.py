@@ -261,7 +261,7 @@ class ContextRetrieval():
                 #targets = torch.tensor(targets).to(self.device)
                 #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
                 self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
-        
+            break
         faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
         print("n of examples", self.datastore.ntotal)
 
