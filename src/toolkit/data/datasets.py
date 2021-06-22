@@ -495,11 +495,11 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     return data_loader
 
 
-def get_retrieval(retrieval_data_loader):
+def get_retrieval(retrieval_data_loader, device):
 
     encoder_output_dim = 2048 #faster r-cnn features
 
-    image_retrieval = ImageRetrieval(encoder_output_dim, retrieval_data_loader)
+    image_retrieval = ImageRetrieval(encoder_output_dim, retrieval_data_loader,device)
   
     
     # for i, (encoder_output, coco_ids) in enumerate(retrieval_data_loader):
@@ -527,10 +527,10 @@ def get_retrieval(retrieval_data_loader):
     return image_retrieval
 
 
-def get_context_retrieval(create, retrieval_data_loader=None, device=None):
+def get_context_retrieval(create, retrieval_data_loader=None):
 
     encoder_output_dim = 2048 + 768 #faster r-cnn features
-    image_retrieval = ContextRetrieval(encoder_output_dim,device)
+    image_retrieval = ContextRetrieval(encoder_output_dim)
 
     if create:
         image_retrieval.train_retrieval(retrieval_data_loader)
