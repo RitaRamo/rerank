@@ -255,6 +255,7 @@ class ContextRetrieval():
             if start_training:
                 print("training")
                 self.datastore.train(images_and_text_context)
+                self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
                 start_training = False
             else:
                 print("adding")
