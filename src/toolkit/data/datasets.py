@@ -495,7 +495,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=100000, shuffle=True, num_workers=workers, pin_memory=True
+                batch_size=10000, shuffle=True, num_workers=workers, pin_memory=True
             )
 
     else:
@@ -560,9 +560,12 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
         print("this is nearest train images", nearest_targets, distances)
 
-        nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
+        print("targt", targets)
+        print("this is nearest train images", nearest_targets)
+
+        # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
         
-        print("retrieve for test query", nearest_targets, distances)
+        # print("retrieve for test query", nearest_targets, distances)
         print(stop)
 
     print("stop remove from dataloader o VAL e coloca TRAIN", stop)
