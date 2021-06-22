@@ -65,7 +65,8 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
                                         0, args.image_normalize)
  
         image_retrieval = get_context_retrieval(create=False, retrieval_data_loader=train_context_retrieval_loader)
-        target_lookup= image_retrieval.targets_of_dataloader
+        #target_lookup= image_retrieval.targets_of_dataloader
+        target_lookup=None
         
         #preencher isto e depois
     else:
