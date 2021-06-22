@@ -220,23 +220,29 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, train_dataloader_images, device):
+    def __init__(self, dim_examples, device=None):
         #print("self dim exam", dim_examples)
-        self.datastore = faiss.IndexFlatL2(dim_examples) #datastore
-        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
+        self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples)) #datastore
 
-        #data
-        self.device=device
-        self.targets_of_dataloader = torch.tensor([]).long().to(device)
+        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
+        
+
+        # #data
+        #self.device=device
+        #self.targets_of_dataloader = torch.tensor([]).long().to(device)
+        
+        
         #print("self.imgs_indexes_of_dataloader type", self.imgs_indexes_of_dataloader)
 
         #print("len img dataloader", self.imgs_indexes_of_dataloader.size())
-        self._add_examples(train_dataloader_images)
+        #self._add_examples(train_dataloader_images)
         #print("len img dataloader final", self.imgs_indexes_of_dataloader.size())
         #print("como ficou img dataloader final", self.imgs_indexes_of_dataloader)
 
+    def train_retrieval(self, train_dataloader_images):
+        pass
 
-    def _add_examples(self, train_dataloader_images):
+    def add_vectors(self, train_dataloader_images):
         print("\nadding input examples to datastore (retrieval)")
         for i, (images, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
@@ -244,15 +250,19 @@ class ContextRetrieval():
             enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
-            self.datastore.add(images_and_text_context)
-            targets = torch.tensor(targets).to(self.device)
-            self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
+            #self.datastore.add(images_and_text_context)
+            self.datastore.add_with_ids(images_and_text_context, targets)
+            #targets = torch.tensor(targets).to(self.device)
+            #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
 
             if i%100==0:
                 #print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
                 print("n of examples", self.datastore.ntotal)
-            # if i>2:
-            #     break
+            if i>2:
+                break
+
+        faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
+
 
     def retrieve_nearest_for_train_query(self, query_img, k=16):
         #print("self query img", query_img)
@@ -500,30 +510,37 @@ def get_retrieval(retrieval_data_loader, device):
     return image_retrieval
 
 
-def get_context_retrieval(retrieval_data_loader, device):
+def get_context_retrieval(retrieval_data_loader=None, device=None):
 
     encoder_output_dim = 2048 + 768 #faster r-cnn features
+    image_retrieval = ContextRetrieval(encoder_output_dim,device)
 
-    image_retrieval = ContextRetrieval(encoder_output_dim, retrieval_data_loader,device)
+    if retrieval_data_loader:
+        image_retrieval.train_retrieval(retrieval_data_loader)
+        image_retrieval.add_vectors(retrieval_data_loader)
+        # Como está mas adiciona o index map...
+        # Ve se funciona chamar o eval
+        # Depois tenta usar o tal Index
+        #Tenta com um dataset mais pequeno e vê se funciona 
+    else:
+        image_retrieval.datastore = faiss.read_index("/media/jlsstorage/rita/context_retrieval")
 
-    # for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
-    #     #print("targt", targets)
-    #     images = images.mean(dim=1).numpy()
-    #     enc_contexts=image_retrieval.sentence_model.encode(contexts)
-    #     images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+    for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
+        print("targt", targets)
+        images = images.mean(dim=1).numpy()
+        enc_contexts=image_retrieval.sentence_model.encode(contexts)
+        images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
-    #     nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-    #     #print("this is nearest train images", nearest_targets, distances)
+        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        print("this is nearest train images", nearest_targets, distances)
 
-    #     nearest_targets,distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
+        nearest_targets,distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
         
-    #     #print("retrieve for test query", nearest_targets, distances)
-    #     #print(stop)
-    #     break
+        print("retrieve for test query", nearest_targets, distances)
+        print(stop)
 
     #print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
-    faiss.write_index(image_retrieval.datastore, "/media/jlsstorage/rita/context_retrieval")
-
+    #faiss.write_index(image_retrieval.datastore, "/media/jlsstorage/rita/context_retrieval")
 
     return image_retrieval
