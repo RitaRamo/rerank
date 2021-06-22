@@ -220,7 +220,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, nlist = 10000, m = 8):
+    def __init__(self, dim_examples, nlist = 1000, m = 8):
         #print("self dim exam", dim_examples)
 
         quantizer = faiss.IndexFlatL2(dim_examples)
