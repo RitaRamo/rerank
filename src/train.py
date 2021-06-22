@@ -408,7 +408,7 @@ def main(args):
         train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
                                         0, args.image_normalize)
  
-        image_retrieval = get_context_retrieval(train_context_retrieval_loader, device)
+        image_retrieval = get_context_retrieval(create=True, retrieval_data_loader=train_context_retrieval_loader)
         target_lookup= image_retrieval.targets_of_dataloader
         
     else:

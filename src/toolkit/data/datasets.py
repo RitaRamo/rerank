@@ -512,12 +512,12 @@ def get_retrieval(retrieval_data_loader, device):
     return image_retrieval
 
 
-def get_context_retrieval(retrieval_data_loader=None, device=None):
+def get_context_retrieval(create, retrieval_data_loader=None, device=None):
 
     encoder_output_dim = 2048 + 768 #faster r-cnn features
     image_retrieval = ContextRetrieval(encoder_output_dim,device)
 
-    if retrieval_data_loader:
+    if create:
         image_retrieval.train_retrieval(retrieval_data_loader)
         image_retrieval.add_vectors(retrieval_data_loader)
         # Como está mas adiciona o index map...
