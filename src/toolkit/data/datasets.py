@@ -251,7 +251,7 @@ class ContextRetrieval():
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
             #self.datastore.add(images_and_text_context)
-            self.datastore.train(images_and_text_context, numpy.array(targets))
+            self.datastore.train(images_and_text_context)
             #targets = torch.tensor(targets).to(self.device)
             #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
             break
