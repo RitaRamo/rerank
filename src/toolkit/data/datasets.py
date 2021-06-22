@@ -220,12 +220,15 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, device=None):
+    def __init__(self, dim_examples, nlist = 10000, m = 8):
         #print("self dim exam", dim_examples)
-        self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples)) #datastore
+
+        quantizer = faiss.IndexFlatL2(dim_examples)
+        self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
+        #faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples)) #datastore
+        self.datastore.nprobe = 10 
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
-        
 
         # #data
         #self.device=device
@@ -240,7 +243,19 @@ class ContextRetrieval():
         #print("como ficou img dataloader final", self.imgs_indexes_of_dataloader)
 
     def train_retrieval(self, train_dataloader_images):
-        pass
+        print("training")
+        for i, (images, contexts, targets) in enumerate(train_dataloader_images):
+            #add to the datastore
+            #print("context added", targets)
+            enc_contexts=self.sentence_model.encode(contexts)
+            images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+          
+            #self.datastore.add(images_and_text_context)
+            self.datastore.train(images_and_text_context, numpy.array(targets))
+            #targets = torch.tensor(targets).to(self.device)
+            #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
+            break
+
 
     def add_vectors(self, train_dataloader_images):
         print("\nadding input examples to datastore (retrieval)")
