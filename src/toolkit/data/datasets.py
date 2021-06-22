@@ -220,7 +220,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, nlist = 1000, m = 8):
+    def __init__(self, dim_examples, nlist = 100, m = 8):
         #print("self dim exam", dim_examples)
 
         quantizer = faiss.IndexFlatL2(dim_examples)
@@ -244,6 +244,7 @@ class ContextRetrieval():
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
+        has_trained=False
         for i, (images, contexts, targets) in enumerate(train_dataloader_images):
             #add to the datastore
             #print("context added", targets)
@@ -251,11 +252,18 @@ class ContextRetrieval():
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
             #self.datastore.add(images_and_text_context)
-            print("training")
-            self.datastore.train(images_and_text_context)
-            #targets = torch.tensor(targets).to(self.device)
-            #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-            break
+            if has_trained:
+                print("training")
+                self.datastore.train(images_and_text_context)
+                has_trained= True
+            else:
+                print("adding")
+                #targets = torch.tensor(targets).to(self.device)
+                #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
+                self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
+        
+        faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
+        print("n of examples", self.datastore.ntotal)
 
 
     def add_vectors(self, train_dataloader_images):
@@ -487,7 +495,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=2000000, shuffle=False, num_workers=workers, pin_memory=True
+                batch_size=100000, shuffle=True, num_workers=workers, pin_memory=True
             )
 
     else:
@@ -535,7 +543,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
 
     if create:
         image_retrieval.train_retrieval(retrieval_data_loader)
-        image_retrieval.add_vectors(retrieval_data_loader)
+        #image_retrieval.add_vectors(retrieval_data_loader)
         # Como está mas adiciona o index map...
         # Ve se funciona chamar o eval
         # Depois tenta usar o tal Index
