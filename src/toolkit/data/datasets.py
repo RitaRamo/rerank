@@ -9,7 +9,7 @@ from torchvision.transforms import transforms
 import faiss
 from sentence_transformers import SentenceTransformer
 import numpy
-
+from tqdm import tqdm
 
 from scipy.misc import imresize
 
@@ -245,7 +245,7 @@ class ContextRetrieval():
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
         has_trained=False
-        for i, (images, contexts, targets) in enumerate(train_dataloader_images):
+        for i, (images, contexts, targets) in enumerate(tqdm(train_dataloader_images)):
             #add to the datastore
             #print("context added", targets)
             enc_contexts=self.sentence_model.encode(contexts)
@@ -255,7 +255,7 @@ class ContextRetrieval():
             if has_trained:
                 print("training")
                 self.datastore.train(images_and_text_context)
-                has_trained= True
+                has_trained = True
             else:
                 print("adding")
                 #targets = torch.tensor(targets).to(self.device)
