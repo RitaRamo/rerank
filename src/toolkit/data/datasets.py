@@ -245,7 +245,7 @@ class ContextRetrieval():
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
         start_training=True
-        for i, (images, contexts, targets) in enumerate(tqdm(train_dataloader_images)):
+        for (images, contexts, targets) in tqdm(train_dataloader_images):
             #add to the datastore
             #print("context added", targets)
             enc_contexts=self.sentence_model.encode(contexts)
