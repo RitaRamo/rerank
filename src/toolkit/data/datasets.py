@@ -220,27 +220,12 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, nlist = 10000, m = 8):
-        #print("self dim exam", dim_examples)
-
+    def __init__(self, dim_examples, nlist = 7000, m = 8):
         quantizer = faiss.IndexFlatL2(dim_examples)
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
-        #faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples)) #datastore
         self.datastore.nprobe = 16
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
-
-        # #data
-        #self.device=device
-        #self.targets_of_dataloader = torch.tensor([]).long().to(device)
-        
-        
-        #print("self.imgs_indexes_of_dataloader type", self.imgs_indexes_of_dataloader)
-
-        #print("len img dataloader", self.imgs_indexes_of_dataloader.size())
-        #self._add_examples(train_dataloader_images)
-        #print("len img dataloader final", self.imgs_indexes_of_dataloader.size())
-        #print("como ficou img dataloader final", self.imgs_indexes_of_dataloader)
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
@@ -266,43 +251,11 @@ class ContextRetrieval():
         faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
         print("n of examples", self.datastore.ntotal)
 
-
-    def add_vectors(self, train_dataloader_images):
-        print("\nadding input examples to datastore (retrieval)")
-        for i, (images, contexts, targets) in enumerate(train_dataloader_images):
-            #add to the datastore
-            #print("context added", targets)
-            enc_contexts=self.sentence_model.encode(contexts)
-            images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-          
-            #self.datastore.add(images_and_text_context)
-            self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
-            #targets = torch.tensor(targets).to(self.device)
-            #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-
-            if i%100==0:
-                #print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
-                print("n of examples", self.datastore.ntotal)
-            if i>2:
-                break
-
-        faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
-
-
     def retrieve_nearest_for_train_query(self, query_img, k=16):
         #print("self query img", query_img)
         D, I = self.datastore.search(query_img, k)     # actual search
         nearest_input=torch.tensor(I)
         print("all nearest", torch.tensor(I))
-        # print("I firt", I[:,0])
-        # print("I second", I[:,1])
-
-        # print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
-        # print("this is the img indexes", self.imgs_indexes_of_dataloader)
-        # print("n of img index", len(self.imgs_indexes_of_dataloader))
-        # print("n of examples", self.datastore.ntotal)
-        #nearest_input = self.targets_of_dataloader[torch.tensor(I)]
-        #print("the nearest input is actual the second for training", nearest_input)
         return nearest_input, D
 
     def retrieve_nearest_for_val_or_test_query(self, query_img, k=16):
@@ -496,7 +449,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=2000000, shuffle=True, num_workers=workers, pin_memory=True
+                batch_size=1000000, shuffle=True, num_workers=workers, pin_memory=True
             )
 
     else:
