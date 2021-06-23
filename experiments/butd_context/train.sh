@@ -36,7 +36,7 @@ butd_context
 --dropout 0.5
 """
 
-#source activate /envs/syncap
+##source activate /envs/syncap
 
 export PYTHONWARNINGS="ignore"
 
