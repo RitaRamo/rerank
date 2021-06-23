@@ -507,8 +507,8 @@ def main(args):
                                                   lr=args.gradnorm_learning_rate)
 
     # Move to GPU, if available
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
+    # if torch.cuda.device_count() > 1:
+    #     model = nn.DataParallel(model)
     model = model.to(device)
 
     # Log configuration

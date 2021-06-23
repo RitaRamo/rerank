@@ -196,6 +196,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
         all_images_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_IMAGES_FILENAME) #aqui esse ficheio
         all_contexts_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_FILENAME) #aqui esse ficheio
         all_targets_filename = os.path.join(dataset_splits_dir, TRAIN_TARGETS_FILENAME) #aqui esse ficheio
+        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
         with open(all_images_filename) as f:
             self.all_images = json.load(f)
@@ -210,9 +211,9 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
     def __getitem__(self, i):
         coco_id=self.all_images[i]
         image = self.get_image_features(coco_id) #32, 2048
-        context=self.all_contexts[i]
+        context=self.sentence_model.encode(self.all_contexts[i])
         target=self.all_targets[i]
-        return image, context, target
+        return image, context, numpy.array(target)
 
     def __len__(self):
         return len(self.all_images)
@@ -225,28 +226,26 @@ class ContextRetrieval():
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
         self.datastore.nprobe = 16
 
-        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
-
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
         start_training=True
-        for (images, contexts, targets) in tqdm(train_dataloader_images):
+        for (images, enc_contexts, targets) in tqdm(train_dataloader_images):
             #add to the datastore
             #print("context added", targets)
-            enc_contexts=self.sentence_model.encode(contexts)
+            #enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
             #self.datastore.add(images_and_text_context)
             if start_training:
                 print("training")
                 self.datastore.train(images_and_text_context)
-                self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
+                self.datastore.add_with_ids(images_and_text_context, targets)
                 start_training = False
             else:
                 print("adding")
                 #targets = torch.tensor(targets).to(self.device)
                 #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-                self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
+                self.datastore.add_with_ids(images_and_text_context, targets)
 
         faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
         print("n of examples", self.datastore.ntotal)
