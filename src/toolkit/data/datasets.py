@@ -222,6 +222,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 class ContextRetrieval():
 
     def __init__(self, dim_examples, nlist = 10000, m = 8):
+        self.dim_examples=dim_examples
         quantizer = faiss.IndexFlatL2(dim_examples)
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
         self.datastore.nprobe = 16
@@ -231,8 +232,8 @@ class ContextRetrieval():
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
         start_training=True
-        all_images_and_text_context=torch.tensor([])
-        all_targets=torch.tensor([])
+        all_images_and_text_context=numpy.empty((0,self.dim_examples))
+        all_targets=numpy.empty((0,1))
         is_to_add = False
 
         for (images, contexts, targets) in tqdm(train_dataloader_images):
@@ -243,7 +244,8 @@ class ContextRetrieval():
             all_images_and_text_context = numpy.append((all_images_and_text_context,images_and_text_context),axis=0)
             print("all all_images_and_text_context", all_images_and_text_context.size)
             all_targets=numpy.append((all_targets,targets),axis=0)
-            
+            print("all all_targets", all_targets.size)
+
             #self.datastore.add(images_and_text_context)
             if len(all_targets)>2000000:
                 if start_training:
