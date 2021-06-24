@@ -213,7 +213,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
         context=self.all_contexts[i]
         target=self.all_targets[i]
         gc.collect()
-        return image, context, target
+        return image, context, numpy.array(target)
 
     def __len__(self):
         return len(self.all_images)
@@ -251,8 +251,8 @@ class ContextRetrieval():
             if len(all_targets)>2000000:
                 if start_training:
                     print("training")
-                    self.datastore.train(images_and_text_context)
-                    self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
+                    self.datastore.train(all_images_and_text_context)
+                    self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
                     is_to_add=True
                     all_images_and_text_context=torch.tensor([])
@@ -265,7 +265,7 @@ class ContextRetrieval():
                 print("adding")
                 #targets = torch.tensor(targets).to(self.device)
                 #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-                self.datastore.add_with_ids(images_and_text_context, numpy.array(targets))
+                self.datastore.add_with_ids(all_images_and_text_context, all_targets)
 
         faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
         print("n of examples", self.datastore.ntotal)
