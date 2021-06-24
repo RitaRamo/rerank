@@ -241,14 +241,8 @@ class ContextRetrieval():
             #print("context added", targets)
             enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-            print("images and tex",images_and_text_context)
-            all_images_and_text_context = numpy.concatenate((all_images_and_text_context,images_and_text_context),axis=0)
-            print("all all_images_and_text_context", all_images_and_text_context.size)
-            print("targets", targets.shape)
-            print("targets", targets)
-
+            all_images_and_text_context = numpy.concatenate((all_images_and_text_context,images_and_text_context),axis=0)        
             all_targets=numpy.concatenate((all_targets,targets),axis=0)
-            print("all all_targets", all_targets.size)
 
             #self.datastore.add(images_and_text_context)
             if len(all_targets)>2000000:
@@ -265,7 +259,6 @@ class ContextRetrieval():
                     all_targets=torch.tensor([])
 
             if is_to_add: #only start adding after training (reaching 2.000.000 vectors)
-                print("adding")
                 #targets = torch.tensor(targets).to(self.device)
                 #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
                 self.datastore.add_with_ids(all_images_and_text_context, all_targets)
@@ -471,7 +464,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=10, shuffle=True, num_workers=0, pin_memory=False
+                batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
             )
 
     else:
