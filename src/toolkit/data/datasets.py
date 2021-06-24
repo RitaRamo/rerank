@@ -528,7 +528,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         enc_contexts=image_retrieval.sentence_model.encode(contexts)
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
-        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context, axis=-1)
         print("this is nearest train images", nearest_targets, distances)
 
         print("targt", targets)
