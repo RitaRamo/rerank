@@ -240,9 +240,9 @@ class ContextRetrieval():
             #print("context added", targets)
             enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-            all_images_and_text_context = numpy.concatenate((all_images_and_text_context,images_and_text_context),axis=0) 
+            all_images_and_text_context = numpy.append((all_images_and_text_context,images_and_text_context),axis=0)
             print("all all_images_and_text_context", all_images_and_text_context.size)
-            all_targets=numpy.concatenate((all_targets,targets))
+            all_targets=numpy.append((all_targets,targets),axis=0)
             
             #self.datastore.add(images_and_text_context)
             if len(all_targets)>2000000:
