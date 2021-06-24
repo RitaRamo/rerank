@@ -232,8 +232,8 @@ class ContextRetrieval():
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
         start_training=True
-        all_images_and_text_context=numpy.array([])
-        all_targets=numpy.array([])
+        all_images_and_text_context=numpy.empty((0,self.dim_examples))
+        all_targets=numpy.empty((0,1))
         is_to_add = False
 
         for (images, contexts, targets) in tqdm(train_dataloader_images):
@@ -242,9 +242,9 @@ class ContextRetrieval():
             enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
             print("images and tex",images_and_text_context)
-            all_images_and_text_context = numpy.append((all_images_and_text_context,images_and_text_context),axis=0)
+            all_images_and_text_context = numpy.concatenate((all_images_and_text_context,images_and_text_context),axis=0)
             print("all all_images_and_text_context", all_images_and_text_context.size)
-            all_targets=numpy.append((all_targets,targets),axis=0)
+            all_targets=numpy.concatenate((all_targets,targets),axis=0)
             print("all all_targets", all_targets.size)
 
             #self.datastore.add(images_and_text_context)
