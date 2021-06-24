@@ -232,8 +232,8 @@ class ContextRetrieval():
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
         start_training=True
-        all_images_and_text_context=numpy.empty((0,self.dim_examples))
-        all_targets=numpy.empty((0,1))
+        all_images_and_text_context=numpy.array([])
+        all_targets=numpy.array([])
         is_to_add = False
 
         for (images, contexts, targets) in tqdm(train_dataloader_images):
