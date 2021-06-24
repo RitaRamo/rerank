@@ -212,7 +212,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
         image = self.get_image_features(coco_id) #32, 2048
         context=self.all_contexts[i]
         target=self.all_targets[i]
-        gc.collect()
+        #gc.collect()
         return image, context, numpy.array(target)
 
     def __len__(self):
