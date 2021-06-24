@@ -240,7 +240,7 @@ class ContextRetrieval():
             #print("context added", targets)
             enc_contexts=self.sentence_model.encode(contexts)
             images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-            all_images_and_text_context = numpy.concatenate((all_images_and_text_context,images_and_text_context)) 
+            all_images_and_text_context = numpy.concatenate((all_images_and_text_context,images_and_text_context),axis=-1) 
             print("all all_images_and_text_context", all_images_and_text_context.size)
             all_targets=numpy.concatenate((all_targets,targets))
             
@@ -465,7 +465,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=10, shuffle=True, num_workers=0, pin_memory=False
+                batch_size=1000, shuffle=True, num_workers=0, pin_memory=False
             )
 
     else:
@@ -528,7 +528,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         enc_contexts=image_retrieval.sentence_model.encode(contexts)
         images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
-        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context, axis=-1)
+        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
         print("this is nearest train images", nearest_targets, distances)
 
         print("targt", targets)
