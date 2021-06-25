@@ -255,6 +255,7 @@ class ContextRetrieval():
                     all_images_and_text_context=torch.tensor([])
                     all_targets=torch.tensor([])
                 else:
+                    self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     all_images_and_text_context=torch.tensor([])
                     all_targets=torch.tensor([])
 
