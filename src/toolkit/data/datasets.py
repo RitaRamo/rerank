@@ -245,7 +245,7 @@ class ContextRetrieval():
             all_targets=numpy.concatenate((all_targets,targets),axis=0)
 
             #self.datastore.add(images_and_text_context)
-            if len(all_targets)>2000000:
+            if len(all_targets)>1000000:
                 if start_training:
                     print("training")
                     self.datastore.train(all_images_and_text_context)
@@ -468,7 +468,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=3000, shuffle=True, num_workers=0, pin_memory=False
+                batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
             )
 
     else:
