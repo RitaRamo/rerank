@@ -245,7 +245,7 @@ class ContextRetrieval():
             all_targets=numpy.concatenate((all_targets,targets),axis=0)
 
             #self.datastore.add(images_and_text_context)
-            if len(all_targets)>1000000:
+            if len(all_targets)>2000000:
                 if start_training:
                     print("training")
                     self.datastore.train(all_images_and_text_context)
