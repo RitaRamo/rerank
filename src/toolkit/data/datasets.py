@@ -249,11 +249,12 @@ class ContextRetrieval():
                 if start_training:
                     print("training")
                     self.datastore.train(numpy.float32(all_images_and_text_context))
-                    self.datastore.add_with_ids(all_images_and_text_context, all_targets)
+                    self.datastore.add_with_ids(all_images_and_text_context, all_targets.astype(int))
                     start_training = False
                     is_to_add=True
                     all_images_and_text_context=numpy.empty((0,self.dim_examples))
                     all_targets=numpy.empty((0))
+                    print(stop)
                 else:
                     self.datastore.add_with_ids(numpy.float32(all_images_and_text_context), all_targets)
                     all_images_and_text_context=numpy.empty((0,self.dim_examples))
