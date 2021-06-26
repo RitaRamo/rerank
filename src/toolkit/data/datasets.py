@@ -248,21 +248,21 @@ class ContextRetrieval():
             if len(all_targets)>2000000:
                 if start_training:
                     print("training")
-                    self.datastore.train(all_images_and_text_context)
+                    self.datastore.train(numpy.float32(all_images_and_text_context))
                     self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
                     is_to_add=True
                     all_images_and_text_context=numpy.empty((0,self.dim_examples))
                     all_targets=numpy.empty((0))
                 else:
-                    self.datastore.add_with_ids(all_images_and_text_context, all_targets)
+                    self.datastore.add_with_ids(numpy.float32(all_images_and_text_context), all_targets)
                     all_images_and_text_context=numpy.empty((0,self.dim_examples))
                     all_targets=numpy.empty((0))
 
             if is_to_add: #only start adding after training (reaching 2.000.000 vectors)
                 #targets = torch.tensor(targets).to(self.device)
                 #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-                self.datastore.add_with_ids(all_images_and_text_context, all_targets)
+                self.datastore.add_with_ids(numpy.float32(all_images_and_text_context), all_targets)
             
             gc.collect()
 
