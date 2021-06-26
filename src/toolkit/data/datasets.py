@@ -221,7 +221,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, nlist = 10000, m = 8):
+    def __init__(self, dim_examples, nlist = 100, m = 8):
         self.dim_examples=dim_examples
         quantizer = faiss.IndexFlatL2(dim_examples)
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
@@ -245,7 +245,7 @@ class ContextRetrieval():
             all_targets=numpy.concatenate((all_targets,targets),axis=0)
 
             #self.datastore.add(images_and_text_context)
-            if len(all_targets)>2000000:
+            if len(all_targets)>2:
                 if start_training:
                     print("training")
                     self.datastore.train(numpy.float32(all_images_and_text_context))
