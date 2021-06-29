@@ -210,8 +210,8 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
     def __getitem__(self, i):
         coco_id=self.all_images[i]
         image = self.get_image_features(coco_id) #32, 2048
-        context=self.all_contexts[i]
-        target=self.all_targets[i]
+        context=self.all_contexts[i] 
+        target=self.all_targets[i] 
         #gc.collect()
         return image, context, numpy.array(target)
 
@@ -232,41 +232,38 @@ class ContextRetrieval():
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
         start_training=True
-        all_images_and_text_context=numpy.empty((0,self.dim_examples))
-        all_targets=numpy.empty((0))
+
+        max_to_fit_in_memory =1000
+        
+        all_images_and_text_context=numpy.ones((max_to_fit_in_memory,self.dim_examples), dtype=numpy.float32)
+        all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
         is_to_add = False
+        added_so_far=0
 
         for (images, contexts, targets) in tqdm(train_dataloader_images):
             #add to the datastore
             #print("context added", targets)
             #enc_contexts=self.sentence_model.encode(contexts)
             #images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-            all_images_and_text_context = numpy.concatenate((all_images_and_text_context,numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)),axis=0)        
-            all_targets=numpy.concatenate((all_targets,targets),axis=0)
-
-            #self.datastore.add(images_and_text_context)
-            if len(all_targets)>5:
-                if start_training:
-                    print("training")
-                    self.datastore.train(numpy.float32(all_images_and_text_context))
-                    self.datastore.add_with_ids(all_images_and_text_context, all_targets.astype(int))
-                    start_training = False
-                    is_to_add=True
-                    all_images_and_text_context=numpy.empty((0,self.dim_examples))
-                    all_targets=numpy.empty((0))
-                    print(stop)
-                else:
-                    self.datastore.add_with_ids(numpy.float32(all_images_and_text_context), all_targets)
-                    all_images_and_text_context=numpy.empty((0,self.dim_examples))
-                    all_targets=numpy.empty((0))
-
-            if is_to_add: #only start adding after training (reaching 2.000.000 vectors)
-                #targets = torch.tensor(targets).to(self.device)
-                #self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-                self.datastore.add_with_ids(numpy.float32(all_images_and_text_context), all_targets)
             
-            gc.collect()
+            # self.datastore.add(images_and_text_context)
+            # 
+            if start_training:
+                batch_size=len(targets)
+                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                all_targets[added_so_far:(added_so_far+batch_size),:]=targets
+                added_so_far=+batch_size
 
+                if added_so_far>=max_to_fit_in_memory:
+                    print("training")
+                    self.datastore.train(all_images_and_text_context)
+                    self.datastore.add_with_ids(all_images_and_text_context, all_targets)
+                    start_training = False
+            else:
+                all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                self.datastore.add_with_ids(all_images_and_text_context, targets.astype(int))
+        
+            gc.collect()
 
         faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
         print("n of examples", self.datastore.ntotal)
