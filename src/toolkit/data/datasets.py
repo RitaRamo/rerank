@@ -250,6 +250,8 @@ class ContextRetrieval():
             # 
             if start_training:
                 batch_size=len(targets)
+                print("batch size", batch_size)
+                print("added_so_far:(added_so_far+batch_size)", (added_so_far+batch_size))
                 all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
                 all_targets[added_so_far:(added_so_far+batch_size),:]=targets
                 added_so_far=+batch_size
