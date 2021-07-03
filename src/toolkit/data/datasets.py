@@ -221,7 +221,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, nlist = 100, m = 8):
+    def __init__(self, dim_examples, nlist = 10000, m = 8):
         self.dim_examples=dim_examples
         quantizer = faiss.IndexFlatL2(dim_examples)
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
@@ -233,7 +233,7 @@ class ContextRetrieval():
         print("starting training")
         start_training=True
 
-        max_to_fit_in_memory =1000
+        max_to_fit_in_memory =2000000
         
         all_images_and_text_context=numpy.ones((max_to_fit_in_memory,self.dim_examples), dtype=numpy.float32)
         all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
@@ -250,9 +250,6 @@ class ContextRetrieval():
             # 
             if start_training:
                 batch_size=len(targets)
-                print("batch size", batch_size)
-                print("added_so_far:(added_so_far+batch_size)", (added_so_far+batch_size))
-                print("alll images", len(all_images_and_text_context[added_so_far:(added_so_far+batch_size),:]))
                 all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
                 all_targets[added_so_far:(added_so_far+batch_size)]=targets
                 added_so_far=+batch_size
@@ -469,7 +466,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=1000, shuffle=True, num_workers=0, pin_memory=False
+                batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
             )
 
     else:
