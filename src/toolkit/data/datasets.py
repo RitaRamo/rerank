@@ -264,7 +264,7 @@ class ContextRetrieval():
                     start_training = False
             else:
                 all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
-                self.datastore.add_with_ids(all_images_and_text_context, targets)
+                self.datastore.add_with_ids(all_images_and_text_context, np.array(targets, dtype=numpy.int64))
         
             gc.collect()
 
