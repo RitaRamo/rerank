@@ -225,7 +225,7 @@ class ContextRetrieval():
         self.dim_examples=dim_examples
         quantizer = faiss.IndexFlatL2(dim_examples)
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
-        self.datastore.nprobe = 200
+        self.datastore.nprobe = 300
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
