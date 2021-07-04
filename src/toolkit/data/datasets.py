@@ -225,7 +225,7 @@ class ContextRetrieval():
         self.dim_examples=dim_examples
         quantizer = faiss.IndexFlatL2(dim_examples)
         self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
-        self.datastore.nprobe = 50
+        self.datastore.nprobe = 16
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
@@ -523,24 +523,24 @@ def get_context_retrieval(create, retrieval_data_loader=None):
     else:
         image_retrieval.datastore = faiss.read_index("/media/jlsstorage/rita/context_retrieval")
 
-    for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
-        print("targt", targets)
-        images = images.mean(dim=1).numpy()
-        enc_contexts=image_retrieval.sentence_model.encode(contexts)
-        images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+    # for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
+    #     print("targt", targets)
+    #     images = images.mean(dim=1).numpy()
+    #     enc_contexts=image_retrieval.sentence_model.encode(contexts)
+    #     images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
-        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        print("this is nearest train images", nearest_targets, distances)
+    #     nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+    #     print("this is nearest train images", nearest_targets, distances)
 
-        print("targt", targets)
-        print("this is nearest train images", nearest_targets)
+    #     print("targt", targets)
+    #     print("this is nearest train images", nearest_targets)
 
-        # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
+    #     # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
         
-        # print("retrieve for test query", nearest_targets, distances)
-        print(stop)
+    #     # print("retrieve for test query", nearest_targets, distances)
+    #     print(stop)
 
-    print("stop remove from dataloader o VAL e coloca TRAIN", stop)
+    # print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
     #faiss.write_index(image_retrieval.datastore, "/media/jlsstorage/rita/context_retrieval")
 
