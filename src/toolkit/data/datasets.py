@@ -241,6 +241,11 @@ class ContextRetrieval():
         is_to_add = False
         added_so_far=0
 
+        self.datastore.add_with_ids(all_images_and_text_context, all_targets)
+        faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
+        print(stop)
+
+
         for (images, contexts, targets) in tqdm(train_dataloader_images):
             #add to the datastore
             #print("context added", targets)
