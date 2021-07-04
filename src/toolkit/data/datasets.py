@@ -221,10 +221,11 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
 class ContextRetrieval():
 
-    def __init__(self, dim_examples, nlist = 20000, m = 8):
+    def __init__(self, dim_examples, nlist = 10000, m = 8):
         self.dim_examples=dim_examples
         quantizer = faiss.IndexFlatL2(dim_examples)
-        self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
+        #self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
+        self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
         self.datastore.nprobe = 1000
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
