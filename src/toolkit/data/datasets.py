@@ -226,7 +226,7 @@ class ContextRetrieval():
         quantizer = faiss.IndexFlatL2(dim_examples)
         #self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
         self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
-        self.datastore.nprobe = 1000
+        self.datastore.nprobe = 16
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
@@ -534,7 +534,17 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         print("this is nearest train images", nearest_targets, distances)
 
         print("targt", targets)
-        print("this is nearest train images", nearest_targets)
+
+        image_retrieval.datastore.nprobe= 50
+        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        print("this is nearest train images", nearest_targets, distances)
+        print("targt", targets)
+
+        image_retrieval.datastore.nprobe= 100
+        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        print("this is nearest train images", nearest_targets, distances)
+        print("targt", targets)
+
 
         # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
         
