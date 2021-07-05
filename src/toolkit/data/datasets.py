@@ -225,7 +225,12 @@ class ContextRetrieval():
         self.dim_examples=dim_examples
         quantizer = faiss.IndexFlatL2(dim_examples)
         #self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
-        self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
+        #self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
+        
+        sub_index = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
+        pca_matrix = faiss.PCAMatrix (dim_examples, 1024, 0, True) 
+        self.datastore = faiss.IndexPreTransform (pca_matrix, sub_index)
+
         self.datastore.nprobe = 16
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
@@ -234,7 +239,7 @@ class ContextRetrieval():
         print("starting training")
         start_training=True
 
-        max_to_fit_in_memory =6000000
+        max_to_fit_in_memory =4000000
         
         all_images_and_text_context=numpy.ones((max_to_fit_in_memory,self.dim_examples), dtype=numpy.float32)
         all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
