@@ -267,7 +267,9 @@ class ContextRetrieval():
                     self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
             else:
-                all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context = self.sentence_model.encode(contexts)    
+
+                #all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
                 self.datastore.add_with_ids(all_images_and_text_context, numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
@@ -516,7 +518,7 @@ def get_retrieval(retrieval_data_loader, device):
 
 def get_context_retrieval(create, retrieval_data_loader=None):
 
-    encoder_output_dim = 2048 + 768 #faster r-cnn features
+    encoder_output_dim = 768 #faster r-cnn features
     image_retrieval = ContextRetrieval(encoder_output_dim)
 
     if create:
