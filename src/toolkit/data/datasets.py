@@ -223,21 +223,22 @@ class ContextRetrieval():
 
     def __init__(self, dim_examples, nlist = 10000, m = 8):
         self.dim_examples=dim_examples
-        quantizer = faiss.IndexFlatL2(dim_examples)
+        #quantizer = faiss.IndexFlatL2(dim_examples)
         #self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
         #self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
         
-        sub_index = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
-        pca_matrix = faiss.PCAMatrix (dim_examples, 1024, 0, True) 
-        self.datastore = faiss.IndexPreTransform (pca_matrix, sub_index)
+        #sub_index = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
+        #pca_matrix = faiss.PCAMatrix (dim_examples, 1024, 0, True) 
+        #self.datastore = faiss.IndexPreTransform(pca_matrix, sub_index)
+        #self.datastore.nprobe = 16
 
-        self.datastore.nprobe = 16
+        self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
         self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
-        start_training=True
+        start_training=False
 
         max_to_fit_in_memory =4000000
         
@@ -540,15 +541,15 @@ def get_context_retrieval(create, retrieval_data_loader=None):
 
         print("targt", targets)
 
-        image_retrieval.datastore.nprobe= 50
-        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        print("this is nearest train images", nearest_targets, distances)
-        print("targt", targets)
+        # image_retrieval.datastore.nprobe= 50
+        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        # print("this is nearest train images", nearest_targets, distances)
+        # print("targt", targets)
 
-        image_retrieval.datastore.nprobe= 100
-        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        print("this is nearest train images", nearest_targets, distances)
-        print("targt", targets)
+        # image_retrieval.datastore.nprobe= 100
+        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        # print("this is nearest train images", nearest_targets, distances)
+        # print("targt", targets)
 
 
         # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
