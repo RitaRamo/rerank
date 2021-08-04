@@ -234,11 +234,12 @@ class ContextRetrieval():
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
-        self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
+        self.sentence_model = SentenceTransformer('clip-ViT-B-32')
+        #'paraphrase-distilroberta-base-v1')
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
-        start_training=False
+        start_training=True
 
         max_to_fit_in_memory =4000000
         
@@ -267,14 +268,12 @@ class ContextRetrieval():
                     self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
             else:
-                all_images_and_text_context = self.sentence_model.encode(contexts)    
-
-                #all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
                 self.datastore.add_with_ids(all_images_and_text_context, numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
 
-        faiss.write_index(self.datastore, "/media/jlsstorage/rita/context_retrieval")
+        faiss.write_index(self.datastore, "/media/rprstorage2/context_retrieval")
         print("n of examples", self.datastore.ntotal)
 
     def retrieve_nearest_for_train_query(self, query_img, k=16):
@@ -530,7 +529,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         #Tenta com um dataset mais pequeno e vê se funciona 
         print(stop)
     else:
-        image_retrieval.datastore = faiss.read_index("/media/jlsstorage/rita/context_retrieval")
+        image_retrieval.datastore = faiss.read_index("/media/rprstorage2/context_retrieval")
 
     for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
         print("targt", targets)
