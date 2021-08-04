@@ -485,7 +485,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
 
 def get_retrieval(retrieval_data_loader, device):
 
-    encoder_output_dim = 2048 #faster r-cnn features
+    encoder_output_dim = 2048 + 768 #faster r-cnn features
 
     image_retrieval = ImageRetrieval(encoder_output_dim, retrieval_data_loader,device)
   
