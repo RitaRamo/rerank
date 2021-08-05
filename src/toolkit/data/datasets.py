@@ -12,6 +12,7 @@ import numpy
 from tqdm import tqdm
 import gc
 from scipy.misc import imresize
+from PIL import Image
 
 from toolkit.utils import (
     DATA_CAPTIONS,
@@ -29,7 +30,8 @@ from toolkit.utils import (
     TOKEN_END,
     TRAIN_CONTEXT_IMAGES_FILENAME,
     TRAIN_CONTEXT_FILENAME,
-    TRAIN_TARGETS_FILENAME
+    TRAIN_TARGETS_FILENAME,
+    IMAGES_NAMES_FILENAME
 )
 
 
@@ -196,6 +198,10 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
         all_images_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_IMAGES_FILENAME) #aqui esse ficheio
         all_contexts_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_FILENAME) #aqui esse ficheio
         all_targets_filename = os.path.join(dataset_splits_dir, TRAIN_TARGETS_FILENAME) #aqui esse ficheio
+        
+        images_names = os.path.join(dataset_splits_dir, IMAGES_NAMES_FILENAME) #aqui esse ficheio
+        self.images_dir="../remote-sensing-images-caption/src/data/COCO/raw_dataset/images/"
+
 
         with open(all_images_filename) as f:
             self.all_images = json.load(f)
@@ -205,11 +211,15 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
         with open(all_targets_filename) as f:
             self.all_targets = json.load(f)  
+
+        with open(images_names) as f:
+            self.images_name = json.load(f)
         #self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
     def __getitem__(self, i):
         coco_id=self.all_images[i]
-        image = self.get_image_features(coco_id) #32, 2048
+        #image = self.get_image_features(coco_id) #32, 2048
+        image = Image.open(self.images_dir+self.images_name[coco_id])
         context=self.all_contexts[i] 
         target=self.all_targets[i] 
         #gc.collect()
@@ -258,7 +268,8 @@ class ContextRetrieval():
             # 
             if start_training:
                 batch_size=len(targets)
-                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                #all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((self.sentence_model.encode(images),self.sentence_model.encode(contexts)), axis=-1)    
                 all_targets[added_so_far:(added_so_far+batch_size)]=targets
                 added_so_far+=batch_size
 
@@ -268,7 +279,8 @@ class ContextRetrieval():
                     self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
             else:
-                all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                #all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context = numpy.concatenate(((self.sentence_model.encode(images),self.sentence_model.encode(contexts)), axis=-1)    
                 self.datastore.add_with_ids(all_images_and_text_context, numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
@@ -517,7 +529,7 @@ def get_retrieval(retrieval_data_loader, device):
 
 def get_context_retrieval(create, retrieval_data_loader=None):
 
-    encoder_output_dim = 2048 + 768 #faster r-cnn features
+    encoder_output_dim = 1024 #faster r-cnn features
     image_retrieval = ContextRetrieval(encoder_output_dim)
 
     if create:
