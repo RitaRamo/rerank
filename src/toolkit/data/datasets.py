@@ -251,7 +251,7 @@ class ContextRetrieval():
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
-        start_training=True
+        start_training=False
 
         max_to_fit_in_memory =4000000
         
