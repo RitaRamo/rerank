@@ -13,7 +13,6 @@ from tqdm import tqdm
 import gc
 from scipy.misc import imresize
 from PIL import Image
-import copy
 
 from toolkit.utils import (
     DATA_CAPTIONS,
@@ -215,12 +214,13 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
 
         with open(images_names) as f:
             self.images_name = json.load(f)
+        self.enc_model = SentenceTransformer('clip-ViT-B-32')
         #self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
     def __getitem__(self, i):
         coco_id=self.all_images[i]
         #image = self.get_image_features(coco_id) #32, 2048
-        image = copy.deepcopy(Image.open(self.images_dir+self.images_name[coco_id]))
+        image = self.enc_model.encode(Image.open(self.images_dir+self.images_name[coco_id]))
         context=self.all_contexts[i] 
         target=self.all_targets[i] 
         #gc.collect()
@@ -245,8 +245,9 @@ class ContextRetrieval():
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
-        self.sentence_model = SentenceTransformer('clip-ViT-B-32')
+        #self.sentence_model = SentenceTransformer('clip-ViT-B-32')
         #'paraphrase-distilroberta-base-v1')
+        
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
@@ -258,6 +259,7 @@ class ContextRetrieval():
         all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
         is_to_add = False
         added_so_far=0
+        enc_model=train_dataloader_images.dataset.enc_model
 
         for (images, contexts, targets) in tqdm(train_dataloader_images):
             #add to the datastore
@@ -270,7 +272,7 @@ class ContextRetrieval():
             if start_training:
                 batch_size=len(targets)
                 #all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
-                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((self.sentence_model.encode(images),self.sentence_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images,enc_model.encode(contexts)), axis=-1)    
                 all_targets[added_so_far:(added_so_far+batch_size)]=targets
                 added_so_far+=batch_size
 
@@ -281,7 +283,7 @@ class ContextRetrieval():
                     start_training = False
             else:
                 #all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
-                all_images_and_text_context = numpy.concatenate((self.sentence_model.encode(images),self.sentence_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context = numpy.concatenate((images,enc_model.encode(contexts)), axis=-1)    
                 self.datastore.add_with_ids(all_images_and_text_context, numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
