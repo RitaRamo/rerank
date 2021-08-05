@@ -307,6 +307,83 @@ class ContextRetrieval():
         return nearest_input, D
 
 
+class ContextLSTMRetrieval():
+
+    def __init__(self, dim_examples, nlist = 10000, m = 8):
+        self.dim_examples=dim_examples
+        #quantizer = faiss.IndexFlatL2(dim_examples)
+        #self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
+        #self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
+        
+        #sub_index = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
+        #pca_matrix = faiss.PCAMatrix (dim_examples, 1024, 0, True) 
+        #self.datastore = faiss.IndexPreTransform(pca_matrix, sub_index)
+        #self.datastore.nprobe = 16
+
+        self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
+
+        #self.context_model = #pores aqui o modelo...
+        
+
+    def train_retrieval(self, train_dataloader_images):
+        print("starting training")
+        start_training=False
+
+        max_to_fit_in_memory =4000000
+        
+        all_images_and_text_context=numpy.ones((max_to_fit_in_memory,self.dim_examples), dtype=numpy.float32)
+        all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
+        is_to_add = False
+        added_so_far=0
+        #enc_model=train_dataloader_images.dataset.enc_model
+
+        for (images, contexts, targets) in tqdm(train_dataloader_images):
+            #add to the datastore
+            #print("context added", targets)
+            #enc_contexts=self.sentence_model.encode(contexts)
+            #images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+            
+            # self.datastore.add(images_and_text_context)
+            # 
+            if start_training:
+                batch_size=len(targets)
+                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                #all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images,enc_model.encode(contexts)), axis=-1)    
+                all_targets[added_so_far:(added_so_far+batch_size)]=targets
+                added_so_far+=batch_size
+
+                if added_so_far>=max_to_fit_in_memory:
+                    print("training")
+                    self.datastore.train(all_images_and_text_context)
+                    self.datastore.add_with_ids(all_images_and_text_context, all_targets)
+                    start_training = False
+            else:
+                #scores, _, extras = model(images, target_captions, decode_lengths, teacher_forcing)
+                #state_embs=extras.get("states")
+                self.datastore.add_with_ids(state_embs, numpy.array(targets, dtype=numpy.int64))
+        
+            gc.collect()
+
+        faiss.write_index(self.datastore, "/media/rprstorage2/context_lstm_retrieval")
+        print("n of examples", self.datastore.ntotal)
+
+    def retrieve_nearest_for_train_query(self, query_img, k=16):
+        #print("self query img", query_img)
+        D, I = self.datastore.search(query_img, k)     # actual search
+        nearest_input=torch.tensor(I)
+        print("all nearest", torch.tensor(I))
+        return nearest_input, D
+
+    def retrieve_nearest_for_val_or_test_query(self, query_img, k=16):
+        D, I = self.datastore.search(query_img, k)     # actual search
+        #nearest_input = self.targets_of_dataloader[torch.tensor(I)]
+        nearest_input=torch.tensor(I)
+
+        # print("the nearest input", nearest_input)
+        return nearest_input, D
+
+
+
 # class ContextRetrieval():
 
 #     def __init__(self, dim_examples, train_dataloader_images, device):
@@ -545,6 +622,58 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         print(stop)
     else:
         image_retrieval.datastore = faiss.read_index("/media/rprstorage2/context_retrieval")
+
+    for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
+        print("targt", targets)
+        images = images.mean(dim=1).numpy()
+        enc_contexts=image_retrieval.sentence_model.encode(contexts)
+        images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+          
+        #nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+
+        print("this is nearest train images", nearest_targets, distances)
+
+        print("targt", targets)
+
+        # image_retrieval.datastore.nprobe= 50
+        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        # print("this is nearest train images", nearest_targets, distances)
+        # print("targt", targets)
+
+        # image_retrieval.datastore.nprobe= 100
+        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+        # print("this is nearest train images", nearest_targets, distances)
+        # print("targt", targets)
+
+
+        # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
+        
+        # print("retrieve for test query", nearest_targets, distances)
+        print(stop)
+
+    # print("stop remove from dataloader o VAL e coloca TRAIN", stop)
+
+    #faiss.write_index(image_retrieval.datastore, "/media/jlsstorage/rita/context_retrieval")
+
+    return image_retrieval
+
+
+def get_context_lstm_retrieval(create, retrieval_data_loader=None):
+
+    encoder_output_dim = 1024 #faster r-cnn features
+    image_retrieval = ContextLstmRetrieval(encoder_output_dim)
+
+    if create:
+        image_retrieval.train_retrieval(retrieval_data_loader)
+        #image_retrieval.add_vectors(retrieval_data_loader)
+        # Como está mas adiciona o index map...
+        # Ve se funciona chamar o eval
+        # Depois tenta usar o tal Index
+        #Tenta com um dataset mais pequeno e vê se funciona 
+        print(stop)
+    else:
+        image_retrieval.datastore = faiss.read_index("/media/rprstorage2/context_lstm_retrieval")
 
     for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
         print("targt", targets)
