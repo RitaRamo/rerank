@@ -259,7 +259,7 @@ class ContextRetrieval():
         all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
         is_to_add = False
         added_so_far=0
-        enc_model=train_dataloader_images.dataset.enc_model
+        #enc_model=train_dataloader_images.dataset.enc_model
 
         for (images, contexts, targets) in tqdm(train_dataloader_images):
             #add to the datastore
