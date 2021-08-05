@@ -245,7 +245,7 @@ class ContextRetrieval():
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
-        self.sentence_model = SentenceTransformer('clip-ViT-B-32')
+        self.sentence_model = SentenceTransformer('paraphrase-TinyBERT-L6-v2')
         #'paraphrase-distilroberta-base-v1')
         
 
@@ -532,7 +532,7 @@ def get_retrieval(retrieval_data_loader, device):
 
 def get_context_retrieval(create, retrieval_data_loader=None):
 
-    encoder_output_dim = 2560 #faster r-cnn features
+    encoder_output_dim = 2048+768 #faster r-cnn features
     image_retrieval = ContextRetrieval(encoder_output_dim)
 
     if create:
