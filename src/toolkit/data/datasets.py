@@ -13,6 +13,7 @@ from tqdm import tqdm
 import gc
 from scipy.misc import imresize
 from PIL import Image
+import copy
 
 from toolkit.utils import (
     DATA_CAPTIONS,
@@ -219,7 +220,7 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
     def __getitem__(self, i):
         coco_id=self.all_images[i]
         #image = self.get_image_features(coco_id) #32, 2048
-        image = Image.open(self.images_dir+self.images_name[coco_id])
+        image = copy.deepcopy(Image.open(self.images_dir+self.images_name[coco_id]))
         context=self.all_contexts[i] 
         target=self.all_targets[i] 
         #gc.collect()
