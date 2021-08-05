@@ -212,15 +212,15 @@ class CaptionTrainContextRetrievalDataset(CaptionDataset):
         with open(all_targets_filename) as f:
             self.all_targets = json.load(f)  
 
-        with open(images_names) as f:
-            self.images_name = json.load(f)
-        self.enc_model = SentenceTransformer('clip-ViT-B-32')
+        # with open(images_names) as f:
+        #     self.images_name = json.load(f)
+        # self.enc_model = SentenceTransformer('clip-ViT-B-32')
         #self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
 
     def __getitem__(self, i):
         coco_id=self.all_images[i]
-        #image = self.get_image_features(coco_id) #32, 2048
-        image = self.enc_model.encode(Image.open(self.images_dir+self.images_name[coco_id]))
+        image = self.get_image_features(coco_id) #32, 2048
+        #image = self.enc_model.encode(Image.open(self.images_dir+self.images_name[coco_id]))
         context=self.all_contexts[i] 
         target=self.all_targets[i] 
         #gc.collect()
@@ -245,7 +245,7 @@ class ContextRetrieval():
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
-        #self.sentence_model = SentenceTransformer('clip-ViT-B-32')
+        self.sentence_model = SentenceTransformer('clip-ViT-B-32')
         #'paraphrase-distilroberta-base-v1')
         
 
@@ -271,8 +271,8 @@ class ContextRetrieval():
             # 
             if start_training:
                 batch_size=len(targets)
-                #all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
-                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images,enc_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                #all_images_and_text_context[added_so_far:(added_so_far+batch_size),:] = numpy.concatenate((images,enc_model.encode(contexts)), axis=-1)    
                 all_targets[added_so_far:(added_so_far+batch_size)]=targets
                 added_so_far+=batch_size
 
@@ -282,8 +282,8 @@ class ContextRetrieval():
                     self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
             else:
-                #all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
-                all_images_and_text_context = numpy.concatenate((images,enc_model.encode(contexts)), axis=-1)    
+                all_images_and_text_context = numpy.concatenate((images.mean(dim=1).numpy(),self.sentence_model.encode(contexts)), axis=-1)    
+                #all_images_and_text_context = numpy.concatenate((images,enc_model.encode(contexts)), axis=-1)    
                 self.datastore.add_with_ids(all_images_and_text_context, numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
@@ -532,7 +532,7 @@ def get_retrieval(retrieval_data_loader, device):
 
 def get_context_retrieval(create, retrieval_data_loader=None):
 
-    encoder_output_dim = 1024 #faster r-cnn features
+    encoder_output_dim = 2560 #faster r-cnn features
     image_retrieval = ContextRetrieval(encoder_output_dim)
 
     if create:
