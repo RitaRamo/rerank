@@ -646,8 +646,8 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         ind_batch=torch.arange(0, nearest_targets.size()[0]).reshape(-1,1)
         softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
         softmax_nearest = softmax_nearest.sum(1)
-        print("softmax_nearest argmax", softmax_nearest.argmax(dim=-1))
-        print("softmax_nearest max", softmax_nearest.max(dim=-1))
+        print("softmax_nearest argmax", softmax_nearest.argmax(dim=0))
+        print("softmax_nearest max", softmax_nearest.max(dim=0))
 
         # image_retrieval.datastore.nprobe= 50
         # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
