@@ -61,10 +61,13 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
         print("loading datastore")
         
-        train_context_retrieval_loader = get_data_loader("context_retrieval", 5000, args.dataset_splits_dir, args.image_features_filename,
-                                        0, args.image_normalize)
- 
-        image_retrieval = get_context_retrieval(create=False, retrieval_data_loader=train_context_retrieval_loader)
+        # train_context_retrieval_loader = get_data_loader("context_retrieval", 5000, args.dataset_splits_dir, args.image_features_filename,
+        #                                 0, args.image_normalize)
+        #image_retrieval = get_context_retrieval(create=False, retrieval_data_loader=train_context_retrieval_loader)
+
+        data_loader = get_data_loader(split, 1, dataset_splits_dir, image_features_fn, 1, image_normalize)
+
+        image_retrieval = get_context_retrieval(create=False, retrieval_data_loader=data_loader)
         #target_lookup= image_retrieval.targets_of_dataloader
         target_lookup=None
         
