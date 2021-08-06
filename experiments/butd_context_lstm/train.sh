@@ -29,11 +29,6 @@ train_args="""
 
 model_args="""
 butd_context_lstm
---embeddings-dim 300 \
---attention-dim 1024 \
---attention-lstm-dim 1024 \
---language-lstm-dim 1024 \
---dropout 0.5
 """
 
 ##source activate /envs/syncap
