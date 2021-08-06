@@ -177,7 +177,7 @@ class CaptioningDecoder(nn.Module):
             if alphas_for_timestep is not None:
                 alphas[incomplete_sequences_ixs, t, :] = alphas_for_timestep[incomplete_sequences_ixs]
 
-            print("states",states.size())
+            print("states",states)
             print("states",states[2].size())
 
             hidden_states[incomplete_sequences_ixs, t, :] = states[2][incomplete_sequences_ixs]
