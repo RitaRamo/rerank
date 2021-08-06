@@ -13,6 +13,7 @@ from tqdm import tqdm
 import gc
 from scipy.misc import imresize
 from PIL import Image
+from torch import nn
 
 from toolkit.utils import (
     DATA_CAPTIONS,
@@ -635,6 +636,16 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         print("this is nearest train images", nearest_targets, distances)
 
         print("targt", targets)
+        softmax = nn.Softmax()
+
+        softmax_nearest = torch.zeros(nearest_targets.size()[0], 16,10004)
+        nearest_probs = softmax(-1.*torch.tensor(distances))
+        ind=torch.arange(0, 16).expand(softmax_nearest.size(0), -1)
+        ind_batch=torch.arange(0, nearest_targets.size()[0]).reshape(-1,1)
+
+        softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
+        
+        softmax_nearest = softmax_nearest.sum(1)
 
         # image_retrieval.datastore.nprobe= 50
         # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
