@@ -13,7 +13,7 @@ import torch.utils.data
 import torch.backends.cudnn as cudnn
 from torch.nn.utils.rnn import pack_padded_sequence
 
-from options import check_args
+from options import check_args, check_model_args
 from toolkit.models.bottom_up_top_down import BUTDModel
 from toolkit.models.bottom_up_top_down_ranking import BUTRModel
 from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
@@ -418,7 +418,16 @@ def main(args):
         train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
                                         0, args.image_normalize)
  
-        image_retrieval = get_context_lstm_retrieval(create=True, retrieval_data_loader=train_context_retrieval_loader)
+        
+        model_args="""
+        butd_context
+        """
+
+        args=check_model_args(model_args)
+        context_model = BUTDModel(args)
+        print("self con", context_model)
+        
+        image_retrieval = get_context_lstm_retrieval(create=True, context_model=context_model, retrieval_data_loader=train_context_retrieval_loader)
         target_lookup= image_retrieval.targets_of_dataloader
         
     else:

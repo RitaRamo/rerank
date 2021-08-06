@@ -35,10 +35,6 @@ from toolkit.utils import (
     IMAGES_NAMES_FILENAME
 )
 
-from options import check_model_args
-from toolkit.models.bottom_up_top_down import BUTDModel
-
-
 class CaptionDataset(Dataset):
     """
     PyTorch Dataset that provides batches of images of a given split
@@ -313,7 +309,7 @@ class ContextRetrieval():
 
 class ContextLSTMRetrieval():
 
-    def __init__(self, dim_examples, nlist = 10000, m = 8):
+    def __init__(self, dim_examples, context_model, nlist = 10000, m = 8):
         self.dim_examples=dim_examples
         #quantizer = faiss.IndexFlatL2(dim_examples)
         #self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
@@ -325,14 +321,7 @@ class ContextLSTMRetrieval():
         #self.datastore.nprobe = 16
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
-
-        model_args="""
-        butd_context
-        """
-
-        args=check_model_args(model_args)
-        self.context_model = BUTDModel(args)
-        print("self con", self.context_model)
+        self.context_model = context_model
         print(stop)
 
         
@@ -683,10 +672,10 @@ def get_context_retrieval(create, retrieval_data_loader=None):
     return image_retrieval
 
 
-def get_context_lstm_retrieval(create, args, retrieval_data_loader=None):
+def get_context_lstm_retrieval(create, context_model, retrieval_data_loader=None):
 
     encoder_output_dim = 1024 #faster r-cnn features
-    image_retrieval = ContextLstmRetrieval(encoder_output_dim, args=None)
+    image_retrieval = ContextLstmRetrieval(encoder_output_dim, context_model)
 
     if create:
         image_retrieval.train_retrieval(retrieval_data_loader)
