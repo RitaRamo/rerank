@@ -20,6 +20,7 @@ from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
 from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
 from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
 from toolkit.models.bottom_up_top_down_context import BUTDContextModel
+from toolkit.models.bottom_up_top_down_context_lstm import BUTDContextLSTMModel
 from toolkit.models.show_attend_tell import SATModel
 from toolkit.data.datasets import get_data_loader, get_retrieval, get_context_retrieval, get_context_lstm_retrieval
 from toolkit.optim import create_optimizer
@@ -56,7 +57,7 @@ abbr2name = {
     "butr_weight": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT,
     "butd_retrieval": MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, 
     "butd_context": MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT, 
-    "butd_context_lstm": MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT, 
+    "butd_context_lstm": MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT_LSTM, 
 }
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
