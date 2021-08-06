@@ -323,7 +323,8 @@ class ContextLSTMRetrieval():
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
-        #self.context_model = #pores aqui o modelo...
+        #self.context_model = BUTDModel(args)
+
         
 
     def train_retrieval(self, train_dataloader_images):
@@ -336,6 +337,7 @@ class ContextLSTMRetrieval():
         all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
         is_to_add = False
         added_so_far=0
+        
         #enc_model=train_dataloader_images.dataset.enc_model
 
         for (images, contexts, targets) in tqdm(train_dataloader_images):
@@ -640,11 +642,13 @@ def get_context_retrieval(create, retrieval_data_loader=None):
 
         softmax_nearest = torch.zeros(nearest_targets.size()[0], 16,10004)
         nearest_probs = softmax(-1.*torch.tensor(distances))
+        print("nearest_probs",nearest_probs)
         ind=torch.arange(0, 16).expand(softmax_nearest.size(0), -1)
+        print("ind", ind)
         ind_batch=torch.arange(0, nearest_targets.size()[0]).reshape(-1,1)
         softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
         softmax_nearest = softmax_nearest.sum(1)
-        print("softmax_nearest", softmax_nearest)
+        #print("softmax_nearest", softmax_nearest)
 
         # image_retrieval.datastore.nprobe= 50
         # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
@@ -669,10 +673,10 @@ def get_context_retrieval(create, retrieval_data_loader=None):
     return image_retrieval
 
 
-def get_context_lstm_retrieval(create, retrieval_data_loader=None):
+def get_context_lstm_retrieval(create, args, retrieval_data_loader=None):
 
     encoder_output_dim = 1024 #faster r-cnn features
-    image_retrieval = ContextLstmRetrieval(encoder_output_dim)
+    image_retrieval = ContextLstmRetrieval(encoder_output_dim, args=None)
 
     if create:
         image_retrieval.train_retrieval(retrieval_data_loader)
