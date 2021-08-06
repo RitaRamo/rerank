@@ -35,6 +35,9 @@ from toolkit.utils import (
     IMAGES_NAMES_FILENAME
 )
 
+from options import check_model_args
+from toolkit.models.bottom_up_top_down import BUTDModel
+
 
 class CaptionDataset(Dataset):
     """
@@ -323,7 +326,14 @@ class ContextLSTMRetrieval():
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
-        #self.context_model = BUTDModel(args)
+        model_args="""
+        butd_context
+        """
+
+        args=check_model_args(model_args)
+        self.context_model = BUTDModel(args)
+        print("self con", self.context_model)
+        print(stop)
 
         
 
