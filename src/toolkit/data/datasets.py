@@ -618,6 +618,12 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
                 batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
             )
 
+    elif split == "context_retrieval_lstm":
+        data_loader = torch.utils.data.DataLoader(
+                CaptionTrainContextLSTMRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
+                batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
+            )
+
     else:
         raise ValueError("Invalid data_loader split. Options: train, val, test")
 
