@@ -307,6 +307,55 @@ class ContextRetrieval():
         return nearest_input, D
 
 
+class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
+    """
+    PyTorch training dataset that provides batches of images with a corresponding caption each.
+    """
+
+    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1):
+        super().__init__(dataset_splits_dir, features_fn,
+                         normalize, features_scale_factor)
+
+        all_images_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_IMAGES_FILENAME) #aqui esse ficheio
+        all_contexts_filename = os.path.join(dataset_splits_dir, TRAIN_CONTEXT_FILENAME) #aqui esse ficheio
+        all_targets_filename = os.path.join(dataset_splits_dir, TRAIN_TARGETS_FILENAME) #aqui esse ficheio
+        
+        images_names = os.path.join(dataset_splits_dir, IMAGES_NAMES_FILENAME) #aqui esse ficheio
+        self.images_dir="../remote-sensing-images-caption/src/data/COCO/raw_dataset/images/"
+
+
+        with open(all_images_filename) as f:
+            self.all_images = json.load(f)
+
+        with open(all_contexts_filename) as f:
+            self.all_contexts = json.load(f)
+
+        with open(all_targets_filename) as f:
+            self.all_targets = json.load(f)  
+        
+        word_map_filename = os.path.join(dataset_splits_dir, WORD_MAP_FILENAME)
+        with open(word_map_filename) as f:
+            self.word_map = json.load(f)     
+
+        # with open(images_names) as f:
+        #     self.images_name = json.load(f)
+        # self.enc_model = SentenceTransformer('clip-ViT-B-32')
+        #self.sentence_model = SentenceTransformer('paraphrase-distilroberta-base-v1')
+
+    def __getitem__(self, i):
+        coco_id=self.all_images[i]
+        image = self.get_image_features(coco_id) #32, 2048
+        #image = self.enc_model.encode(Image.open(self.images_dir+self.images_name[coco_id]))
+        context=[self.word_map[w] for w in self.all_contexts[i].split()]
+        print("context", context)
+        target=self.all_targets[i] 
+        #gc.collect()
+        return image, context, numpy.array(len(context)), numpy.array(target)
+
+    def __len__(self):
+        return len(self.all_images)
+
+
 class ContextLSTMRetrieval():
 
     def __init__(self, dim_examples, context_model, nlist = 10000, m = 8):
@@ -321,10 +370,7 @@ class ContextLSTMRetrieval():
         #self.datastore.nprobe = 16
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
-        self.context_model = context_model
-        print(stop)
-
-        
+        self.context_model = context_model 
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
@@ -336,10 +382,11 @@ class ContextLSTMRetrieval():
         all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
         is_to_add = False
         added_so_far=0
+        teacher_forcing = True
         
         #enc_model=train_dataloader_images.dataset.enc_model
 
-        for (images, contexts, targets) in tqdm(train_dataloader_images):
+        for (images, contexts, decode_lengths, targets) in tqdm(train_dataloader_images):
             #add to the datastore
             #print("context added", targets)
             #enc_contexts=self.sentence_model.encode(contexts)
@@ -360,9 +407,9 @@ class ContextLSTMRetrieval():
                     self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
             else:
-                #scores, _, extras = model(images, target_captions, decode_lengths, teacher_forcing)
-                #state_embs=extras.get("states")
-                self.datastore.add_with_ids(state_embs, numpy.array(targets, dtype=numpy.int64))
+                _, _, extras = self.context_model(images, contexts, decode_lengths, teacher_forcing)
+                hidden_state=extras.get("hidden_states", None)
+                self.datastore.add_with_ids(hidden_state, numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
 
@@ -661,9 +708,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         # print("this is nearest train images", nearest_targets, distances)
         # print("targt", targets)
 
-
         # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
-        
         # print("retrieve for test query", nearest_targets, distances)
         print(stop)
 
