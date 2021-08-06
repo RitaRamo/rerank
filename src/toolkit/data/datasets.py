@@ -415,9 +415,9 @@ class ContextLSTMRetrieval():
             else:
                 _, _, extras = self.context_model(images, contexts, decode_lengths, teacher_forcing)
                 hidden_state=extras.get("hidden_states", None)
-                hidden_states_last_step = hidden_state[decode_lengths]
+                hidden_states_last_step = hidden_state[:,decode_lengths,:]
                 print("hidden_states_last_step decode leg", hidden_states_last_step)
-                print("hidden_states_last_step after", hidden_states_last_step[decode_lengths+1])
+                print("hidden_states_last_step after", hidden_states_last_step[:,decode_lengths+1,:])
                 self.datastore.add_with_ids(hidden_state, numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
