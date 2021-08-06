@@ -178,12 +178,8 @@ class CaptioningDecoder(nn.Module):
                 alphas[incomplete_sequences_ixs, t, :] = alphas_for_timestep[incomplete_sequences_ixs]
 
             h_1,c_1, h_2, c_2=states
-            print("states h2 cp",h_2.size())
-
-            print("scores_for_timestep", scores_for_timestep.size())
 
             hidden_states[incomplete_sequences_ixs, t, :] = c_2[incomplete_sequences_ixs]
-            print("hidden_states",hidden_states.size())
 
         extras = {'alphas': alphas, "hidden_states": hidden_states}
 

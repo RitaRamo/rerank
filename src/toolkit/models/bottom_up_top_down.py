@@ -105,8 +105,6 @@ class TopDownDecoder(CaptioningDecoder):
         v_mean = encoder_output.mean(dim=1)
         h1, c1, h2, c2 = states
 
-        print("h2 size", h2.size())
-
         h1, c1 = self.attention_lstm(h1, c1, h2, v_mean, prev_word_embeddings)
         v_hat = self.attention(encoder_output, h1)
         h2, c2 = self.language_lstm(h2, c2, h1, v_hat)
