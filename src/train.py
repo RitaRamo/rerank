@@ -421,11 +421,11 @@ def main(args):
  
         
         model_args="""
-        butd_context
+        butd
         """
 
-        args=check_model_args(model_args)
-        context_model = BUTDModel(args)
+        context_args=check_model_args(model_args)
+        context_model = BUTDModel(context_args)
         print("self con", context_model)
         
         image_retrieval = get_context_lstm_retrieval(create=True, context_model=context_model, retrieval_data_loader=train_context_retrieval_loader)
