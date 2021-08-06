@@ -313,7 +313,7 @@ class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
     PyTorch training dataset that provides batches of images with a corresponding caption each.
     """
 
-    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1, max_caption_len=20):
+    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1, max_caption_len=30):
         super().__init__(dataset_splits_dir, features_fn,
                          normalize, features_scale_factor)
 
@@ -588,7 +588,7 @@ class Scale(object):
     return imresize(img.numpy().transpose(1,2,0), (224,224))
 
 
-def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, workers, image_normalize=None,max_caption_len=20):
+def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, workers, image_normalize=None):
 
     if not image_normalize:
         normalize = None
@@ -626,7 +626,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
 
     elif split == "context_retrieval_lstm":
         data_loader = torch.utils.data.DataLoader(
-                CaptionTrainContextLSTMRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor, max_caption_len),
+                CaptionTrainContextLSTMRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
                 batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
             )
 
