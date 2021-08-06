@@ -646,8 +646,10 @@ def get_context_retrieval(create, retrieval_data_loader=None):
         ind_batch=torch.arange(0, nearest_targets.size()[0]).reshape(-1,1)
         softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
         softmax_nearest = softmax_nearest.sum(1)
-        print("softmax_nearest argmax", softmax_nearest.argmax(dim=0))
-        print("softmax_nearest max", softmax_nearest.max(dim=0))
+        print("topk", softmax_nearest.topk(largest=True, sorted=True))
+        print("softmax_nearest argmax 0", len(softmax_nearest.argmax(dim=0)))
+        print("softmax_nearest argmax 1", len(softmax_nearest.argmax(dim=1)))
+        print("softmax_nearest max", softmax_nearest.max(dim=1)
 
         # image_retrieval.datastore.nprobe= 50
         # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
@@ -675,7 +677,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
 def get_context_lstm_retrieval(create, context_model, retrieval_data_loader=None):
 
     encoder_output_dim = 1024 #faster r-cnn features
-    image_retrieval = ContextLstmRetrieval(encoder_output_dim, context_model)
+    image_retrieval = ContextLSTMRetrieval(encoder_output_dim, context_model)
 
     if create:
         image_retrieval.train_retrieval(retrieval_data_loader)
