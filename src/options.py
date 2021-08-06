@@ -29,6 +29,11 @@ def check_args(args):
     parsed_args = parser.parse_args(args)
     return parsed_args
 
+def check_model_args(args):
+    parser = argparse.ArgumentParser()
+    add_model_args(parser)
+    parsed_args = parser.parse_args(args)
+    return parsed_args
 
 def add_training_args(parser):
     group = parser.add_argument_group("Training")
