@@ -6,6 +6,7 @@ from toolkit.models.bottom_up_top_down import BUTDModel
 from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
 from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
 from toolkit.models.bottom_up_top_down_context import BUTDContextModel
+from toolkit.models.bottom_up_top_down_context_lstm import BUTDContextLSTMModel
 from toolkit.models.bottom_up_top_down_ranking import BUTRModel
 from toolkit.models.bottom_up_top_down_ranking_mean import BUTRMeanModel
 from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
@@ -13,7 +14,8 @@ from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
 abbr2class = {"sat": SATModel, "butd": BUTDModel, "butr": BUTRModel,
               "butr_mean": BUTRMeanModel, "butr_weight": BUTRWeightModel,
               "butd_retrieval": BUTDRetrievalModel,
-              "butd_context": BUTDContextModel}
+              "butd_context": BUTDContextModel,
+              "butd_context_lstm": BUTDContextLSTMModel}
 
 
 def check_args(args):

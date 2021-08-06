@@ -21,7 +21,7 @@ from toolkit.models.bottom_up_top_down_ranking_weight import BUTRWeightModel
 from toolkit.models.bottom_up_top_down_retrieval import BUTDRetrievalModel
 from toolkit.models.bottom_up_top_down_context import BUTDContextModel
 from toolkit.models.show_attend_tell import SATModel
-from toolkit.data.datasets import get_data_loader, get_retrieval, get_context_retrieval
+from toolkit.data.datasets import get_data_loader, get_retrieval, get_context_retrieval, get_context_lstm_retrieval
 from toolkit.optim import create_optimizer
 from toolkit.criterions import create_criterion, create_regularizer
 from toolkit.utils import (
@@ -42,7 +42,8 @@ from toolkit.utils import (
     OBJECTIVE_JOINT,
     # OBJECTIVE_MULTI,
     TOKEN_PAD,
-    MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT
+    MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT,
+    MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT_LSTM
 )
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -55,7 +56,7 @@ abbr2name = {
     "butr_weight": MODEL_BOTTOM_UP_TOP_DOWN_RANKING_WEIGHT,
     "butd_retrieval": MODEL_BOTTOM_UP_TOP_DOWN_RETRIEVAL, 
     "butd_context": MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT, 
-
+    "butd_context_lstm": MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT, 
 }
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -80,6 +81,8 @@ def build_model(args, model_name):
         model = BUTDRetrievalModel(args, device)
     elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
         model = BUTDContextModel(args, device)
+    elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT_LSTM:
+        model = BUTDContextLSTMModel(args, device)
     return model
 
 
@@ -409,6 +412,13 @@ def main(args):
                                         0, args.image_normalize)
  
         image_retrieval = get_context_retrieval(create=True, retrieval_data_loader=train_context_retrieval_loader)
+        target_lookup= image_retrieval.targets_of_dataloader
+
+    elif abbr2name[args.model] == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT_LSTM:
+        train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
+                                        0, args.image_normalize)
+ 
+        image_retrieval = get_context_lstm_retrieval(create=True, retrieval_data_loader=train_context_retrieval_loader)
         target_lookup= image_retrieval.targets_of_dataloader
         
     else:
