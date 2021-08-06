@@ -420,11 +420,11 @@ def main(args):
                                         0, args.image_normalize)
  
         
-        context_model_args=['butd']
-        print("entrei")
-        context_args=check_model_args(context_model_args)
-        context_model = BUTDModel(context_args)
-        print("self con", context_model)
+        # context_model_args=['butd']
+        # context_args=check_model_args(context_model_args)
+        # context_model = BUTDModel(context_args)
+
+        context_model = BUTDModel(args)
         
         image_retrieval = get_context_lstm_retrieval(create=True, context_model=context_model, retrieval_data_loader=train_context_retrieval_loader)
         target_lookup= image_retrieval.targets_of_dataloader
