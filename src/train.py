@@ -591,6 +591,7 @@ def main(args):
 
 
 if __name__ == "__main__":
+    print("sys.argv[1:]",sys.argv[1:])
     args = check_args(sys.argv[1:])
     print("args", args)
     #logging.basicConfig(filename=get_log_file_path(args.logging_dir, "train"), level=logging.INFO)
