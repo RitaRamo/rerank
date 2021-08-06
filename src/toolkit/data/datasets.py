@@ -353,10 +353,10 @@ class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
         len_context =len(context)
 
         context = context + [self.word_map[TOKEN_PAD]] * (self.max_caption_len - len_context)
-        print("context", context)
+        #print("context", context)
         target=self.all_targets[i] 
         #gc.collect()
-        return image, context, numpy.array(len_context), numpy.array(target)
+        return image, numpy.array(context), numpy.array(len_context), numpy.array(target)
 
     def __len__(self):
         return len(self.all_images)
