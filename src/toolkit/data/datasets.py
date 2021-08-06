@@ -32,7 +32,8 @@ from toolkit.utils import (
     TRAIN_CONTEXT_IMAGES_FILENAME,
     TRAIN_CONTEXT_FILENAME,
     TRAIN_TARGETS_FILENAME,
-    IMAGES_NAMES_FILENAME
+    IMAGES_NAMES_FILENAME,
+    TOKEN_PAD
 )
 
 class CaptionDataset(Dataset):
@@ -312,7 +313,7 @@ class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
     PyTorch training dataset that provides batches of images with a corresponding caption each.
     """
 
-    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1):
+    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1, max_caption_len=20):
         super().__init__(dataset_splits_dir, features_fn,
                          normalize, features_scale_factor)
 
@@ -337,6 +338,8 @@ class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
         with open(word_map_filename) as f:
             self.word_map = json.load(f)     
 
+        self.max_caption_len =max_caption_len
+
         # with open(images_names) as f:
         #     self.images_name = json.load(f)
         # self.enc_model = SentenceTransformer('clip-ViT-B-32')
@@ -346,11 +349,14 @@ class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
         coco_id=self.all_images[i]
         image = self.get_image_features(coco_id) #32, 2048
         #image = self.enc_model.encode(Image.open(self.images_dir+self.images_name[coco_id]))
-        context=[self.word_map[w] for w in self.all_contexts[i].split()]
+        context=[self.word_map[w] for w in self.all_contexts[i].split()] 
+        len_context =len(context)
+
+        context = context + [self.word_map[TOKEN_PAD]] * (self.max_caption_len - len_context)
         print("context", context)
         target=self.all_targets[i] 
         #gc.collect()
-        return image, context, numpy.array(len(context)), numpy.array(target)
+        return image, context, numpy.array(len_context), numpy.array(target)
 
     def __len__(self):
         return len(self.all_images)
@@ -582,7 +588,7 @@ class Scale(object):
     return imresize(img.numpy().transpose(1,2,0), (224,224))
 
 
-def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, workers, image_normalize=None):
+def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, workers, image_normalize=None,max_caption_len=20):
 
     if not image_normalize:
         normalize = None
@@ -620,7 +626,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
 
     elif split == "context_retrieval_lstm":
         data_loader = torch.utils.data.DataLoader(
-                CaptionTrainContextLSTMRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
+                CaptionTrainContextLSTMRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor, max_caption_len),
                 batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
             )
 

@@ -417,7 +417,7 @@ def main(args):
 
     elif abbr2name[args.model] == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT_LSTM:
         train_context_retrieval_loader = get_data_loader("context_retrieval_lstm", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
-                                        0, args.image_normalize)
+                                        0, args.image_normalize, args.max_caption_len)
  
         
         # context_model_args=['butd']
