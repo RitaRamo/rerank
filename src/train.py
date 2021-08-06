@@ -420,11 +420,9 @@ def main(args):
                                         0, args.image_normalize)
  
         
-        model_args="""
-        butd
-        """
-
-        context_args=check_model_args(model_args)
+        context_model_args="butd"
+        print("entrei")
+        context_args=check_model_args(context_model_args)
         context_model = BUTDModel(context_args)
         print("self con", context_model)
         
