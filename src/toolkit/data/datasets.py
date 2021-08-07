@@ -313,7 +313,7 @@ class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
     PyTorch training dataset that provides batches of images with a corresponding caption each.
     """
 
-    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1, max_caption_len=30):
+    def __init__(self, dataset_splits_dir, features_fn, normalize=None, features_scale_factor=1, max_caption_len=35):
         super().__init__(dataset_splits_dir, features_fn,
                          normalize, features_scale_factor)
 
