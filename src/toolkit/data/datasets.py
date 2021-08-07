@@ -415,7 +415,7 @@ class ContextLSTMRetrieval():
             else:
                 _, _, extras = self.context_model(images, contexts, decode_lengths, teacher_forcing)
                 hidden_state=extras.get("hidden_states", None)
-                self.datastore.add_with_ids(hidden_state.numpy(), numpy.array(targets, dtype=numpy.int64))
+                self.datastore.add_with_ids(hidden_state.detach().numpy(), numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
 
