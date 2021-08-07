@@ -733,7 +733,7 @@ def get_context_retrieval(create, retrieval_data_loader=None):
 
 def get_context_lstm_retrieval(create, context_model, retrieval_data_loader=None):
 
-    encoder_output_dim = 1024 #faster r-cnn features
+    encoder_output_dim = 1000 #faster r-cnn features
     image_retrieval = ContextLSTMRetrieval(encoder_output_dim, context_model)
 
     if create:
