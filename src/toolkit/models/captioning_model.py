@@ -125,7 +125,7 @@ class CaptioningDecoder(nn.Module):
         # Tensors to hold word prediction scores and alphas
         scores = torch.zeros((batch_size, max(decode_lengths), self.vocab_size), device=device)
         alphas = torch.zeros(batch_size, max(decode_lengths), encoder_output.size(1), device=device)
-        hidden_states = torch.zeros(batch_size, max(decode_lengths), self.language_lstm.lstm_cell.hidden_size, device=device)
+        hidden_states = torch.zeros(batch_size, self.language_lstm.lstm_cell.hidden_size, device=device)
 
         # FOR MULTITASK
         if self.training and target_captions is not None:
@@ -162,6 +162,8 @@ class CaptioningDecoder(nn.Module):
 
             # Check if all sequences are finished:
             incomplete_sequences_ixs = torch.nonzero(decode_lengths > t).view(-1)
+            complete_sequences_ixs = torch.nonzero(decode_lengths < t).view(-1)
+
             if len(incomplete_sequences_ixs) == 0:
                 break
 
@@ -179,7 +181,7 @@ class CaptioningDecoder(nn.Module):
 
             h_1,c_1, h_2, c_2=states
 
-            hidden_states[incomplete_sequences_ixs, t, :] = c_2[incomplete_sequences_ixs]
+            hidden_states[complete_sequences_ixs, :] = h_2[complete_sequences_ixs]
 
         extras = {'alphas': alphas, "hidden_states": hidden_states}
 
