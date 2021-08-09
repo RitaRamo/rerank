@@ -426,7 +426,7 @@ def main(args):
 
         context_model = BUTDModel(args)
         context_model = context_model.to(device)
-        checkpoint = torch.load("experiments/butd_ebug/checkpoints/checkpoint.best.pth.tar", map_location=lambda storage, loc: storage)
+        checkpoint = torch.load("experiments/butd_ebug/checkpoints/checkpoint.best.pth.tar", map_location="cpu")
         context_model.decoder.load_state_dict(checkpoint["model"].decoder.state_dict())
         image_retrieval = get_context_lstm_retrieval(create=True, context_model=context_model, retrieval_data_loader=train_context_retrieval_loader)
         target_lookup= image_retrieval.targets_of_dataloader
