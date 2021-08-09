@@ -116,6 +116,8 @@ class CaptioningDecoder(nn.Module):
         if device is None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+        print("device", device)
+
         batch_size = encoder_output.size(0)
 
         # Flatten image
