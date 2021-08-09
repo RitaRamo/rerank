@@ -413,9 +413,9 @@ class ContextLSTMRetrieval():
                     self.datastore.add_with_ids(all_images_and_text_context, all_targets)
                     start_training = False
             else:
-                _, _, extras = self.context_model(images.to("cuda"), contexts.to("cuda"), decode_lengths.to("cuda"), teacher_forcing)
+                _, _, extras = self.context_model(images, contexts, decode_lengths, teacher_forcing)
                 hidden_state=extras.get("hidden_states", None)
-                self.datastore.add_with_ids(hidden_state.detach().cpu().numpy(), numpy.array(targets, dtype=numpy.int64))
+                self.datastore.add_with_ids(hidden_state.detach().numpy(), numpy.array(targets, dtype=numpy.int64))
         
             gc.collect()
 
@@ -627,7 +627,7 @@ def get_data_loader(split, batch_size, dataset_splits_dir, image_features_fn, wo
     elif split == "context_retrieval_lstm":
         data_loader = torch.utils.data.DataLoader(
                 CaptionTrainContextLSTMRetrievalDataset(dataset_splits_dir, image_features_fn, normalize, features_scale_factor),
-                batch_size=64, shuffle=True, num_workers=0, pin_memory=False
+                batch_size=5000, shuffle=True, num_workers=0, pin_memory=False
             )
 
     else:
