@@ -104,7 +104,7 @@ class CaptioningDecoder(nn.Module):
         return next_words
 
     def forward(self, encoder_output, target_captions=None, decode_lengths=None,
-                teacher_forcing=0.0, mask_prob=0.0, mask_type=None, target_lookup=None, image_retrieval=None):
+                teacher_forcing=0.0, mask_prob=0.0, mask_type=None, target_lookup=None, image_retrieval=None, device=None):
         """
         Forward propagation.
 
@@ -113,6 +113,8 @@ class CaptioningDecoder(nn.Module):
         :param decode_lengths: caption lengths, shape: (batch_size, 1)
         :return: scores for vocabulary, decode lengths, weights
         """
+        if device is None:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         batch_size = encoder_output.size(0)
 
