@@ -17,13 +17,13 @@ class CaptioningEncoderDecoderModel(nn.Module):
         self.decoder = None
 
     def forward(self, images, encoded_captions=None, caption_lengths=None,
-                teacher_forcing=0.0, mask_prob=0.0, mask_type=None, target_lookup=None, image_retrieval=None):
+                teacher_forcing=0.0, mask_prob=0.0, mask_type=None, target_lookup=None, image_retrieval=None, device=None):
         if self.encoder:
             encoder_out = self.encoder(images)
         else:
             encoder_out = images
         decoder_out = self.decoder(encoder_out, encoded_captions, caption_lengths,
-                                   teacher_forcing, mask_prob, mask_type, target_lookup, image_retrieval)
+                                   teacher_forcing, mask_prob, mask_type, target_lookup, image_retrieval, device)
         return decoder_out
 
     def forward_multi(self, images, encoded_captions=None, caption_lengths=None,
