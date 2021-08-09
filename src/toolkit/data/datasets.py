@@ -349,7 +349,7 @@ class CaptionTrainContextLSTMRetrievalDataset(CaptionDataset):
         coco_id=self.all_images[i]
         image = self.get_image_features(coco_id) #32, 2048
         #image = self.enc_model.encode(Image.open(self.images_dir+self.images_name[coco_id]))
-        context=[self.word_map[w] for w in self.all_contexts[i].split()] 
+        context=[self.word_map[w] for w in self.all_contexts[i].split()][:self.max_caption_len]
         len_context =len(context)
 
         context = context + [self.word_map[TOKEN_PAD]] * (self.max_caption_len - len_context)
