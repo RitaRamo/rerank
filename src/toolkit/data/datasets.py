@@ -235,14 +235,14 @@ class ContextRetrieval():
 
     def __init__(self, dim_examples, nlist = 10000, m = 8):
         self.dim_examples=dim_examples
-        #quantizer = faiss.IndexFlatL2(dim_examples)
+        quantizer = faiss.IndexFlatL2(dim_examples)
         #self.datastore = faiss.IndexIVFPQ(quantizer, dim_examples, nlist, m, 8)
-        #self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
+        self.datastore = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
         
         #sub_index = faiss.IndexIVFFlat(quantizer, dim_examples, nlist)
         #pca_matrix = faiss.PCAMatrix (dim_examples, 1024, 0, True) 
         #self.datastore = faiss.IndexPreTransform(pca_matrix, sub_index)
-        #self.datastore.nprobe = 16
+        self.datastore.nprobe = 16
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
@@ -252,9 +252,9 @@ class ContextRetrieval():
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
-        start_training=False
+        start_training=True
 
-        max_to_fit_in_memory =4000000
+        max_to_fit_in_memory =5000000
         
         all_images_and_text_context=numpy.ones((max_to_fit_in_memory,self.dim_examples), dtype=numpy.float32)
         all_targets=numpy.ones((max_to_fit_in_memory), dtype=numpy.int64)
