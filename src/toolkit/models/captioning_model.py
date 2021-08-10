@@ -97,9 +97,6 @@ class CaptioningDecoder(nn.Module):
             use_teacher_forcing = False
 
         if use_teacher_forcing:
-            print("target_words", target_words)
-            print("t", t)
-
             next_words = target_words[:, t + 1]
         else:
             next_words = torch.argmax(scores, dim=1)
@@ -180,7 +177,6 @@ class CaptioningDecoder(nn.Module):
                 self.forward_step(encoder_output, prev_words_embedded, states)
 
             # Update the previously predicted words
-            print("decode_lengths",decode_lengths)
             prev_words = self.update_previous_word(scores_for_timestep, target_clones, t, teacher_forcing)
 
             scores[incomplete_sequences_ixs, t, :] = scores_for_timestep[incomplete_sequences_ixs]
