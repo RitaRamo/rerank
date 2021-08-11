@@ -685,46 +685,34 @@ def get_context_retrieval(create, retrieval_data_loader=None):
     else:
         image_retrieval.datastore = faiss.read_index("/media/rprstorage2/context_retrieval")
 
-    for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
-        print("targt", targets)
-        images = images.mean(dim=1).numpy()
-        enc_contexts=image_retrieval.sentence_model.encode(contexts)
-        images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
+    # for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
+    #     print("targt", targets)
+    #     images = images.mean(dim=1).numpy()
+    #     enc_contexts=image_retrieval.sentence_model.encode(contexts)
+    #     images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
           
-        #nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+    #     #nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
+    #     nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
 
-        print("this is nearest train images", nearest_targets)#, distances)
+    #     print("this is nearest train images", nearest_targets)#, distances)
 
-        print("targt", targets)
-        softmax = nn.Softmax()
+    #     print("targt", targets)
+    #     softmax = nn.Softmax()
 
-        softmax_nearest = torch.zeros(nearest_targets.size()[0], 16,10004)
-        nearest_probs = softmax(-1.*torch.tensor(distances))
-        print("nearest_probs",nearest_probs)
-        ind=torch.arange(0, 16).expand(softmax_nearest.size(0), -1)
-        ind_batch=torch.arange(0, nearest_targets.size()[0]).reshape(-1,1)
-        softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
-        softmax_nearest = softmax_nearest.sum(1)
-        print("topk", softmax_nearest.topk(4,largest=True, sorted=True))
-        print("softmax_nearest argmax 0", len(softmax_nearest.argmax(dim=0)))
-        print("softmax_nearest argmax 1", len(softmax_nearest.argmax(dim=1)))
-        print("softmax_nearest max", softmax_nearest.max(dim=1))
-        print("targt", targets)
+    #     softmax_nearest = torch.zeros(nearest_targets.size()[0], 16,10004)
+    #     nearest_probs = softmax(-1.*torch.tensor(distances))
+    #     print("nearest_probs",nearest_probs)
+    #     ind=torch.arange(0, 16).expand(softmax_nearest.size(0), -1)
+    #     ind_batch=torch.arange(0, nearest_targets.size()[0]).reshape(-1,1)
+    #     softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
+    #     softmax_nearest = softmax_nearest.sum(1)
+    #     print("topk", softmax_nearest.topk(4,largest=True, sorted=True))
+    #     print("softmax_nearest argmax 0", len(softmax_nearest.argmax(dim=0)))
+    #     print("softmax_nearest argmax 1", len(softmax_nearest.argmax(dim=1)))
+    #     print("softmax_nearest max", softmax_nearest.max(dim=1))
+    #     print("targt", targets)
 
-        # image_retrieval.datastore.nprobe= 50
-        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        # print("this is nearest train images", nearest_targets, distances)
-        # print("targt", targets)
-
-        # image_retrieval.datastore.nprobe= 100
-        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        # print("this is nearest train images", nearest_targets, distances)
-        # print("targt", targets)
-
-        # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
-        # print("retrieve for test query", nearest_targets, distances)
-        print(stop)
+    #     print(stop)
 
     # print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
