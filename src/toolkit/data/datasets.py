@@ -244,7 +244,7 @@ class ContextRetrieval():
         #self.datastore = faiss.IndexPreTransform(pca_matrix, sub_index)
         self.datastore.nprobe = 16
 
-        self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
+        #self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
 
         self.sentence_model = SentenceTransformer('paraphrase-TinyBERT-L6-v2')
         #'paraphrase-distilroberta-base-v1')
