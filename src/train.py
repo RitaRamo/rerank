@@ -412,7 +412,7 @@ def main(args):
         train_context_retrieval_loader = get_data_loader("context_retrieval", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
                                         0, args.image_normalize)
  
-        image_retrieval = get_context_retrieval(create=True, retrieval_data_loader=train_context_retrieval_loader)
+        image_retrieval = get_context_retrieval(create=False, retrieval_data_loader=train_context_retrieval_loader)
         target_lookup= image_retrieval.targets_of_dataloader
 
     elif abbr2name[args.model] == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT_LSTM:
@@ -426,7 +426,7 @@ def main(args):
 
         context_model = BUTDModel(args)
         context_model = context_model.to(device)
-        checkpoint = torch.load("experiments/butd_ebug/checkpoints/checkpoint.best.pth.tar",  map_location=torch.device('cpu'))
+        checkpoint = torch.load("experiments/butd_ebug/checkpoints/checkpoint.best.pth.tar",  map_location='cpu')
         context_model.decoder.load_state_dict(checkpoint["model"].decoder.state_dict())
         context_model.to("cpu")
         image_retrieval = get_context_lstm_retrieval(create=True, context_model=context_model, retrieval_data_loader=train_context_retrieval_loader)
