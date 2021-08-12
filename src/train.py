@@ -413,7 +413,7 @@ def main(args):
                                         0, args.image_normalize)
  
         image_retrieval = get_context_retrieval(create=False, retrieval_data_loader=train_context_retrieval_loader)
-        target_lookup= image_retrieval.targets_of_dataloader
+        target_lookup= None #image_retrieval.targets_of_dataloader
 
     elif abbr2name[args.model] == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT_LSTM:
         train_context_retrieval_loader = get_data_loader("context_retrieval_lstm", args.batch_size, args.dataset_splits_dir, args.image_features_filename,
