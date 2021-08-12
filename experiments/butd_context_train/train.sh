@@ -7,7 +7,7 @@ MODEL_SUFF="_context_train"
 DATA_DIR="data/coco2014"
 IMGS_DIR="$DATA_DIR/images"
 CAPS_DIR="$DATA_DIR/datasets"
-CKPT_DIR="experiments/${MODEL_ABBR}${MODEL_SUFF}/checkpoints/"
+CKPT_DIR="/media/rprstorage2/experiments/${MODEL_ABBR}${MODEL_SUFF}/checkpoints/"
 LOG_DIR="myfirstlog"
 
 mkdir -p $CKPT_DIR $LOG_DIR
