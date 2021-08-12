@@ -24,7 +24,7 @@ cudnn.benchmark = True  # improve performance if inputs to model are fixed size
 
 def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, output_path,
              max_caption_len, beam_size, eval_beam_size, re_ranking, keep_special_tokens, nucleus_sampling_size,
-             visualize, print_beam, print_captions, eval_retrieved=False, args=None):
+             visualize, print_beam, print_captions, eval_retrieved=False, args=None, k_near=5):
     # Load model
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
@@ -122,7 +122,7 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
 
             elif model_name == MODEL_BOTTOM_UP_TOP_DOWN_CONTEXT:
                  top_k_generated_captions, alphas, beam = beam_search_context(
-                    model, image_features, beam_size,
+                    model, image_features, beam_size,k_near,
                     max_caption_len=max_caption_len,
                     store_alphas=visualize,
                     store_beam=store_beam,
@@ -253,6 +253,8 @@ def check_args(args):
                         help="Print the generated captions for every sample")
     parser.add_argument("--eval_retrieved", default=False, action="store_true",
                         help="Eval retrieved caps")
+    parser.add_argument("--k_near", type=int, default=5,
+                        help="k neigh")
 
     add_model_args(parser)
 
@@ -284,5 +286,6 @@ if __name__ == "__main__":
         print_beam=args.print_beam,
         print_captions=args.print_captions,
         eval_retrieved = args.eval_retrieved,
-        args=args
+        args=args,
+        k_near=args.k_near, 
     )

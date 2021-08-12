@@ -26,7 +26,7 @@ def get_retrieved_caption(images, image_retrieval, target_lookup, cocos_id, imag
     print(stop)
     return [caption_of_nearest_image], None, None
 
-def beam_search_context(model, images, beam_size, max_caption_len=20, 
+def beam_search_context(model, images, beam_size, k_near, max_caption_len=20, 
                 store_alphas=False, store_beam=False, print_beam=False, image_retrieval=None, target_lookup=None):
     """Generate and return the top k sequences using beam search."""
 
@@ -73,7 +73,7 @@ def beam_search_context(model, images, beam_size, max_caption_len=20,
         predictions, states, alpha = model.decoder.forward_step(encoder_output, prev_word_embeddings, states)
         
         #print("encod out", encoder_output.size())
-        scores = model.decoder.interpolate(predictions, encoder_output, prev_words, image_retrieval, target_lookup)
+        scores = model.decoder.interpolate(predictions, encoder_output, prev_words, image_retrieval, target_lookup, k_neighbours=k_near)
 
 #        print('predictions', predictions.size())
         #(predictions, _), states, alpha = model.decoder.forward_multi_step(encoder_output, prev_word_embeddings, states)
