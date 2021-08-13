@@ -122,7 +122,7 @@ class CaptioningDecoder(nn.Module):
         encoder_output = encoder_output.view(batch_size, -1, encoder_output.size(-1))
 
         # Initialize LSTM state
-        states = self.init_hidden_states(encoder_output)
+        states = self.init_hidden_states(encoder_output, context_retrieval)
 
         # Tensors to hold word prediction scores and alphas
         scores = torch.zeros((batch_size, max(decode_lengths), self.vocab_size), device=device)

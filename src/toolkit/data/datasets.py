@@ -378,6 +378,7 @@ class ContextLSTMRetrieval():
 
         self.datastore = faiss.IndexIDMap(faiss.IndexFlatL2(dim_examples))
         self.context_model = context_model 
+        self.context_model.eval()
 
     def train_retrieval(self, train_dataloader_images):
         print("starting training")
@@ -437,64 +438,6 @@ class ContextLSTMRetrieval():
 
         # print("the nearest input", nearest_input)
         return nearest_input, D
-
-
-
-# class ContextRetrieval():
-
-#     def __init__(self, dim_examples, train_dataloader_images, device):
-#         #print("self dim exam", dim_examples)
-#         self.datastore = faiss.IndexFlatL2(dim_examples) #datastore
-
-#         #data
-#         self.device=device
-#         self.targets_of_dataloader = torch.tensor([]).long().to(device)
-#         #print("self.imgs_indexes_of_dataloader type", self.imgs_indexes_of_dataloader)
-
-#         #print("len img dataloader", self.imgs_indexes_of_dataloader.size())
-#         self._add_examples(train_dataloader_images)
-#         #print("len img dataloader final", self.imgs_indexes_of_dataloader.size())
-#         #print("como ficou img dataloader final", self.imgs_indexes_of_dataloader)
-
-
-#     def _add_examples(self, train_dataloader_images):
-#         print("\nadding input examples to datastore (retrieval)")
-#         for i, (encoder_text_outputs, targets) in enumerate(train_dataloader_images):
-#             #add to the datastore
-#             print("enc tex", encoder_text_outputs.squeeze(0))
-#             print("enc tex", encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
-
-#             self.datastore.add(encoder_text_outputs.squeeze(0).numpy().astype(dtype=numpy.float32, copy=False))
-#             targets = torch.tensor(targets).to(self.device)
-#             self.targets_of_dataloader= torch.cat((self.targets_of_dataloader,targets))
-
-#             if i%5==0:
-#                 print("i and img index of ImageRetrival", i, self.targets_of_dataloader)
-#                 print("n of examples", self.datastore.ntotal)
-    
-#     def retrieve_nearest_for_train_query(self, query_img, k=2):
-#         #print("self query img", query_img)
-#         D, I = self.datastore.search(query_img, k)     # actual search
-#         # print("all nearest", I)
-#         # print("I firt", I[:,0])
-#         # print("I second", I[:,1])
-
-#         # print("if you choose the first", self.imgs_indexes_of_dataloader[I[:,0]])
-#         # print("this is the img indexes", self.imgs_indexes_of_dataloader)
-#         # print("n of img index", len(self.imgs_indexes_of_dataloader))
-#         # print("n of examples", self.datastore.ntotal)
-
-#         nearest_input = self.targets_of_dataloader[I[:,1]]
-#         #print("the nearest input is actual the second for training", nearest_input)
-#         return nearest_input
-
-#     def retrieve_nearest_for_val_or_test_query(self, query_img, k=1):
-#         D, I = self.datastore.search(query_img, k)     # actual search
-#         nearest_input = self.targets_of_dataloader[I[:,0]]
-#         # print("all nearest", I)
-#         # print("the nearest input", nearest_input)
-#         return nearest_input
-
 
 class CaptionTrainRetrievalDataset(CaptionDataset):
 
@@ -737,35 +680,34 @@ def get_context_lstm_retrieval(create, context_model, retrieval_data_loader=None
     else:
         image_retrieval.datastore = faiss.read_index("/media/rprstorage2/context_lstm_retrieval")
 
-    for i, (images, contexts, targets) in enumerate(retrieval_data_loader):
-        print("targt", targets)
-        images = images.mean(dim=1).numpy()
-        enc_contexts=image_retrieval.sentence_model.encode(contexts)
-        #images_and_text_context = numpy.concatenate((images,enc_contexts), axis=-1) #(n_contexts, 2048 + 768)
-          
-        #nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(enc_contexts)
+        for i, (images, contexts, decode_lengths, targets) in enumerate(retrieval_data_loader):
+            print("targt", targets)
 
-        print("this is nearest train images", nearest_targets, distances)
+            teacher_forcing=True
+            _, _, extras=image_retrieval.sentence_model.encode(images, contexts, decode_lengths, teacher_forcing, device="cpu")
+            hidden_state=extras.get("hidden_states", None)
+            
+            nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(hidden_state.numpy())
 
-        print("targt", targets)
+            print("this is nearest train images", nearest_targets)#, distances)
 
-        # image_retrieval.datastore.nprobe= 50
-        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        # print("this is nearest train images", nearest_targets, distances)
-        # print("targt", targets)
+            print("targt", targets)
+            softmax = nn.Softmax()
 
-        # image_retrieval.datastore.nprobe= 100
-        # nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(images_and_text_context)
-        # print("this is nearest train images", nearest_targets, distances)
-        # print("targt", targets)
+            softmax_nearest = torch.zeros(nearest_targets.size()[0], 16,10004)
+            nearest_probs = softmax(-1.*torch.tensor(distances))
+            print("nearest_probs",nearest_probs)
+            ind=torch.arange(0, 16).expand(softmax_nearest.size(0), -1)
+            ind_batch=torch.arange(0, nearest_targets.size()[0]).reshape(-1,1)
+            softmax_nearest[ind_batch, ind,nearest_targets] = nearest_probs
+            softmax_nearest = softmax_nearest.sum(1)
+            print("topk", softmax_nearest.topk(4,largest=True, sorted=True))
+            print("softmax_nearest argmax 0", len(softmax_nearest.argmax(dim=0)))
+            print("softmax_nearest argmax 1", len(softmax_nearest.argmax(dim=1)))
+            print("softmax_nearest max", softmax_nearest.max(dim=1))
+            print("targt", targets)
 
-
-        # nearest_targets, distances = image_retrieval.retrieve_nearest_for_val_or_test_query(images_and_text_context)
-        
-        # print("retrieve for test query", nearest_targets, distances)
-        print(stop)
-
+            print(stop)
     # print("stop remove from dataloader o VAL e coloca TRAIN", stop)
 
     #faiss.write_index(image_retrieval.datastore, "/media/jlsstorage/rita/context_retrieval")
