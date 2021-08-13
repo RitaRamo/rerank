@@ -21,7 +21,7 @@ args="""
 	--max-caption-len 20 \
 	--beam-size 3 \
 	--eval-beam-size 3 \
-	--k_near 64
+	--k_near 16
 """
 
 model_args="""
