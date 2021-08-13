@@ -156,6 +156,7 @@ class CaptioningDecoder(nn.Module):
                 target_clones[tochange_ixs, mask_tag_ixs+2] = word_ix
 
         for t in range(max(decode_lengths)):
+            print("\nt", t)
 
             if not self.training:
                 # Find all sequences where an <end> token has been produced in the last timestep
@@ -169,7 +170,7 @@ class CaptioningDecoder(nn.Module):
             # Check if all sequences are finished:
             incomplete_sequences_ixs = torch.nonzero(decode_lengths > t).view(-1)
             complete_sequences_ixs = torch.nonzero(decode_lengths <= t).view(-1)
-            print("\ncomplete_sequences_ixs", complete_sequences_ixs)
+            print("complete_sequences_ixs", complete_sequences_ixs)
 
             if len(incomplete_sequences_ixs) == 0:
                 break
