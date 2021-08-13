@@ -169,8 +169,7 @@ class CaptioningDecoder(nn.Module):
 
             # Check if all sequences are finished:
             incomplete_sequences_ixs = torch.nonzero(decode_lengths > t).view(-1)
-            complete_sequences_ixs = torch.nonzero(decode_lengths <= t).view(-1)
-            print("complete_sequences_ixs", complete_sequences_ixs)
+            
 
             if len(incomplete_sequences_ixs) == 0:
                 break
@@ -188,6 +187,9 @@ class CaptioningDecoder(nn.Module):
                 alphas[incomplete_sequences_ixs, t, :] = alphas_for_timestep[incomplete_sequences_ixs]
 
             h_1,c_1, h_2, c_2=states
+
+            complete_sequences_ixs = torch.nonzero(decode_lengths <= (t-1)).view(-1)
+            print("complete_sequences_ixs", complete_sequences_ixs)
 
             hidden_states[complete_sequences_ixs, :] = h_2[complete_sequences_ixs]
             print("hidden_states", hidden_states)
