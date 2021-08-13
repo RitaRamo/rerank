@@ -115,6 +115,8 @@ class CaptioningDecoder(nn.Module):
         """
         print("decode_lengths", decode_lengths)
         print("target_captions",target_captions)
+        decode_lengths_corresponding_t_index=decode_lengths-1
+        print("decode_lengths_corresponding_t_index",decode_lengths_corresponding_t_index)
         if device is None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -188,7 +190,7 @@ class CaptioningDecoder(nn.Module):
 
             h_1,c_1, h_2, c_2=states
             print("t-1", (t-1))
-            complete_sequences_ixs = torch.nonzero(decode_lengths <= (t-1)).view(-1)
+            complete_sequences_ixs = torch.nonzero(decode_lengths_corresponding_t_index <= t).view(-1)
             print("complete_sequences_ixs", complete_sequences_ixs)
 
             hidden_states[complete_sequences_ixs, :] = h_2[complete_sequences_ixs]
