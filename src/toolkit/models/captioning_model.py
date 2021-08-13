@@ -187,7 +187,7 @@ class CaptioningDecoder(nn.Module):
                 alphas[incomplete_sequences_ixs, t, :] = alphas_for_timestep[incomplete_sequences_ixs]
 
             h_1,c_1, h_2, c_2=states
-
+            print("t-1", (t-1))
             complete_sequences_ixs = torch.nonzero(decode_lengths <= (t-1)).view(-1)
             print("complete_sequences_ixs", complete_sequences_ixs)
 
