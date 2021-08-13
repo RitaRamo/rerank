@@ -24,7 +24,7 @@ args="""
 """
 
 model_args="""
-butd_context
+butd_context_lstm
 """
 
 #source activate /envs/syncap
