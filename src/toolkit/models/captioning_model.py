@@ -113,6 +113,8 @@ class CaptioningDecoder(nn.Module):
         :param decode_lengths: caption lengths, shape: (batch_size, 1)
         :return: scores for vocabulary, decode lengths, weights
         """
+        print("decode_lengths", decode_lengths)
+        print("target_captions",target_captions)
         if device is None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -166,7 +168,8 @@ class CaptioningDecoder(nn.Module):
 
             # Check if all sequences are finished:
             incomplete_sequences_ixs = torch.nonzero(decode_lengths > t).view(-1)
-            complete_sequences_ixs = torch.nonzero(decode_lengths < t).view(-1)
+            complete_sequences_ixs = torch.nonzero(decode_lengths <= t).view(-1)
+            print("\ncomplete_sequences_ixs", complete_sequences_ixs)
 
             if len(incomplete_sequences_ixs) == 0:
                 break
@@ -186,7 +189,9 @@ class CaptioningDecoder(nn.Module):
             h_1,c_1, h_2, c_2=states
 
             hidden_states[complete_sequences_ixs, :] = h_2[complete_sequences_ixs]
+            print("hidden_states", hidden_states)
 
+        print(stop)
         extras = {'alphas': alphas, "hidden_states": hidden_states}
 
         return scores, decode_lengths, extras
