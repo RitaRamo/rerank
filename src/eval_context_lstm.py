@@ -10,6 +10,7 @@ from torch import nn
 import torch.optim
 import torch.utils.data
 import torch.backends.cudnn as cudnn
+from toolkit.models.bottom_up_top_down import BUTDModel
 
 from toolkit.data.datasets import get_data_loader, get_retrieval, get_context_lstm_retrieval
 from toolkit.util.analysis.visualize_attention import visualize_attention
@@ -56,8 +57,12 @@ def evaluate(image_features_fn, dataset_splits_dir, split, checkpoint_path, outp
         
         train_context_retrieval_loader = get_data_loader("context_retrieval_lstm", 10, args.dataset_splits_dir, args.image_features_filename,
                                         0, args.image_normalize)
-        image_retrieval = get_context_lstm_retrieval(create=False, retrieval_data_loader=train_context_retrieval_loader)
-
+        context_model = BUTDModel(args)
+        context_model = context_model.to(device)
+        checkpoint = torch.load("experiments/butd_ebug/checkpoints/checkpoint.best.pth.tar",  map_location='cpu')
+        context_model.decoder.load_state_dict(checkpoint["model"].decoder.state_dict())
+        context_model.to("cpu")
+        image_retrieval = get_context_lstm_retrieval(create=False, context_model=context_model, retrieval_data_loader=train_context_retrieval_loader)
         target_lookup=None
         
     else:
