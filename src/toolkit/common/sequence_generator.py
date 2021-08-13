@@ -63,7 +63,7 @@ def beam_search_context(model, images, beam_size, k_near, max_caption_len=20,
     beam = []
 
     # Initialize hidden states
-    states = model.decoder.init_hidden_states(encoder_output, image_retrieval, target_lookup)
+    states = model.decoder.init_hidden_states(encoder_output, image_retrieval) #, target_lookup)
 
     # Start decoding
     for step in range(0, max_caption_len - 1):
