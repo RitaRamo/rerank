@@ -171,6 +171,7 @@ class CaptioningDecoder(nn.Module):
 
             # Check if all sequences are finished:
             incomplete_sequences_ixs = torch.nonzero(decode_lengths > t).view(-1)
+            print("decode leng", decode_lengths)
             print("decode_lengths > t", decode_lengths > t)
             print("incomplete_sequences_ixs",incomplete_sequences_ixs)
 
