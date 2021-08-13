@@ -687,7 +687,7 @@ def get_context_lstm_retrieval(create, context_model, retrieval_data_loader=None
             _, _, extras=image_retrieval.context_model(images, contexts, decode_lengths, teacher_forcing, device="cpu")
             hidden_state=extras.get("hidden_states", None)
             
-            nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(hidden_state.numpy())
+            nearest_targets, distances=image_retrieval.retrieve_nearest_for_train_query(hidden_state.detach().numpy())
 
             print("this is nearest train images", nearest_targets)#, distances)
 
