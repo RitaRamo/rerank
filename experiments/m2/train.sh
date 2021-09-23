@@ -9,7 +9,7 @@ CKPT_DIR="experiments/${MODEL_ABBR}${MODEL_SUFF}/checkpoints/"
 LOG_DIR="myfirstlog"
 
 IMGS_DIR="$DATA_DIR/images/coco_detections.hdf5"
-ANNS_DIR="$DATA_DIR/coco2014/annotations"
+ANNS_DIR="$DATA_DIR/annotations"
 
 mkdir -p $CKPT_DIR $LOG_DIR
 
