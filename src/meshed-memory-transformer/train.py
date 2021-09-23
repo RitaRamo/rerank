@@ -166,6 +166,7 @@ def train_scst(model, dataloader, optim, cider, text_field, seq_len=20, beam_siz
 
 
 if __name__ == '__main__':
+    print("Hi")
     device = torch.device('cuda')
     parser = argparse.ArgumentParser(description='Meshed-Memory Transformer')
     parser.add_argument('--exp_name', type=str, default='m2_transformer')
@@ -225,7 +226,7 @@ if __name__ == '__main__':
     optim = Adam(model.parameters(), lr=1, betas=(0.9, 0.98))
     scheduler = LambdaLR(optim, lambda_lr)
     loss_fn = NLLLoss(ignore_index=text_field.vocab.stoi['<pad>'])
-    use_rl = False
+    use_rl = True
     best_cider = .0
     patience = 0
     start_epoch = 0
@@ -266,12 +267,13 @@ if __name__ == '__main__':
             train_loss = train_xe(model, dataloader_train, optim, text_field)
             writer.add_scalar('data/train_loss', train_loss, e)
         else:
+            print("entrei no reward baseline")
             train_loss, reward, reward_baseline = train_scst(model, dict_dataloader_train, optim, cider_train, text_field, \
                                                              args.max_len, args.beam_size, args.beam_size)
             writer.add_scalar('data/train_loss', train_loss, e)
             writer.add_scalar('data/reward', reward, e)
             writer.add_scalar('data/reward_baseline', reward_baseline, e)
-
+            print(stop)
         # Validation loss
         val_loss = evaluate_loss(model, dataloader_val, loss_fn, text_field)
         writer.add_scalar('data/val_loss', val_loss, e)
