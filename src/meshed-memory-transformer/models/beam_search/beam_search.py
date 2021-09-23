@@ -28,6 +28,7 @@ class BeamSearch(object):
             print("self.b_s",self.b_s)
             print("self.b_s",self.b_s)
             print("shape[1:])", shape[1:])
+            print("index0", ([self.b_s, self.beam_size] + shape[1:]))
 
             print("index", np.dtype(*([self.b_s, self.beam_size] + shape[1:])[0]))
 
