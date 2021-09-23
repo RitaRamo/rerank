@@ -29,7 +29,7 @@ class BeamSearch(object):
             print("self.b_s",self.b_s)
             print("shape[1:])", shape[1:])
 
-            print("index", np.dtype(*([self.b_s, self.beam_size] + shape[1:])))
+            print("index", np.dtype(*([self.b_s, self.beam_size] + shape[1:]))[0])
 
             s = torch.gather(s.view(*([self.b_s, cur_beam_size] + shape[1:])), 1,
                              beam.expand(*([self.b_s, self.beam_size] + shape[1:])))
