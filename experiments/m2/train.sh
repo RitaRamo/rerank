@@ -15,7 +15,7 @@ mkdir -p $CKPT_DIR $LOG_DIR
 
 train_args="""
 	--exp_name ${MODEL_NAME}${MODEL_SUFF} \
-  --batch_size 2 \
+  --batch_size 10 \
   --m 40 \
   --head 8 \
   --warmup 10000 \
