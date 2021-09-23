@@ -23,6 +23,11 @@ class BeamSearch(object):
             beam = selected_beam
             for _ in shape[1:]:
                 beam = beam.unsqueeze(-1)
+            print("self.beam_size",self.beam_size)
+            print("self.b_s",self.b_s)
+            print("self.b_s",self.b_s)
+            print("shape[1:])", shape[1:])
+
             s = torch.gather(s.view(*([self.b_s, cur_beam_size] + shape[1:])), 1,
                              beam.expand(*([self.b_s, self.beam_size] + shape[1:])))
             s = s.view(*([-1, ] + shape[1:]))
