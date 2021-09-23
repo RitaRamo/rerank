@@ -8,7 +8,7 @@ CAPS_DIR="$DATA_DIR/datasets"
 CKPT_DIR="experiments/${MODEL_ABBR}${MODEL_SUFF}/checkpoints/"
 LOG_DIR="myfirstlog"
 
-IMGS_DIR="$DATA_DIR/images/coco_detections.hdf5"
+IMGS_DIR="$DATA_DIR/images/image_features.hdf5"
 ANNS_DIR="$DATA_DIR/annotations"
 
 mkdir -p $CKPT_DIR $LOG_DIR
