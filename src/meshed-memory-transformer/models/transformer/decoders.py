@@ -97,4 +97,6 @@ class MeshedDecoder(Module):
             out = l(out, encoder_output, mask_queries, mask_self_attention, mask_encoder)
 
         out = self.fc(out)
+        print("out", out)
+        print("F.log_softmax(out, dim=-1)", F.log_softmax(out, dim=-1))
         return F.log_softmax(out, dim=-1)
