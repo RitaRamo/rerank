@@ -135,6 +135,7 @@ def train_scst(model, dataloader, optim, cider, text_field, seq_len=20, beam_siz
     with tqdm(desc='Epoch %d - train' % e, unit='it', total=len(dataloader)) as pbar:
         for it, (detections, caps_gt) in enumerate(dataloader):
             detections = detections.to(device)
+            beam_size=1
             outs, log_probs = model.beam_search(detections, seq_len, text_field.vocab.stoi['<end>'],
                                                 beam_size, out_size=eval_beam_size)
             optim.zero_grad()

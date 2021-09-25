@@ -70,10 +70,14 @@ class BeamSearch(object):
         return visual
 
     def apply(self, visual: utils.TensorOrSequence, out_size=1, return_probs=False, **kwargs):
+        print("apply here")
         self.b_s = utils.get_batch_size(visual)
+        print("self.b_s", self.b_s)
         self.device = utils.get_device(visual)
         self.seq_mask = torch.ones((self.b_s, self.beam_size, 1), device=self.device)
+        print(" self.seq_mask",  self.seq_mask)
         self.seq_logprob = torch.zeros((self.b_s, 1, 1), device=self.device)
+        print("self.seq_logprob", self.seq_logprob)
         self.log_probs = []
         self.selected_words = None
         if return_probs:
@@ -83,9 +87,12 @@ class BeamSearch(object):
         with self.model.statefulness(self.b_s):
             for t in range(self.max_len):
                 visual, outputs = self.iter(t, visual, outputs, return_probs, **kwargs)
-
+                print("visual", visual)
+                print("outputs", outputs)
         # Sort result
         seq_logprob, sort_idxs = torch.sort(self.seq_logprob, 1, descending=True)
+        print("seq_logprob", seq_logprob)
+        print("sort_idxs", sort_idxs)
         outputs = torch.cat(outputs, -1)
         outputs = torch.gather(outputs, 1, sort_idxs.expand(self.b_s, self.beam_size, self.max_len))
         log_probs = torch.cat(self.log_probs, -1)
