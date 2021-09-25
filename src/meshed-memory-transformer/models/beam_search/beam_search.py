@@ -117,7 +117,11 @@ class BeamSearch(object):
 
     def select(self, t, candidate_logprob, **kwargs):
         selected_logprob, selected_idx = torch.sort(candidate_logprob.view(self.b_s, -1), -1, descending=True)
+        print("selected_logprob", selected_logprob)
+        print("selected_idx", selected_idx)
         selected_logprob, selected_idx = selected_logprob[:, :self.beam_size], selected_idx[:, :self.beam_size]
+        print("selected_idx", selected_idx)
+        print("selected_logprob", selected_logprob)
         return selected_idx, selected_logprob
 
     def iter(self, t: int, visual: utils.TensorOrSequence, outputs, return_probs, **kwargs):
@@ -126,6 +130,8 @@ class BeamSearch(object):
 
         word_logprob = self.model.step(t, self.selected_words, visual, None, mode='feedback', **kwargs)
         print("word_logprob", word_logprob)
+        print("word_logprob extender", word_logprob[0,:100])
+
         word_logprob = word_logprob.view(self.b_s, cur_beam_size, -1)
         print("word_logprob", word_logprob)
         candidate_logprob = self.seq_logprob + word_logprob
