@@ -21,16 +21,21 @@ class BeamSearch(object):
     def _expand_state(self, selected_beam, cur_beam_size):
         def fn(s):
             shape = [int(sh) for sh in s.shape]
+            print("shape", shape)
             beam = selected_beam
+            print("beam", beam)
+
             for _ in shape[1:]:
                 beam = beam.unsqueeze(-1)
+            print("beam again", beam)
             print("self.beam_size",self.beam_size)
             print("self.b_s",self.b_s)
-            print("self.b_s",self.b_s)
+            print("cur_beam_size",cur_beam_size)
             print("shape[1:])", shape[1:])
+            print("index 0", [self.b_s, cur_beam_size] + shape[1:])
             print("index0", ([self.b_s, self.beam_size] + shape[1:]))
-
-            print("index", np.dtype(*([self.b_s, self.beam_size] + shape[1:])[0]))
+            print("s.view(*([self.b_s, cur_beam_size] + shape[1:]))", s.view(*([self.b_s, cur_beam_size] + shape[1:])))
+            print("other", beam.expand(*([self.b_s, self.beam_size] + shape[1:])))
 
             s = torch.gather(s.view(*([self.b_s, cur_beam_size] + shape[1:])), 1,
                              beam.expand(*([self.b_s, self.beam_size] + shape[1:])))
