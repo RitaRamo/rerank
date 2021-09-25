@@ -36,7 +36,6 @@ class BeamSearch(object):
             print("index0", ([self.b_s, self.beam_size] + shape[1:]))
             print("s.view(*([self.b_s, cur_beam_size] + shape[1:]))", s.view(*([self.b_s, cur_beam_size] + shape[1:])))
             print("other", beam.expand(*([self.b_s, self.beam_size] + shape[1:])))
-            print("beam.expand(*([self.b_s, self.beam_size] + shape[1:])", ([self.b_s, self.beam_size] + shape[1:]).long())
 
             s = torch.gather(s.view(*([self.b_s, cur_beam_size] + shape[1:])), 1,
                              beam.expand(*([self.b_s, self.beam_size] + shape[1:])))
