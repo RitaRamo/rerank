@@ -85,6 +85,7 @@ class BeamSearch(object):
 
         outputs = []
         with self.model.statefulness(self.b_s):
+            print("entrei no statefulness")
             for t in range(self.max_len):
                 visual, outputs = self.iter(t, visual, outputs, return_probs, **kwargs)
                 print("visual", visual)
@@ -120,24 +121,36 @@ class BeamSearch(object):
         return selected_idx, selected_logprob
 
     def iter(self, t: int, visual: utils.TensorOrSequence, outputs, return_probs, **kwargs):
+        print("self iter")
         cur_beam_size = 1 if t == 0 else self.beam_size
 
         word_logprob = self.model.step(t, self.selected_words, visual, None, mode='feedback', **kwargs)
+        print("word_logprob", word_logprob)
         word_logprob = word_logprob.view(self.b_s, cur_beam_size, -1)
+        print("word_logprob", word_logprob)
         candidate_logprob = self.seq_logprob + word_logprob
-
+        print("candidate_logprob", candidate_logprob)
         # Mask sequence if it reaches EOS
         if t > 0:
             mask = (self.selected_words.view(self.b_s, cur_beam_size) != self.eos_idx).float().unsqueeze(-1)
+            print("mask", mask)
             self.seq_mask = self.seq_mask * mask
+            print("self.seq_mask", self.seq_mask)
             word_logprob = word_logprob * self.seq_mask.expand_as(word_logprob)
+            print("word_logprob", word_logprob)
             old_seq_logprob = self.seq_logprob.expand_as(candidate_logprob).contiguous()
+            print("old_seq_logprob", old_seq_logprob)
             old_seq_logprob[:, :, 1:] = -999
+            print("old_seq_logprob", old_seq_logprob)
             candidate_logprob = self.seq_mask * candidate_logprob + old_seq_logprob * (1 - self.seq_mask)
-
+            print("candidate_logprob", candidate_logprob)
         selected_idx, selected_logprob = self.select(t, candidate_logprob, **kwargs)
+        print("selected_idx", selected_idx)
+        print("selected_logprob", selected_logprob)
         selected_beam = selected_idx / candidate_logprob.shape[-1]
         selected_words = selected_idx - selected_beam * candidate_logprob.shape[-1]
+        print("selected_beam", selected_beam)
+        print("selected_words", selected_words)
 
         self.model.apply_to_states(self._expand_state(selected_beam, cur_beam_size))
         visual = self._expand_visual(visual, cur_beam_size, selected_beam)
