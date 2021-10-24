@@ -41,7 +41,12 @@ class BeamSearch(object):
 
             s = torch.gather(s.view(*([self.b_s, cur_beam_size] + shape[1:])), 1,
                              beam.expand(*([self.b_s, self.beam_size] + shape[1:])).long())
+            print("this is s", s)
+            print("this is s", s.size())
+
             s = s.view(*([-1, ] + shape[1:]))
+            print("this is s.size(", s.size())
+
             return s
 
         return fn
@@ -167,11 +172,18 @@ class BeamSearch(object):
 
         self.model.apply_to_states(self._expand_state(selected_beam, cur_beam_size))
         visual = self._expand_visual(visual, cur_beam_size, selected_beam)
-
+        print("this is visual", visual)
+        print("this is visual size", visual.size())
         self.seq_logprob = selected_logprob.unsqueeze(-1)
+        print("seq log prog", self.seq_logprob)
+        print("self.seq_mask before", self.seq_mask)
         self.seq_mask = torch.gather(self.seq_mask, 1, selected_beam.unsqueeze(-1))
+        print("self seq mask after gather", self.seq_mask)
         outputs = list(torch.gather(o, 1, selected_beam.unsqueeze(-1)) for o in outputs)
+        print("outputs lists", outputs)
+        
         outputs.append(selected_words.unsqueeze(-1))
+        print("outputs", outputs)
 
         if return_probs:
             if t == 0:
@@ -182,10 +194,26 @@ class BeamSearch(object):
         this_word_logprob = torch.gather(word_logprob, 1,
                                          selected_beam.unsqueeze(-1).expand(self.b_s, self.beam_size,
                                                                             word_logprob.shape[-1]))
+        print("this is word log prob", this_word_logprob)
+        print("this is word log prob size", this_word_logprob.size())
+
+        
         this_word_logprob = torch.gather(this_word_logprob, 2, selected_words.unsqueeze(-1))
+        
+        print("this is word log prob aftter", this_word_logprob)
+        print("this is word log prob aftter size", this_word_logprob.size())
+
         self.log_probs = list(
             torch.gather(o, 1, selected_beam.unsqueeze(-1).expand(self.b_s, self.beam_size, 1)) for o in self.log_probs)
-        self.log_probs.append(this_word_logprob)
-        self.selected_words = selected_words.view(-1, 1)
+        
+        print("self.log_probs", self.log_prob)
+        print("self.log_probs", self.log_prob.size())
 
+        self.log_probs.append(this_word_logprob)
+        
+        print("self.log_probs with word log prob", self.log_prob)
+        print("self.log_probs with word log prob", self.log_prob.size())
+
+        self.selected_words = selected_words.view(-1, 1)
+        print("selected words",self.selected_words)
         return visual, outputs
