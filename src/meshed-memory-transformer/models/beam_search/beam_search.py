@@ -19,6 +19,8 @@ class BeamSearch(object):
         self.all_log_probs = None
 
     def _expand_state(self, selected_beam, cur_beam_size):
+        print("\n\n _expand_state")
+
         def fn(s):
             shape = [int(sh) for sh in s.shape]
             print("shape", shape)
@@ -70,12 +72,12 @@ class BeamSearch(object):
         return visual
 
     def apply(self, visual: utils.TensorOrSequence, out_size=1, return_probs=False, **kwargs):
-        print("apply here")
+        print("\n\n function apply")
         self.b_s = utils.get_batch_size(visual)
-        print("self.b_s", self.b_s)
+        print("self.b_s batch size", self.b_s)
         self.device = utils.get_device(visual)
         self.seq_mask = torch.ones((self.b_s, self.beam_size, 1), device=self.device)
-        print(" self.seq_mask",  self.seq_mask)
+        print("self.seq_mask",  self.seq_mask)
         self.seq_logprob = torch.zeros((self.b_s, 1, 1), device=self.device)
         print("self.seq_logprob", self.seq_logprob)
         self.log_probs = []
@@ -116,6 +118,8 @@ class BeamSearch(object):
             return outputs, log_probs
 
     def select(self, t, candidate_logprob, **kwargs):
+        print("\n\nfunction select")
+        
         selected_logprob, selected_idx = torch.sort(candidate_logprob.view(self.b_s, -1), -1, descending=True)
         print("selected_logprob", selected_logprob)
         print("selected_idx", selected_idx)
@@ -125,15 +129,18 @@ class BeamSearch(object):
         return selected_idx, selected_logprob
 
     def iter(self, t: int, visual: utils.TensorOrSequence, outputs, return_probs, **kwargs):
-        print("self iter")
+        print("\n\nfunction iter")
         cur_beam_size = 1 if t == 0 else self.beam_size
 
         word_logprob = self.model.step(t, self.selected_words, visual, None, mode='feedback', **kwargs)
-        print("word_logprob", word_logprob)
+        print("\nword_logprob", word_logprob)
         print("word_logprob extender", word_logprob[0,:100])
+        print("\nword_logprob size(", word_logprob.size())
 
         word_logprob = word_logprob.view(self.b_s, cur_beam_size, -1)
-        print("word_logprob", word_logprob)
+        print("word_logprob after view", word_logprob.size())
+        print("word_logprob after view", word_logprob)
+
         candidate_logprob = self.seq_logprob + word_logprob
         print("candidate_logprob", candidate_logprob)
         # Mask sequence if it reaches EOS
